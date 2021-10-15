@@ -1,0 +1,3 @@
+node_modules/
+package-lock.json
+./node_modules/electron/dist/Electron.app/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework
