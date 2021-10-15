@@ -45,13 +45,28 @@ function createMainWindow() {
     // renderer process requesting login to register new user
     ipcMain.on('register-login-request', (e, args) => {
       console.log(args);
-      e.sender.send('register-login-response', 'Incorrect username or password!');
+      const { username, password } = args;
+      let response
+      if (username === 'admin' && password === 'admin') {
+        response = {status: 200, data: {username}}
+        loginModal.hide();
+        redirectToNewPage('register');
+      }
+      else {
+        response = {status: 401, message: 'Incorrect username or password!'};
+      }
+      e.sender.send('register-login-response', response);
     });
 
   });
 
-  // mainWindow.webContents.openDevTools();
-  loginModal.webContents.openDevTools();
+  mainWindow.webContents.openDevTools();
+  // loginModal.webContents.openDevTools();
+}
+
+
+function redirectToNewPage(page) {
+  mainWindow.webContents.send('redirect-page', page);
 }
 
 

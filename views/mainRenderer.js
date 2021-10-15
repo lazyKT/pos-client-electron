@@ -1,5 +1,6 @@
 /** renderer file for main.html */
 const { ipcRenderer } = require('electron');
+const { redirectToAdminPannel } = require('./helper.js');
 
 // DOM nodes
 const registerUser = document.getElementById("register");
@@ -13,6 +14,11 @@ registerUser.addEventListener('click', () => {
   sendIpcMsgToMain('login', 'register');
 })
 
+
+ipcRenderer.on('redirect-page', async response => {
+  console.log(response);
+  await redirectToAdminPannel('user-register');
+});
 
 
 /* send ip message to main process */

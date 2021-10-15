@@ -1,5 +1,6 @@
-console.log('external login scripts');
+// console.log('external login scripts');
 const { ipcRenderer } = require('electron');
+// const { redirectToAdminPannel } = require('./helper.js');
 
 // DOM nodes
 const username = document.getElementById('username');
@@ -47,10 +48,18 @@ loginButton.addEventListener('click', (e) => {
 })
 
 // handle login response from main process
-ipcRenderer.on('register-login-response', (e, response) => {
+ipcRenderer.on('register-login-response', async (e, response) => {
   console.log(response);
+  if (!response)
+    showErrorMessage('Internal Server Error!');
+  else if (response.status === 401)
+    showErrorMessage(response.message);
+  else if (response.status === 200) {
+    // await redirectToAdminPannel('user-register');
+  }
+  else
+    showErrorMessage('Unknown Error!');
   toggleModalButtons(true);
-  showErrorMessage(response);
 });
 
 cancelButton.addEventListener('click', () => {
