@@ -8,6 +8,7 @@ function createMainWindow() {
     width: 1000,
     height: 800,
     webPreferences: {
+      contextIsolation: false,
       nodeIntegration: true
     }
   });

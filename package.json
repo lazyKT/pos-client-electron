@@ -14,5 +14,13 @@
   "devDependencies": {
     "electron": "^15.2.0",
     "nodemon": "^2.0.13"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lazyKT/pos-client-electron.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lazyKT/pos-client-electron/issues"
+  },
+  "homepage": "https://github.com/lazyKT/pos-client-electron#readme"
 }
