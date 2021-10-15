@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 
 let mainWindow
 
@@ -13,9 +13,45 @@ function createMainWindow() {
     }
   });
 
-  mainWindow.loadFile('views/main.html');
+  const loginModal = new BrowserWindow({
+    width: 400,
+    height: 500,
+    parent: mainWindow,
+    modal: true,
+    show: false,
+    webPreferences: {
+      contextIsolation: false,
+      nodeIntegration: true
+    }
+  });
 
-  mainWindow.webContents.openDevTools();
+  mainWindow.loadFile('views/main.html');
+  loginModal.loadFile('views/login.html');
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    // listen for ipc message from renderer process
+    ipcMain.on('login', (e, arg) => {
+      console.log('Open Login Modal!');
+      loginModal.show();
+    });
+
+
+    ipcMain.on('dismiss-login-modal', () => {
+      console.log('dismiss login modal');
+      loginModal.hide();
+    });
+
+
+    // renderer process requesting login to register new user
+    ipcMain.on('register-login-request', (e, args) => {
+      console.log(args);
+      e.sender.send('register-login-response', 'Incorrect username or password!');
+    });
+
+  });
+
+  // mainWindow.webContents.openDevTools();
+  loginModal.webContents.openDevTools();
 }
 
 
