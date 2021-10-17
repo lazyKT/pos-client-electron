@@ -1,12 +1,14 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 
+const { addUser, loginUser, getAllUsers } = require('./models/user.js')
+
 let mainWindow
-console.log('Testing Git');
+
 
 function createMainWindow() {
 
   mainWindow = new BrowserWindow({
-    width: 1000,
+    width: 800,
     height: 800,
     webPreferences: {
       contextIsolation: false,
@@ -53,22 +55,25 @@ function createMainWindow() {
     ipcMain.on('register-login-request', (e, args) => {
       console.log(args);
       const { username, password } = args;
-      let response
-      if (username === 'admin' && password === 'admin') {
-        response = {status: 200, data: {username}}
+
+      const loginResponse = loginUser({username, password});
+      if (loginResponse.status === 200) {
         loginModal.hide();
         redirectToNewPage('register');
       }
-      else {
-        response = {status: 401, message: 'Incorrect username or password!'};
-      }
-      e.sender.send('register-login-response', response);
+      e.sender.send('register-login-response', loginResponse);
     });
 
     // logout request from Renderer
     ipcMain.on('logout', (e, response) => {
       e.sender.send('logout-response', 200);
     })
+
+    // reponse all users to renderer process
+    ipcMain.handle('get-all-users', (e, _) => {
+      const result = getAllUsers();
+      return result;
+    });
 
   });
 

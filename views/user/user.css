@@ -1,0 +1,59 @@
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0px;
+}
+
+
+.top-header button {
+  width: 100px;
+  border: none;
+  border-radius: 5px;
+  background: dodgerblue;
+  color: white;
+}
+
+
+.top-header button:hover {
+  background: cornflowerblue;
+}
+
+
+.top-header h4 {
+  color: dodgerblue;
+}
+
+
+.box {
+  box-shadow: 1px 1px 1px rgb(0 0 0 / 20%);
+  border-radius: 10px;
+  padding: 20px 5px;
+}
+
+.search-div {
+  display: flex;
+  justify-content: center;
+}
+
+
+.search-div input {
+  padding: 5px 20px;
+  border-radius: 5px;
+  border: 0.6px solid gainsboro;
+  outline-color: dodgerblue;
+}
+
+
+.search-div div {
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+.search-div button {
+  width: 100px;
+  border: none;
+  border-radius: 5px;
+  background: dodgerblue;
+  color: white;
+}

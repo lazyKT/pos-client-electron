@@ -56,6 +56,8 @@ ipcRenderer.on('register-login-response', async (e, response) => {
     showErrorMessage(response.message);
   else if (response.status === 200) {
     // await redirectToAdminPannel('user-register');
+    console.log('Login Successful!')
+    password.value = ''
   }
   else
     showErrorMessage('Unknown Error!');
