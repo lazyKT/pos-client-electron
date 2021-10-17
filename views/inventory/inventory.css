@@ -18,3 +18,11 @@ table {
     z-index: 1; 
     background:lightskyblue; 
 }
+
+.rcorners {
+    border-radius: 25px;
+    border: 2px solid whitesmoke;
+    padding: 20px; 
+    overflow-y: auto;
+    overflow-x: auto;  
+  }
