@@ -1,6 +1,6 @@
 /** renderer file for main.html */
 const { ipcRenderer } = require('electron');
-const { redirectToAdminPannel } = require('./helper.js');
+const { redirectToAdminPannel, logoutToMainMenu } = require('./helper.js');
 
 // DOM nodes
 const registerUser = document.getElementById("register");
@@ -12,6 +12,10 @@ console.log('Renderer JS Running...');
 /* hide contents*/
 contents.style.display = 'none';
 
+
+logout.addEventListener('click', () => {
+  sendIpcMsgToMain('logout', 'logout');
+});
 
 registerUser.addEventListener('click', () => {
   console.log('Register New User!');
@@ -29,6 +33,12 @@ view_inventory.addEventListener('click', () => {
 ipcRenderer.on('redirect-page', async (e, response) => {
   console.log('response', response);
   await redirectToAdminPannel(response);
+});
+
+
+ipcRenderer.on('logout-response', (e, response) => {
+  if (response === 200)
+    logoutToMainMenu();
 });
 
 

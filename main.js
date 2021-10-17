@@ -66,6 +66,11 @@ function createMainWindow() {
       e.sender.send('register-login-response', response);
     });
 
+    // logout request from Renderer
+    ipcMain.on('logout', (e, response) => {
+      e.sender.send('logout-response', 200);
+    })
+
   });
 
   mainWindow.webContents.openDevTools();
