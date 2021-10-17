@@ -28,22 +28,22 @@ function populateUserTable({id, username}) {
   const thirdColumn = row.insertCell(2);
   firstColumn.innerHTML = id;
   secondColumn.innerHTML = username;
-  thirdColumn.innerHTML = '<div class="mx-1"><button>Edit</button>' +
-    '<button class="mx-1">Delete</button></div>'
+  thirdColumn.innerHTML = '<div><button class="mx-1 action-button">Edit</button>' +
+    '<button class="mx-1 action-button">Delete</button></div>'
 }
 
 // if admin user login is successful, redirect into admin pannel
-exports.redirectToAdminPannel = async function redirectToAdminPannel(pannelName) {
+exports.redirectToAdminPannel = function redirectToAdminPannel(pannelName) {
   try {
     mainPage.style.display = 'none';
     contents.style.display = 'block';
     contentTitle.innerText = 'Pharmacy';
     // console.log('state'. document.readyState);
-    if (pannelName === 'register') {
-      fetch('user/user.html')
-        .then(res => res.text())
-        .then(newContent => {
-          console.log('content', newContent);
+    if (pannelName === 'user') {
+      fetch('user/user.html') // fetch
+        .then(res => res.text()) // convert to HTML
+        .then(newContent => { // ready
+          // console.log('content', newContent);
           // console.log('state'. document.readyState);
           newNode = document.createElement('div');
           // registerNode.setAttribute('class', 'container-fluid');
@@ -57,14 +57,44 @@ exports.redirectToAdminPannel = async function redirectToAdminPannel(pannelName)
           console.log(error);
         })
     }
+    else if (pannelName === 'setting') {
+      fetch(`${pannelName}/${pannelName}.html`) // fetch
+        .then(res => res.text()) // convert to HTML
+        .then(newContent => { // ready
+          console.log('content', newContent);
+          // console.log('state'. document.readyState);
+          newNode = document.createElement('div');
+          // registerNode.setAttribute('class', 'container-fluid');
+          newNode.innerHTML = newContent;
+
+          contents.appendChild(newNode);
+          // populateUserTable({id: 4, username: 'admininstrator'});
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    }
     else if(pannelName === 'inventory'){
-      const response = await fetch('inventory/inventory.html');
-      const newcontent = await response.text()
-      console.log(newcontent);
-      contentTitle.innerText = 'My Inventory';
-      const inventoryNode = document.createElement('div');
-      inventoryNode.innerHTML = newcontent;
-      contents.appendChild(inventoryNode);
+      fetch(`${pannelName}/${pannelName}.html`) // fetch
+        .then(res => res.text()) // convert to HTML
+        .then(newContent => { // ready
+          newNode = document.createElement('div');
+          // registerNode.setAttribute('class', 'container-fluid');
+          newNode.innerHTML = newContent;
+
+          contents.appendChild(newNode);
+          // populateUserTable({id: 4, username: 'admininstrator'});
+        })
+        .catch(error => {
+          console.log(error);
+        })
+      // const response = await fetch('inventory/inventory.html');
+      // const newcontent = await response.text()
+      // console.log(newcontent);
+      // contentTitle.innerText = 'My Inventory';
+      // const inventoryNode = document.createElement('div');
+      // inventoryNode.innerHTML = newcontent;
+      // contents.appendChild(inventoryNode);
     }
   }
   catch (error) {

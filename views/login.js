@@ -1,4 +1,4 @@
-// console.log('external login scripts');
+console.log('external login scripts');
 const { ipcRenderer } = require('electron');
 // const { redirectToAdminPannel } = require('./helper.js');
 
@@ -8,6 +8,15 @@ const password = document.getElementById('password');
 const loginButton = document.getElementById('login');
 const cancelButton  = document.getElementById('login-cancel');
 const errorDiv = document.getElementById('error');
+let route = null
+
+
+
+
+// ipcRenderer.on('route-name', (e, routeName) => {
+//   console.log('routeName', routeName);
+//   route = routeName;
+// });
 
 
 function toggleModalButtons(show) {
@@ -42,7 +51,7 @@ loginButton.addEventListener('click', (e) => {
   console.log(username.value, password.value);
   if (username.value === '' || password.value === '')
     return;
-  sendIpcMsgToMain('register-login-request', {username: username.value, password : password.value});
+  sendIpcMsgToMain('login-request', {username: username.value, password : password.value});
 
   toggleModalButtons(false);
 })
