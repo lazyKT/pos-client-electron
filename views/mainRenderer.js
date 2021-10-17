@@ -3,7 +3,8 @@ const { ipcRenderer } = require('electron');
 const { redirectToAdminPannel, logoutToMainMenu } = require('./helper.js');
 
 // DOM nodes
-const registerUser = document.getElementById("register");
+const registerUser = document.getElementById("user");
+const setting = document.getElementById("setting");
 const view_inventory = document.getElementById("inventory")
 const logout = document.getElementById('logout');
 const contents = document.getElementById('contents');
@@ -17,10 +18,17 @@ logout.addEventListener('click', () => {
   sendIpcMsgToMain('logout', 'logout');
 });
 
-registerUser.addEventListener('click', () => {
-  console.log('Register New User!');
+
+setting.addEventListener('click', () => {
+  console.log('Setting!');
   /* request login Modal to register new users */
-  sendIpcMsgToMain('login', 'register');
+  sendIpcMsgToMain('login', 'setting');
+})
+
+registerUser.addEventListener('click', () => {
+  // console.log('Register New User!');
+  /* request login Modal to register new users */
+  sendIpcMsgToMain('login', 'user');
 })
 
 view_inventory.addEventListener('click', () => {
@@ -31,7 +39,7 @@ view_inventory.addEventListener('click', () => {
 
 
 ipcRenderer.on('redirect-page', async (e, response) => {
-  console.log('response', response);
+  console.log('redirect-page', response);
   await redirectToAdminPannel(response);
 });
 
