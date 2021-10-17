@@ -27,9 +27,8 @@ function createMainWindow() {
   });
 
   // mainWindow.loadFile('views/register/register.html');
-  mainWindow.loadFile('views/main.html')
+  mainWindow.loadFile('views/main.html');
   loginModal.loadFile('views/login.html');
-  inventoryWindow.loadFile('views/inventory/inventory.html');
 
   mainWindow.webContents.on('did-finish-load', () => {
     // listen for ipc message from renderer process
@@ -44,7 +43,7 @@ function createMainWindow() {
       loginModal.hide();
     });
 
-    ipcMain.on('inventory', () => {
+    ipcMain.on('inventory', (e, arg) => {
       console.log('My Inventory');
       redirectToNewPage('inventory');
     });

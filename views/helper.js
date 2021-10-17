@@ -24,7 +24,7 @@ exports.redirectToAdminPannel = async function redirectToAdminPannel(pannelName)
       const response = await fetch('inventory/inventory.html');
       const newcontent = await response.text()
       console.log(newcontent);
-
+      contentTitle.innerText = 'My Inventory';
       const inventoryNode = document.createElement('div');
       inventoryNode.innerHTML = newcontent;
       contents.appendChild(inventoryNode);
