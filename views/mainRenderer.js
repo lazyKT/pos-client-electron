@@ -5,6 +5,7 @@ const { redirectToAdminPannel, logoutToMainMenu } = require('./helper.js');
 // DOM nodes
 const registerUser = document.getElementById("user");
 const setting = document.getElementById("setting");
+const view_inventory = document.getElementById("inventory")
 const logout = document.getElementById('logout');
 const contents = document.getElementById('contents');
 
@@ -19,7 +20,7 @@ logout.addEventListener('click', () => {
 
 
 setting.addEventListener('click', () => {
-  // console.log('Register New User!');
+  console.log('Setting!');
   /* request login Modal to register new users */
   sendIpcMsgToMain('login', 'setting');
 })
@@ -28,6 +29,12 @@ registerUser.addEventListener('click', () => {
   // console.log('Register New User!');
   /* request login Modal to register new users */
   sendIpcMsgToMain('login', 'user');
+})
+
+view_inventory.addEventListener('click', () => {
+  console.log('View Inventory');
+  /* request login Modal to register new users */
+  sendIpcMsgToMain('inventory', 'inventory');
 })
 
 

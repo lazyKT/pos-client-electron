@@ -28,7 +28,7 @@ function createMainWindow() {
   });
 
   // mainWindow.loadFile('views/register/register.html');
-  mainWindow.loadFile('views/main.html')
+  mainWindow.loadFile('views/main.html');
   loginModal.loadFile('views/login.html');
 
   mainWindow.webContents.on('did-finish-load', () => {
@@ -46,6 +46,11 @@ function createMainWindow() {
     ipcMain.on('dismiss-login-modal', () => {
       console.log('dismiss login modal');
       loginModal.hide();
+    });
+
+    ipcMain.on('inventory', (e, arg) => {
+      console.log('My Inventory');
+      redirectToNewPage('inventory');
     });
 
 

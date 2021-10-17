@@ -68,12 +68,33 @@ exports.redirectToAdminPannel = function redirectToAdminPannel(pannelName) {
           newNode.innerHTML = newContent;
 
           contents.appendChild(newNode);
-          fetchUsers();
           // populateUserTable({id: 4, username: 'admininstrator'});
         })
         .catch(error => {
           console.log(error);
         })
+    }
+    else if(pannelName === 'inventory'){
+      fetch(`${pannelName}/${pannelName}.html`) // fetch
+        .then(res => res.text()) // convert to HTML
+        .then(newContent => { // ready
+          newNode = document.createElement('div');
+          // registerNode.setAttribute('class', 'container-fluid');
+          newNode.innerHTML = newContent;
+
+          contents.appendChild(newNode);
+          // populateUserTable({id: 4, username: 'admininstrator'});
+        })
+        .catch(error => {
+          console.log(error);
+        })
+      // const response = await fetch('inventory/inventory.html');
+      // const newcontent = await response.text()
+      // console.log(newcontent);
+      // contentTitle.innerText = 'My Inventory';
+      // const inventoryNode = document.createElement('div');
+      // inventoryNode.innerHTML = newcontent;
+      // contents.appendChild(inventoryNode);
     }
   }
   catch (error) {
