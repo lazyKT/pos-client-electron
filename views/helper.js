@@ -4,6 +4,7 @@ const mainPage = document.getElementById('main-container');
 const contents = document.getElementById('contents');
 const contentTitle = document.getElementById('content-title');
 
+let newNode
 
 // if admin user login is successful, redirect into admin pannel
 exports.redirectToAdminPannel = async function redirectToAdminPannel(pannelName) {
@@ -15,11 +16,12 @@ exports.redirectToAdminPannel = async function redirectToAdminPannel(pannelName)
       const newContent = await response.text()
       console.log(newContent);
       contentTitle.innerText = 'Register New Users';
-      const registerNode = document.createElement('div');
+      newNode = document.createElement('div');
       // registerNode.setAttribute('class', 'container-fluid');
-      registerNode.innerHTML = newContent;
-      contents.appendChild(registerNode);
+      newNode.innerHTML = newContent;
     }
+
+    contents.appendChild(newNode);
   }
   catch (error) {
     console.log(error);
@@ -30,6 +32,7 @@ exports.redirectToAdminPannel = async function redirectToAdminPannel(pannelName)
 exports.logoutToMainMenu = async function logoutToMainMenu() {
   try {
     contents.style.display = 'none';
+    contents.removeChild(newNode);
     mainPage.style.display = 'flex';
   }
   catch (error) {
