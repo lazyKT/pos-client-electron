@@ -2,6 +2,7 @@
 const container = document.getElementById('register-user');
 const mainPage = document.getElementById('main-container');
 const contents = document.getElementById('contents');
+const contentTitle = document.getElementById('content-title');
 
 
 // if admin user login is successful, redirect into admin pannel
@@ -13,7 +14,7 @@ exports.redirectToAdminPannel = async function redirectToAdminPannel(pannelName)
       const response = await fetch('register/register.html');
       const newContent = await response.text()
       console.log(newContent);
-
+      contentTitle.innerText = 'Register New Users';
       const registerNode = document.createElement('div');
       // registerNode.setAttribute('class', 'container-fluid');
       registerNode.innerHTML = newContent;
