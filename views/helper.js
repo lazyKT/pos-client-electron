@@ -1,6 +1,7 @@
 // helper functions
 const { getAllUsers } = require('./requests/userRequests.js');
 
+
 // DOM Nodes
 const container = document.getElementById('register-user');
 const mainPage = document.getElementById('main-container');
@@ -62,9 +63,9 @@ exports.redirectToAdminPannel = async function redirectToAdminPannel(pannelName)
       const newcontent = await response.text()
       console.log(newcontent);
       contentTitle.innerText = 'My Inventory';
-      const inventoryNode = document.createElement('div');
-      inventoryNode.innerHTML = newcontent;
-      contents.appendChild(inventoryNode);
+      newNode = document.createElement('div');
+      newNode.innerHTML = newcontent;
+      contents.appendChild(newNode);
     }
   }
   catch (error) {
