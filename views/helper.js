@@ -28,21 +28,21 @@ function populateUserTable({id, username}) {
   const thirdColumn = row.insertCell(2);
   firstColumn.innerHTML = id;
   secondColumn.innerHTML = username;
-  thirdColumn.innerHTML = '<div class="mx-1"><button>Edit</button>' +
-    '<button class="mx-1">Delete</button></div>'
+  thirdColumn.innerHTML = '<div><button class="mx-1 action-button">Edit</button>' +
+    '<button class="mx-1 action-button">Delete</button></div>'
 }
 
 // if admin user login is successful, redirect into admin pannel
-exports.redirectToAdminPannel = async function redirectToAdminPannel(pannelName) {
+exports.redirectToAdminPannel = function redirectToAdminPannel(pannelName) {
   try {
     mainPage.style.display = 'none';
     contents.style.display = 'block';
     contentTitle.innerText = 'Pharmacy';
     // console.log('state'. document.readyState);
-    if (pannelName === 'register') {
-      fetch('user/user.html')
-        .then(res => res.text())
-        .then(newContent => {
+    if (pannelName === 'user') {
+      fetch('user/user.html') // fetch
+        .then(res => res.text()) // convert to HTML
+        .then(newContent => { // ready
           console.log('content', newContent);
           // console.log('state'. document.readyState);
           newNode = document.createElement('div');

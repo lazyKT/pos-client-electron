@@ -4,7 +4,6 @@ const { addUser, loginUser, getAllUsers } = require('./models/user.js')
 
 let mainWindow
 
-
 function createMainWindow() {
 
   mainWindow = new BrowserWindow({
@@ -33,10 +32,14 @@ function createMainWindow() {
   loginModal.loadFile('views/login.html');
 
   mainWindow.webContents.on('did-finish-load', () => {
+    let routeName
     // listen for ipc message from renderer process
-    ipcMain.on('login', (e, arg) => {
+    ipcMain.on('login', (e, _routeName) => {
       console.log('Open Login Modal!');
       loginModal.show();
+      // send routeName to LoginModal
+      routeName = _routeName;
+      // mainWindow.webContents.send('route-name', routeName);
     });
 
 
@@ -47,14 +50,15 @@ function createMainWindow() {
 
 
     // renderer process requesting login to register new user
-    ipcMain.on('register-login-request', (e, args) => {
+    ipcMain.on('login-request', (e, args) => {
       console.log(args);
-      const { username, password } = args;
+      const { username, password} = args;
 
       const loginResponse = loginUser({username, password});
+      console.log('routeName', routeName);
       if (loginResponse.status === 200) {
         loginModal.hide();
-        redirectToNewPage('register');
+        redirectToNewPage(routeName);
       }
       e.sender.send('register-login-response', loginResponse);
     });

@@ -17,14 +17,14 @@ logout.addEventListener('click', () => {
 });
 
 registerUser.addEventListener('click', () => {
-  console.log('Register New User!');
+  // console.log('Register New User!');
   /* request login Modal to register new users */
-  sendIpcMsgToMain('login', 'register');
+  sendIpcMsgToMain('login', 'user');
 })
 
 
 ipcRenderer.on('redirect-page', async (e, response) => {
-  console.log('response', response);
+  console.log('redirect-page', response);
   await redirectToAdminPannel(response);
 });
 

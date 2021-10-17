@@ -23,6 +23,12 @@ const users = [
     email: 'summer@site.com',
     password: 'summer'
   },
+  {
+    id: 5,
+    username: 'winter',
+    email: 'summer@site.com',
+    password: 'summer'
+  },
 ]
 
 
@@ -37,6 +43,7 @@ exports.addUser = function addUser(user) {
 
 
 exports.loginUser = function login({username, password}) {
+  // get user from usres array
   const user = users.find(u => u.username === username);
   if (user) return {status: 200, data: {username}}
   else return {status: 401, message: 'Incorrect username or password!'}
