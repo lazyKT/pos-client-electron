@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 
 let mainWindow
+console.log('Testing Git');
 
 function createMainWindow() {
 
