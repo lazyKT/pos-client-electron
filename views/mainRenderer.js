@@ -4,6 +4,7 @@ const { redirectToAdminPannel } = require('./helper.js');
 
 // DOM nodes
 const registerUser = document.getElementById("register");
+const view_inventory = document.getElementById("inventory")
 const logout = document.getElementById('logout');
 const contents = document.getElementById('contents');
 
@@ -16,6 +17,12 @@ registerUser.addEventListener('click', () => {
   console.log('Register New User!');
   /* request login Modal to register new users */
   sendIpcMsgToMain('login', 'register');
+})
+
+view_inventory.addEventListener('click', () => {
+  console.log('View Inventory');
+  /* request login Modal to register new users */
+  sendIpcMsgToMain('inventory', 'inventory');
 })
 
 

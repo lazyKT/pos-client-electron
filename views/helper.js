@@ -19,6 +19,15 @@ exports.redirectToAdminPannel = async function redirectToAdminPannel(pannelName)
       registerNode.innerHTML = newContent;
       contents.appendChild(registerNode);
     }
+    else if(pannelName === 'inventory'){
+      const response = await fetch('inventory/inventory.html');
+      const newcontent = await response.text()
+      console.log(newcontent);
+
+      const inventoryNode = document.createElement('div');
+      inventoryNode.innerHTML = newcontent;
+      contents.appendChild(inventoryNode);
+    }
   }
   catch (error) {
     console.log(error);
