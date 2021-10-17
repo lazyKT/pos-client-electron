@@ -13,7 +13,7 @@
   justify-content: center;
   align-items: center;
   flex-flow: column;
-  padding: 10px 0px;
+  padding: 40px 0px;
   color: dodgerblue;
   background: white;
 }
@@ -24,7 +24,7 @@
 }
 
 .menu-item i {
-  font-size: 40px;
+  font-size: 50px;
   width: 100%;
   text-align: center;
 }

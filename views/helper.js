@@ -1,4 +1,7 @@
 // helper functions
+const { getAllUsers } = require('./requests/userRequests.js');
+
+// DOM Nodes
 const container = document.getElementById('register-user');
 const mainPage = document.getElementById('main-container');
 const contents = document.getElementById('contents');
@@ -6,22 +9,51 @@ const contentTitle = document.getElementById('content-title');
 
 let newNode
 
+// fetch users from main process and render in the renderer process
+function fetchUsers() {
+  getAllUsers() // fetch users from main process
+    .then(users => {
+      users.forEach( user => {
+        populateUserTable(user);
+      });
+    })
+    .catch(error => console.log(error));
+}
+
+function populateUserTable({id, username}) {
+  const userTable = document.getElementById('user-table');
+  const row = userTable.insertRow(id);
+  const firstColumn = row.insertCell(0);
+  const secondColumn = row.insertCell(1);
+  firstColumn.innerHTML = id;
+  secondColumn.innerHTML = username;
+}
+
 // if admin user login is successful, redirect into admin pannel
 exports.redirectToAdminPannel = async function redirectToAdminPannel(pannelName) {
   try {
     mainPage.style.display = 'none';
     contents.style.display = 'block';
+    contentTitle.innerText = 'Pharmacy';
+    // console.log('state'. document.readyState);
     if (pannelName === 'register') {
-      const response = await fetch('register/register.html');
-      const newContent = await response.text()
-      console.log(newContent);
-      contentTitle.innerText = 'Register New Users';
-      newNode = document.createElement('div');
-      // registerNode.setAttribute('class', 'container-fluid');
-      newNode.innerHTML = newContent;
-    }
+      fetch('user/user.html')
+        .then(res => res.text())
+        .then(newContent => {
+          console.log('content', newContent);
+          // console.log('state'. document.readyState);
+          newNode = document.createElement('div');
+          // registerNode.setAttribute('class', 'container-fluid');
+          newNode.innerHTML = newContent;
 
-    contents.appendChild(newNode);
+          contents.appendChild(newNode);
+          fetchUsers();
+          // populateUserTable({id: 4, username: 'admininstrator'});
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    }
   }
   catch (error) {
     console.log(error);
