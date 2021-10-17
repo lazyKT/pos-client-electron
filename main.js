@@ -26,7 +26,8 @@ function createMainWindow() {
     }
   });
 
-  mainWindow.loadFile('views/main.html');
+  // mainWindow.loadFile('views/register/register.html');
+  mainWindow.loadFile('views/main.html')
   loginModal.loadFile('views/login.html');
 
   mainWindow.webContents.on('did-finish-load', () => {

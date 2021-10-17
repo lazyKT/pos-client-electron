@@ -32,3 +32,38 @@
 .menu-item p {
   font-weight: bold;
 }
+
+#register-user {
+  font: caption;
+  margin: 0;
+  display: flex;
+  flex-flow: column;
+}
+
+header {
+  background: dodgerblue;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  font-weight: bold;
+  border-bottom: silver;
+  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0,2);
+}
+
+.btn-logout {
+  border: none;
+  border-radius: 5px;
+  padding: 0px 10px;
+  background: white;
+  color: dodgerblue;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100px;
+}
+
+.btn-logout:hover {
+  background: cornflowerblue;
+  color: white;
+}
