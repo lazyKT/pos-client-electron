@@ -4,8 +4,12 @@ const { redirectToAdminPannel } = require('./helper.js');
 
 // DOM nodes
 const registerUser = document.getElementById("register");
+const logout = document.getElementById('logout');
+const contents = document.getElementById('contents');
 
 console.log('Renderer JS Running...');
+/* hide contents*/
+contents.style.display = 'none';
 
 
 registerUser.addEventListener('click', () => {
@@ -15,9 +19,9 @@ registerUser.addEventListener('click', () => {
 })
 
 
-ipcRenderer.on('redirect-page', async response => {
-  console.log(response);
-  await redirectToAdminPannel('user-register');
+ipcRenderer.on('redirect-page', async (e, response) => {
+  console.log('response', response);
+  await redirectToAdminPannel(response);
 });
 
 
