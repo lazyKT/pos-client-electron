@@ -25,8 +25,11 @@ function populateUserTable({id, username}) {
   const row = userTable.insertRow(id);
   const firstColumn = row.insertCell(0);
   const secondColumn = row.insertCell(1);
+  const thirdColumn = row.insertCell(2);
   firstColumn.innerHTML = id;
   secondColumn.innerHTML = username;
+  thirdColumn.innerHTML = '<div class="mx-1"><button>Edit</button>' +
+    '<button class="mx-1">Delete</button></div>'
 }
 
 // if admin user login is successful, redirect into admin pannel
