@@ -43,6 +43,24 @@ exports.redirectToAdminPannel = function redirectToAdminPannel(pannelName) {
       fetch('user/user.html') // fetch
         .then(res => res.text()) // convert to HTML
         .then(newContent => { // ready
+          // console.log('content', newContent);
+          // console.log('state'. document.readyState);
+          newNode = document.createElement('div');
+          // registerNode.setAttribute('class', 'container-fluid');
+          newNode.innerHTML = newContent;
+
+          contents.appendChild(newNode);
+          fetchUsers();
+          // populateUserTable({id: 4, username: 'admininstrator'});
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    }
+    else if (pannelName === 'setting') {
+      fetch(`${pannelName}/${pannelName}.html`) // fetch
+        .then(res => res.text()) // convert to HTML
+        .then(newContent => { // ready
           console.log('content', newContent);
           // console.log('state'. document.readyState);
           newNode = document.createElement('div');
