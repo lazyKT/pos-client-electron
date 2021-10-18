@@ -32,7 +32,7 @@ function fetchItems() {
     .catch(error => console.log(error));
 }
 
-function populateItemTable({id, description, expireDate, quantity}) {
+function populateItemTable({id, description, expireDate, quantity, location}) {
   const itemTable = document.getElementById('item-table');
   const row = itemTable.insertRow(id);
   const firstColumn = row.insertCell(0);
@@ -40,12 +40,14 @@ function populateItemTable({id, description, expireDate, quantity}) {
   const thirdColumn = row.insertCell(2);
   const fourthColumn = row.insertCell(3);
   const fifthColumn = row.insertCell(4);
+  const sixthColumn = row.insertCell(5);
   firstColumn.innerHTML = id;
   secondColumn.innerHTML = description;
   thirdColumn.innerHTML = expireDate;
   fourthColumn.innerHTML = quantity;
-  fifthColumn.innerHTML = '<div><button class="mx-1 action-button">Edit</button>' +
-    '<button class="mx-1 action-button">Delete</button></div>'
+  fifthColumn.innerHTML = location;
+  sixthColumn.innerHTML = '<div><button class="mx-1 action-button">View</button>' +
+    '<button class="mx-1 action-button">Edit</button></div>' 
   
 }
 
@@ -58,7 +60,7 @@ function populateUserTable({id, username}) {
   firstColumn.innerHTML = id;
   secondColumn.innerHTML = username;
   thirdColumn.innerHTML = '<div><button class="mx-1 action-button">Edit</button>' +
-    '<button class="mx-1 action-button">Delete</button></div>'
+    '<button class="mx-1 action-button">Delete</button></div>' 
 }
 
 // if admin user login is successful, redirect into admin pannel
