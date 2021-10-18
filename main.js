@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 
 const { addUser, loginUser, getAllUsers } = require('./models/user.js')
 
+const { addItem, getAllItems } = require('./models/item.js')
+
 let mainWindow
 
 function createMainWindow() {
@@ -48,10 +50,7 @@ function createMainWindow() {
       loginModal.hide();
     });
 
-    ipcMain.on('inventory', (e, arg) => {
-      console.log('My Inventory');
-      redirectToNewPage('inventory');
-    });
+    
 
 
     // renderer process requesting login to register new user
@@ -76,6 +75,13 @@ function createMainWindow() {
     // reponse all users to renderer process
     ipcMain.handle('get-all-users', (e, _) => {
       const result = getAllUsers();
+      return result;
+    });
+
+    //response all items to renderer process
+    ipcMain.handle('get-all-items', (e, _) => {
+      console.log("hi");
+      const result = getAllItems();
       return result;
     });
 

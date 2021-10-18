@@ -1,4 +1,5 @@
 // helper functions
+const { getAllItems } = require('./requests/itemRequests.js');
 const { getAllUsers } = require('./requests/userRequests.js');
 
 
@@ -19,6 +20,33 @@ function fetchUsers() {
       });
     })
     .catch(error => console.log(error));
+}
+
+function fetchItems() {
+  getAllItems() // fetch users from main process
+    .then(items => {
+      items.forEach( item => {
+        populateItemTable(item);
+      });
+    })
+    .catch(error => console.log(error));
+}
+
+function populateItemTable({id, description, expireDate, quantity}) {
+  const itemTable = document.getElementById('item-table');
+  const row = itemTable.insertRow(id);
+  const firstColumn = row.insertCell(0);
+  const secondColumn = row.insertCell(1);
+  const thirdColumn = row.insertCell(2);
+  const fourthColumn = row.insertCell(3);
+  const fifthColumn = row.insertCell(4);
+  firstColumn.innerHTML = id;
+  secondColumn.innerHTML = description;
+  thirdColumn.innerHTML = expireDate;
+  fourthColumn.innerHTML = quantity;
+  fifthColumn.innerHTML = '<div><button class="mx-1 action-button">Edit</button>' +
+    '<button class="mx-1 action-button">Delete</button></div>'
+  
 }
 
 function populateUserTable({id, username}) {
@@ -84,6 +112,7 @@ exports.redirectToAdminPannel = function redirectToAdminPannel(pannelName) {
           newNode.innerHTML = newContent;
 
           contents.appendChild(newNode);
+          fetchItems();
           // populateUserTable({id: 4, username: 'admininstrator'});
         })
         .catch(error => {

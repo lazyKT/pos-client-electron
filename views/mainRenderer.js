@@ -34,7 +34,7 @@ registerUser.addEventListener('click', () => {
 view_inventory.addEventListener('click', () => {
   console.log('View Inventory');
   /* request login Modal to register new users */
-  sendIpcMsgToMain('inventory', 'inventory');
+  sendIpcMsgToMain('login', 'inventory');
 })
 
 
