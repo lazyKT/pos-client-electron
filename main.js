@@ -31,26 +31,35 @@ function createMainWindow() {
   mainWindow.loadFile('views/main.html');
   loginModal.loadFile('views/login.html');
 
+  mainWindow.webContents.openDevTools();
+  // loginModal.webContents.openDevTools();
+
+  // when main window finished loading every dom elements
   mainWindow.webContents.on('did-finish-load', () => {
-    let routeName
-    // listen for ipc message from renderer process
-    ipcMain.on('login', (e, _routeName) => {
+    let pageName
+
+    // listen for ipc message from renderer process to open login window
+    ipcMain.on('login', (e, _pageName) => {
       console.log('Open Login Modal!');
+      // show the login window
       loginModal.show();
-      // send routeName to LoginModal
-      routeName = _routeName;
-      // mainWindow.webContents.send('route-name', routeName);
+      // send routeName to LoginModal. Upon Successful login, the LoginModal will redirect to new page based on the page name
+      pageName = _pageName;
     });
 
 
+    /*
+    ------^ re-use the above function instead
+    */
+    // ipcMain.on('inventory', (e, arg) => {
+    //   console.log('My Inventory');
+    //   redirectToNewPage('inventory');
+    // });
+
+    // after the successful user login or cancel login, main process receives 'dismiss-login-modal' message
     ipcMain.on('dismiss-login-modal', () => {
-      console.log('dismiss login modal');
+      // dismiss login modal
       loginModal.hide();
-    });
-
-    ipcMain.on('inventory', (e, arg) => {
-      console.log('My Inventory');
-      redirectToNewPage('inventory');
     });
 
 
@@ -60,10 +69,10 @@ function createMainWindow() {
       const { username, password} = args;
 
       const loginResponse = loginUser({username, password});
-      console.log('routeName', routeName);
+      console.log('pageName', pageName);
       if (loginResponse.status === 200) {
         loginModal.hide();
-        redirectToNewPage(routeName);
+        redirectToNewPage(pageName);
       }
       e.sender.send('register-login-response', loginResponse);
     });
@@ -79,10 +88,14 @@ function createMainWindow() {
       return result;
     });
 
-  });
+    // main process receives ipc message to open create new data modal
+    ipcMain.on('create-modal', (e, windowType) => {
+      if (windowType === 'user') {
+        // open create new user window
+      }
+    })
 
-  mainWindow.webContents.openDevTools();
-  // loginModal.webContents.openDevTools();
+  });
 }
 
 

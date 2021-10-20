@@ -33,72 +33,49 @@ function populateUserTable({id, username}) {
 }
 
 // if admin user login is successful, redirect into admin pannel
-exports.redirectToAdminPannel = function redirectToAdminPannel(pannelName) {
+exports.redirectToAdminPannel = async function redirectToAdminPannel(pageName) {
   try {
     mainPage.style.display = 'none';
     contents.style.display = 'block';
     contentTitle.innerText = 'Pharmacy';
-    // console.log('state'. document.readyState);
-    if (pannelName === 'user') {
-      fetch('user/user.html') // fetch
-        .then(res => res.text()) // convert to HTML
-        .then(newContent => { // ready
-          // console.log('content', newContent);
-          // console.log('state'. document.readyState);
-          newNode = document.createElement('div');
-          // registerNode.setAttribute('class', 'container-fluid');
-          newNode.innerHTML = newContent;
 
-          contents.appendChild(newNode);
-          fetchUsers();
-          // populateUserTable({id: 4, username: 'admininstrator'});
-        })
-        .catch(error => {
-          console.log(error);
-        })
-    }
-    else if (pannelName === 'setting') {
-      fetch(`${pannelName}/${pannelName}.html`) // fetch
-        .then(res => res.text()) // convert to HTML
-        .then(newContent => { // ready
-          console.log('content', newContent);
-          // console.log('state'. document.readyState);
-          newNode = document.createElement('div');
-          // registerNode.setAttribute('class', 'container-fluid');
-          newNode.innerHTML = newContent;
+    // IMPORTANT *** set new page filename as [pagename].html. for example inventory.html ***
 
-          contents.appendChild(newNode);
-          // populateUserTable({id: 4, username: 'admininstrator'});
-        })
-        .catch(error => {
-          console.log(error);
-        })
-    }
-    else if(pannelName === 'inventory'){
-      fetch(`${pannelName}/${pannelName}.html`) // fetch
-        .then(res => res.text()) // convert to HTML
-        .then(newContent => { // ready
-          newNode = document.createElement('div');
-          // registerNode.setAttribute('class', 'container-fluid');
-          newNode.innerHTML = newContent;
+    // fetch HTML data related to the page name
+    const response = await fetch(`${pageName}/${pageName}.html`);
 
-          contents.appendChild(newNode);
-          // populateUserTable({id: 4, username: 'admininstrator'});
-        })
-        .catch(error => {
-          console.log(error);
-        })
-      // const response = await fetch('inventory/inventory.html');
-      // const newcontent = await response.text()
-      // console.log(newcontent);
-      // contentTitle.innerText = 'My Inventory';
-      // const inventoryNode = document.createElement('div');
-      // inventoryNode.innerHTML = newcontent;
-      // contents.appendChild(inventoryNode);
-    }
+    const data = await response.text();
+
+    newNode = document.createElement('div');
+
+    newNode.innerHTML = data;
+
+    contents.appendChild(newNode);
+
+    // fetch contents based on the page name
+    await fetchContents(pageName);
   }
   catch (error) {
     console.log(error);
+  }
+}
+
+
+async function fetchContents(pageName) {
+  // fetch and fill contents into app window, based on the page name
+  switch (pageName) {
+    case 'user':
+      // fetch users
+      await fetchUsers();
+      break;
+    case 'inventory':
+      // fetch inventory
+      break;
+    case 'setting':
+      // show setting page
+      break;
+    default:
+      throw new Error('Unkown Page Name Received');
   }
 }
 

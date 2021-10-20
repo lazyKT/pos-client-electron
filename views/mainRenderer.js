@@ -8,6 +8,7 @@ const setting = document.getElementById("setting");
 const view_inventory = document.getElementById("inventory")
 const logout = document.getElementById('logout');
 const contents = document.getElementById('contents');
+// const createUserBtn = document.getElementById('create-user');
 
 console.log('Renderer JS Running...');
 /* hide contents*/
@@ -15,26 +16,26 @@ contents.style.display = 'none';
 
 
 logout.addEventListener('click', () => {
+  // making logout request to server
   sendIpcMsgToMain('logout', 'logout');
 });
 
 
 setting.addEventListener('click', () => {
   console.log('Setting!');
-  /* request login Modal to register new users */
+  // request login window to enter into application setting page
   sendIpcMsgToMain('login', 'setting');
 })
 
 registerUser.addEventListener('click', () => {
-  // console.log('Register New User!');
-  /* request login Modal to register new users */
+  // request login window to enter into user management page
   sendIpcMsgToMain('login', 'user');
 })
 
 view_inventory.addEventListener('click', () => {
-  console.log('View Inventory');
-  /* request login Modal to register new users */
-  sendIpcMsgToMain('inventory', 'inventory');
+  // request login window to enter into inventory management page
+  sendIpcMsgToMain('login', 'inventory');
+  // sendIpcMsgToMain('inventory', 'inventory');
 })
 
 
@@ -48,6 +49,17 @@ ipcRenderer.on('logout-response', (e, response) => {
   if (response === 200)
     logoutToMainMenu();
 });
+
+// createUserBtn.addEventListener('click', openCreateUserModal());
+
+/*
+ * Request to open Create User Modal
+ */
+ function openCreateUserModal() {
+   console.log('requesting create new user')
+   // request create user modal by sending ipc message to main process
+   sendIpcMsgToMain('create-modal', 'user'); // 'channel-name', 'modal-type'
+ }
 
 
 /* send ip message to main process */

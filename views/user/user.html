@@ -1,68 +1,50 @@
-<div class="container">
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+  </head>
+  <body>
+    <div class="container">
 
-  <!-- info header -->
-  <div class="top-header">
-    <h4>Users</h4>
-    <button type="button" name="button" idea="create-user">
-      Create
-    </button>
-  </div>
+      <!-- info header -->
+      <div class="top-header">
+        <h4>Users</h4>
+        <button type="button" name="button" id="create-user" onclick="openCreateUserModal()">
+          Create
+        </button>
+      </div>
 
-  <div class="card my-2 box">
-    <div class="card-body search-div">
-      <input class="w-75" type="text" name="" value="" placeholder="Search Users">
-      <div class="w-25">
-        <button type="button" name="button">Search</button>
+      <div class="card my-2 box">
+        <div class="card-body search-div">
+          <input class="w-75" type="text" name="" value="" placeholder="Search Users">
+          <div class="w-25">
+            <button type="button" name="button">Search</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card my-2 box">
+        <div class="card-body">
+          <table class="table" id="user-table">
+            <thead>
+              <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Username</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- table contents -->
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
-
-  <div class="card my-2 box">
-    <div class="card-body">
-      <!-- <table class="table-primary">
-        <tr class="table-primary">
-          <th class="table-primary">ID</th>
-          <th class="table-primary">Username</th>
-          <th class="table-primary">Actions</th>
-        </tr>
-        <tr class="table-primary">
-          <td class="table-primary">1</td>
-          <td class="table-primary">admin</td>
-          <td class="table-primary">Actions</td>
-        </tr>
-      </table> -->
-      <!-- On tables -->
-      <table class="table" id="user-table">
-        <thead>
-          <tr>
-            <th scope="col">ID</th>
-            <th scope="col">Username</th>
-            <th scope="col">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- <tr class="table-primary">
-            <th scope="row">1</th>
-            <td>Admin</td>
-            <td colspan="2">Otto</td>
-          </tr>
-          <tr>
-            <th scope="row">2</th>
-            <td>Jacob</td>
-            <td colspan="2">Thornton</td>
-          </tr>
-          <tr>
-            <th scope="row">3</th>
-            <td>Larry the Bird</td>
-            <td colspan="2">actions</td>
-          </tr> -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-<!-- <script>
-  // You can also require other files to run in this process
-  console.log('User Script Running')
-  require('./user/user.js')
-</script> -->
+    <script>
+      // You can also require other files to run in this process
+      console.log('User Script Running')
+      require('./user/user.js')
+    </script>
+  </body>
+</html>
