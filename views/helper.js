@@ -22,6 +22,7 @@ function fetchUsers() {
 
 function populateUserTable({id, username}) {
   const userTable = document.getElementById('user-table');
+  
   const row = userTable.insertRow(id);
   const firstColumn = row.insertCell(0);
   const secondColumn = row.insertCell(1);
@@ -84,9 +85,9 @@ function setInnerHTML(elm, html) {
 }
 
 
-async function fetchContents(pageName) {
+async function fetchContents(dataType) {
   // fetch and fill contents into app window, based on the page name
-  switch (pageName) {
+  switch (dataType) {
     case 'user':
       // fetch users
       await fetchUsers();
@@ -99,6 +100,22 @@ async function fetchContents(pageName) {
       break;
     default:
       throw new Error('Unkown Page Name Received');
+  }
+}
+
+
+exports.reloadData = async function reloadData(data) {
+  try {
+    // get table rows from the current data table
+    const oldData = newNode.querySelectorAll('tr');
+    // excpet the table header, remove all the data
+    oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
+
+    // reload the data by fetching data based on the data type, and populate the table again
+    await fetchContents(data);
+  }
+  catch (error) {
+    console.log(`Error Reloading ${data} data`, error);
   }
 }
 

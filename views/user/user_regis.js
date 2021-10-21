@@ -35,7 +35,8 @@ createBtn.addEventListener('click', async (e) => {
 
     console.log(response);
     if (response === 201) {
-      ipcRenderer.send('create-user-done', '');
+      // inform the main process that new data creation is done
+      ipcRenderer.send('create-data-finish', '');
     }
   }
   catch (error) {
