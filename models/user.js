@@ -32,6 +32,20 @@ const users = [
 ]
 
 
+exports.createNewUser = function createNewUser({username, email, password}) {
+  const numOfUsers = users.length;
+  users.push({
+    id: numOfUsers + 1,
+    username,
+    email,
+    password
+  });
+  if (users.length === (numOfUsers + 1))
+    return 201; // http status code 201 Created
+  return 500; // http status code 500 Internal Server Error
+}
+
+
 exports.getAllUsers = function getAllUsers() {
   return users
 }

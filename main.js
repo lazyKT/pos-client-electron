@@ -1,11 +1,12 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 
-const { addUser, loginUser, getAllUsers } = require('./models/user.js')
+const { addUser, loginUser, getAllUsers, createNewUser } = require('./models/user.js')
 
 let mainWindow
 
 function createMainWindow() {
 
+  // application main window
   mainWindow = new BrowserWindow({
     width: 800,
     height: 800,
@@ -15,6 +16,7 @@ function createMainWindow() {
     }
   });
 
+  // login window
   const loginModal = new BrowserWindow({
     width: 400,
     height: 500,
@@ -27,11 +29,25 @@ function createMainWindow() {
     }
   });
 
+  // form window to create new data
+  const newDataForm = new BrowserWindow({
+    width: 400,
+    height: 500,
+    parent: mainWindow,
+    modal: true,
+    show: false,
+    backgroundColor: '#ffffff',
+    webPreferences: {
+      contextIsolation: false,
+      nodeIntegration: true
+    }
+  });
+
   // mainWindow.loadFile('views/register/register.html');
   mainWindow.loadFile('views/main.html');
   loginModal.loadFile('views/login.html');
 
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
   // loginModal.webContents.openDevTools();
 
   // when main window finished loading every dom elements
@@ -90,10 +106,30 @@ function createMainWindow() {
 
     // main process receives ipc message to open create new data modal
     ipcMain.on('create-modal', (e, windowType) => {
+
       if (windowType === 'user') {
-        // open create new user window
+        // load user_create html into newDataForm
+        newDataForm.setBackgroundColor('#FFFFFF');
+        newDataForm.loadFile('views/user/user_regis.html');
+
+        // show the new data form
+        newDataForm.show();
+        newDataForm.webContents.openDevTools(); // for debug
       }
-    })
+      else if (windowType === 'inventory') {
+        // load create_new_item html into newDataForm
+      }
+    });
+
+    // close create data window
+    ipcMain.on('dismiss-create-window', () => newDataForm.hide());
+
+    // recieve create new user request
+    ipcMain.handle('create-new-user', (e, newUser) => {
+      console.log(newUser);
+      const response = createNewUser(newUser);
+      return response;
+    });
 
   });
 }

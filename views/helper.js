@@ -48,7 +48,8 @@ exports.redirectToAdminPannel = async function redirectToAdminPannel(pageName) {
 
     newNode = document.createElement('div');
 
-    newNode.innerHTML = data;
+    // load newly fetched html and script inside into app content
+    setInnerHTML(newNode, data);
 
     contents.appendChild(newNode);
 
@@ -58,6 +59,28 @@ exports.redirectToAdminPannel = async function redirectToAdminPannel(pageName) {
   catch (error) {
     console.log(error);
   }
+}
+
+
+// load newly fetched html and script inside into app content
+function setInnerHTML(elm, html) {
+  elm.innerHTML = html;
+
+  // get the current script element from the newly fetched html content
+  Array.from(elm.querySelectorAll('script')).forEach( currentScript => {
+    console.log(currentScript);
+    // create new script element
+    const newScript = document.createElement('script');
+    // get attributes from the current script
+    Array.from(currentScript.attributes).forEach( attribute => {
+      // set the current script attributes to new script
+      newScript.setAttribute(attribute.namem, attribute.value);
+    });
+    // import all functions and contents of current script into newly created script
+    newScript.appendChild(document.createTextNode(currentScript.innerHTML));
+    // replace the new script with current script (aka) load new script for new app content
+    (currentScript.parentNode).replaceChild(newScript, currentScript);
+  });
 }
 
 
