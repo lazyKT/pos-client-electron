@@ -1,20 +1,22 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, remote, BrowserWindow, ipcMain } = require('electron');
 
-const { addUser, loginUser, getAllUsers } = require('./models/user.js')
+const { addUser, loginUser, getAllUsers, createNewUser } = require('./models/user.js')
 
 let mainWindow
 
 function createMainWindow() {
 
+  // application main window
   mainWindow = new BrowserWindow({
-    width: 800,
+    width: 1000,
     height: 800,
     webPreferences: {
       contextIsolation: false,
-      nodeIntegration: true
+      nodeIntegration: true,
     }
   });
 
+  // login window
   const loginModal = new BrowserWindow({
     width: 400,
     height: 500,
@@ -23,7 +25,21 @@ function createMainWindow() {
     show: false,
     webPreferences: {
       contextIsolation: false,
-      nodeIntegration: true
+      nodeIntegration: true,
+    }
+  });
+
+  // form window to create new data
+  const newDataForm = new BrowserWindow({
+    width: 400,
+    height: 500,
+    parent: mainWindow,
+    modal: true,
+    show: false,
+    backgroundColor: '#ffffff',
+    webPreferences: {
+      contextIsolation: false,
+      nodeIntegration: true,
     }
   });
 
@@ -40,7 +56,6 @@ function createMainWindow() {
 
     // listen for ipc message from renderer process to open login window
     ipcMain.on('login', (e, _pageName) => {
-      console.log('Open Login Modal!');
       // show the login window
       loginModal.show();
       // send routeName to LoginModal. Upon Successful login, the LoginModal will redirect to new page based on the page name
@@ -65,11 +80,11 @@ function createMainWindow() {
 
     // renderer process requesting login to register new user
     ipcMain.on('login-request', (e, args) => {
-      console.log(args);
+
       const { username, password} = args;
 
       const loginResponse = loginUser({username, password});
-      console.log('pageName', pageName);
+
       if (loginResponse.status === 200) {
         loginModal.hide();
         redirectToNewPage(pageName);
@@ -90,10 +105,37 @@ function createMainWindow() {
 
     // main process receives ipc message to open create new data modal
     ipcMain.on('create-modal', (e, windowType) => {
+
       if (windowType === 'user') {
-        // open create new user window
+        // load user_create html into newDataForm
+        newDataForm.setBackgroundColor('#FFFFFF');
+        newDataForm.loadFile('views/user/user_regis.html');
+
+        // show the new data form
+        newDataForm.show();
+        // newDataForm.webContents.openDevTools(); // for debug
       }
-    })
+      else if (windowType === 'inventory') {
+        // load create_new_item html into newDataForm
+      }
+    });
+
+    // close create data window
+    ipcMain.on('dismiss-create-window', () => newDataForm.hide());
+
+    // recieve create new user request
+    ipcMain.handle('create-new-user', (e, newUser) => {
+      const response = createNewUser(newUser);
+      return response;
+    });
+
+    // recive message from renderer process indicating that the new data creation is successfully finished
+    // now can close the newDataForm
+    ipcMain.on('create-data-finish', (e) => {
+      newDataForm.hide();
+      // send ipc message to renderer process to reload the data
+      mainWindow.webContents.send('reload-data', 'user');
+    });
 
   });
 }

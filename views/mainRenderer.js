@@ -1,6 +1,6 @@
 /** renderer file for main.html */
 const { ipcRenderer } = require('electron');
-const { redirectToAdminPannel, logoutToMainMenu } = require('./helper.js');
+const { redirectToAdminPannel, logoutToMainMenu, reloadData } = require('./helper.js');
 
 // DOM nodes
 const registerUser = document.getElementById("user");
@@ -44,6 +44,11 @@ ipcRenderer.on('redirect-page', async (e, response) => {
   await redirectToAdminPannel(response);
 });
 
+
+ipcRenderer.on('reload-data', async (e, data) => {
+  console.log('reload-data', data);
+  await reloadData(data);
+});
 
 ipcRenderer.on('logout-response', (e, response) => {
   if (response === 200)
