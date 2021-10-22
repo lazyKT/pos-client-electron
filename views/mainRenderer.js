@@ -33,9 +33,10 @@ registerUser.addEventListener('click', () => {
 })
 
 view_inventory.addEventListener('click', () => {
+
+  console.log('View Inventory');
   // request login window to enter into inventory management page
   sendIpcMsgToMain('login', 'inventory');
-  // sendIpcMsgToMain('inventory', 'inventory');
 })
 
 

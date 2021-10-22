@@ -12,147 +12,46 @@
           crossorigin="anonymous">
         <link rel="stylesheet" href="inventory/inventory.css">
         <script>
-            require('./inventory.js')
+            
             </script>
     </head>
 <body>
-<div class="rcorners">
-    <table id="myTable">
-        <tr>
-          <th>Id</th>
-          <th>Description</th>
-          <th>Expire Date</th>
-          <th>Action</th>
-          <th>View</th>
-        </tr>
-        <tr>
-          <td>1</td>
-          <td>Panadol 1</td>
-          <td>23/04/2022</td>
-          <td>
-          </td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>1</td>
-          <td>Panadol 1</td>
-          <td>23/04/2022</td>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>Pandol 2</td>
-          <td>23/04/2022</td>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>1</td>
-          <td>Panadol 1</td>
-          <td>23/04/2022</td>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>1</td>
-          <td>Panadol 1</td>
-          <td>23/04/2022</td>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-          <td>1</td>
-          <td>Panadol 1</td>
-          <td>23/04/2022</td>
-          <td></td>
-          <td></td>
-        </tr>
-        <tr>
-            <td>1</td>
-            <td>Panadol 1</td>
-            <td>23/04/2022</td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>Panadol 1</td>
-            <td>23/04/2022</td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>Panadol 1</td>
-            <td>23/04/2022</td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>Panadol 1</td>
-            <td>23/04/2022</td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>Panadol 1</td>
-            <td>23/04/2022</td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>Panadol 1</td>
-            <td>23/04/2022</td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>Panadol 1</td>
-            <td>23/04/2022</td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>Panadol 1</td>
-            <td>23/04/2022</td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>Panadol 1</td>
-            <td>23/04/2022</td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>Panadol 1</td>
-            <td>23/04/2022</td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>Panadol 1</td>
-            <td>23/04/2022</td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>1</td>
-            <td>Panadol 1</td>
-            <td>23/04/2022</td>
-            <td></td>
-            <td></td>
-          </tr>
-      </table>
+
+<div class="container">
+<div class="top-header">
+   <h4>My Inventory</h4>
+   <button type="button" name="button" idea="create-user">
+     Create
+   </button>
+</div>
+<div class="card my-2 box">
+    <div class="card-body search-div">
+      <input class="w-75" type="text" name="" value="" placeholder="Search items">
+      <div class="w-25">
+        <button type="button" name="button">Search</button>
       </div>
+    </div>
+  </div>
+  <div class="card my-2 box">
+    <div class="card-body">
+    <table class="table" id="item-table">
+        <thead>
+        <tr>
+          <th scope="col">Id</th>
+          <th scope="col">Description</th>
+          <th scope="col">Expire Date</th>
+          <th scope="col">Quantity</th>
+          <th scope="col">Location</th>
+          <th scope="col">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+        
+      </table>
+    </div>
+  </div>
+</div>
 </body>
 </html>

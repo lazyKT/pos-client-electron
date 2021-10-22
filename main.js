@@ -2,6 +2,8 @@ const { app, remote, BrowserWindow, ipcMain } = require('electron');
 
 const { addUser, loginUser, getAllUsers, createNewUser } = require('./models/user.js')
 
+const { addItem, getAllItems } = require('./models/item.js')
+
 let mainWindow
 
 function createMainWindow() {
@@ -77,7 +79,6 @@ function createMainWindow() {
       loginModal.hide();
     });
 
-
     // renderer process requesting login to register new user
     ipcMain.on('login-request', (e, args) => {
 
@@ -103,8 +104,16 @@ function createMainWindow() {
       return result;
     });
 
+    //response all items to renderer process
+    ipcMain.handle('get-all-items', (e, _) => {
+      console.log("hi");
+      const result = getAllItems();
+      return result;
+    });
+
     // main process receives ipc message to open create new data modal
     ipcMain.on('create-modal', (e, windowType) => {
+
 
       if (windowType === 'user') {
         // load user_create html into newDataForm
