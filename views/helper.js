@@ -61,6 +61,7 @@ function populateUserTable({id, username}) {
   const thirdColumn = row.insertCell(2);
   firstColumn.innerHTML = id;
   secondColumn.innerHTML = username;
+  /* edit button */
   const editBtn = document.createElement('button');
   editBtn.setAttribute('class', 'btn mx-1 btn-primary');
   editBtn.setAttribute('data-id', id);
@@ -71,6 +72,17 @@ function populateUserTable({id, username}) {
     console.log('id', id);
     ipcRenderer.send('user-data', {id, method: 'PUT'});
   });
+
+  /* View Details button */
+  const viewBtn = document.createElement('button');
+  viewBtn.setAttribute('class', 'btn mx-1 btn-info');
+  viewBtn.setAttribute('data-id', id);
+  viewBtn.innerHTML = 'View More Details';
+  thirdColumn.appendChild(viewBtn);
+
+  viewBtn.addEventListener('click', e => {
+    ipcRenderer.send('user-data', {id, method: 'GET'});
+  })
 }
 
 function editOnClick() {

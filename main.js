@@ -1,11 +1,11 @@
 const { app, remote, BrowserWindow, ipcMain } = require('electron');
 
 const {
-  addUser,
   loginUser,
   getAllUsers,
   createNewUser,
-  getUserById
+  getUserById,
+  updateUser
 } = require('./models/user.js')
 
 const { addItem, getAllItems } = require('./models/item.js')
@@ -130,12 +130,6 @@ function createMainWindow() {
     // close create data window
     ipcMain.on('dismiss-form-window', () => formWindow.hide());
 
-    // recieve create new user request
-    ipcMain.handle('create-new-user', (e, newUser) => {
-      const response = createNewUser(newUser);
-      return response;
-    });
-
     // recive message from renderer process indicating that the new data creation is successfully finished
     // now can close the formWindow
     ipcMain.on('create-data-finish', (e) => {
@@ -148,9 +142,9 @@ function createMainWindow() {
     // receive ipc message to response single user data by id
     ipcMain.on('user-data', (e, req) => {
       const { id, method } = req;
-      console.log(req);
+
       const user = getUserById(id);
-      console.log(user);
+      
       if (user) {
         formWindow.show();
         formWindow.setBackgroundColor('#FFFFFF');
@@ -159,11 +153,21 @@ function createMainWindow() {
         // after the contents of formWindows are successfully loaded
         formWindow.webContents.on('did-finish-load', () => {
           // send user data to be shown in formWindow
-          formWindow.webContents.send('response-user-data', user);
+          formWindow.webContents.send('response-user-data', {user, method});
         });
       }
     });
 
+    // recieve create new user request
+    ipcMain.handle('create-new-user', (e, newUser) => {
+      const response = createNewUser(newUser);
+      return response;
+    });
+
+    // recieve update user request
+    ipcMain.handle('update-user', (e, req) => {
+      return updateUser(req);
+    });
 
   });
 }

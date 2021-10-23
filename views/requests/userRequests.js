@@ -18,7 +18,19 @@ exports.createNewUser = async function createNewUser(newUser) {
 
     return response;
   }
-  catch (error) {
+  catch(error) {
     console.log('Error Creating New User', error);
+  }
+}
+
+
+exports.updateUser = async function updateUser(user) {
+  try {
+    const response = await ipcRenderer.invoke('update-user', user);
+
+    return response;
+  }
+  catch(error) {
+    console.log('Error Updating User', error);
   }
 }

@@ -26,7 +26,7 @@ const users = [
   {
     id: 5,
     username: 'winter',
-    email: 'summer@site.com',
+    email: 'winter@site.com',
     password: 'summer'
   },
 ]
@@ -47,17 +47,26 @@ exports.createNewUser = function createNewUser({username, email, password}) {
 
 
 exports.getAllUsers = function getAllUsers() {
-  return users
+  return users;
 }
 
 
 exports.getUserById = function getUserById(id) {
-  return users.find(user => user.id === id);
+  return users.find(user => user.id === parseInt(id));
 }
 
 
-exports.addUser = function addUser(user) {
-  users.push(user);
+exports.updateUser = function updateUser(request) {
+  const { id, username, email } = request;
+
+  const user = users.find(user => user.id === parseInt(id));
+
+  if (!user)
+    return { error: 'Not Found', status: 404 }; // http status code not_found
+
+  user.username = username;
+  user.email = email;
+  return { data: user, status: 200 }; // http status code 200 OK
 }
 
 
