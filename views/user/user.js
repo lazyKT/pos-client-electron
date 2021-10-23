@@ -5,6 +5,7 @@ const { ipcRenderer } = require('electron');
 
 // DOM Nodes
 const createUserBtn = document.getElementById('create-user');
+const editUser = document.getElementById('edit-user');
 
 
 createUserBtn.addEventListener('click', () => {
@@ -22,4 +23,9 @@ createUserBtn.addEventListener('click', () => {
   */
 function sendIpcMsgToMain(ipcChannelName, msg) {
   ipcRenderer.send(ipcChannelName, msg);
+}
+
+
+function editOnClick() {
+  alert('edit on click')
 }

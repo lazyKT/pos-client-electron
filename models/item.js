@@ -43,10 +43,3 @@ exports.getAllItems = function getAllItems() {
 exports.addItems = function addItems(item) {
   items.push(item);
 }
-  
-exports.loginUser = function login({username, password}) {
-  // get user from user array
-  const user = users.find(u => u.username === username);
-  if (user) return {status: 200, data: {username}}
-  else return {status: 401, message: 'Incorrect username or password!'}
-}

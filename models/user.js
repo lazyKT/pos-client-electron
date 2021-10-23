@@ -51,6 +51,11 @@ exports.getAllUsers = function getAllUsers() {
 }
 
 
+exports.getUserById = function getUserById(id) {
+  return users.find(user => user.id === id);
+}
+
+
 exports.addUser = function addUser(user) {
   users.push(user);
 }

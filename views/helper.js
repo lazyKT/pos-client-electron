@@ -1,4 +1,5 @@
 // helper functions
+const { ipcRenderer } = require('electron');
 const { getAllItems } = require('./requests/itemRequests.js');
 const { getAllUsers } = require('./requests/userRequests.js');
 
@@ -47,21 +48,33 @@ function populateItemTable({id, description, expireDate, quantity, location}) {
   fourthColumn.innerHTML = quantity;
   fifthColumn.innerHTML = location;
   sixthColumn.innerHTML = '<div><button class="mx-1 action-button">View</button>' +
-    '<button class="mx-1 action-button">Edit</button></div>' 
-  
+    '<button class="mx-1 action-button">Edit</button></div>'
+
 }
 
 function populateUserTable({id, username}) {
   const userTable = document.getElementById('user-table');
-  
+
   const row = userTable.insertRow(id);
   const firstColumn = row.insertCell(0);
   const secondColumn = row.insertCell(1);
   const thirdColumn = row.insertCell(2);
   firstColumn.innerHTML = id;
   secondColumn.innerHTML = username;
-  thirdColumn.innerHTML = '<div><button class="mx-1 action-button">Edit</button>' +
-    '<button class="mx-1 action-button">Delete</button></div>' 
+  const editBtn = document.createElement('button');
+  editBtn.setAttribute('class', 'btn mx-1 btn-primary');
+  editBtn.setAttribute('data-id', id);
+  editBtn.innerHTML = 'EDIT';
+  thirdColumn.appendChild(editBtn);
+
+  editBtn.addEventListener('click', e => {
+    console.log('id', id);
+    ipcRenderer.send('user-data', {id, method: 'PUT'});
+  });
+}
+
+function editOnClick() {
+  alert('on click');
 }
 
 // if admin user login is successful, redirect into admin pannel
@@ -70,30 +83,6 @@ exports.redirectToAdminPannel = async function redirectToAdminPannel(pageName) {
     mainPage.style.display = 'none';
     contents.style.display = 'block';
     contentTitle.innerText = 'Pharmacy';
-    
-//   if(pannelName === 'inventory'){
-//       fetch(`${pannelName}/${pannelName}.html`) // fetch
-//         .then(res => res.text()) // convert to HTML
-//         .then(newContent => { // ready
-//           newNode = document.createElement('div');
-//           // registerNode.setAttribute('class', 'container-fluid');
-//           newNode.innerHTML = newContent;
-
-//           contents.appendChild(newNode);
-//           fetchItems();
-//           // populateUserTable({id: 4, username: 'admininstrator'});
-//         })
-//         .catch(error => {
-//           console.log(error);
-//         })
-//       // const response = await fetch('inventory/inventory.html');
-//       // const newcontent = await response.text()
-//       // console.log(newcontent);
-//       // contentTitle.innerText = 'My Inventory';
-//       // const inventoryNode = document.createElement('div');
-//       // inventoryNode.innerHTML = newcontent;
-//       // contents.appendChild(inventoryNode);
-//     }
 
     // IMPORTANT *** set new page filename as [pagename].html. for example inventory.html ***
 

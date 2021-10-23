@@ -1,6 +1,12 @@
 const { app, remote, BrowserWindow, ipcMain } = require('electron');
 
-const { addUser, loginUser, getAllUsers, createNewUser } = require('./models/user.js')
+const {
+  addUser,
+  loginUser,
+  getAllUsers,
+  createNewUser,
+  getUserById
+} = require('./models/user.js')
 
 const { addItem, getAllItems } = require('./models/item.js')
 
@@ -32,7 +38,7 @@ function createMainWindow() {
   });
 
   // form window to create new data
-  const newDataForm = new BrowserWindow({
+  const formWindow = new BrowserWindow({
     width: 400,
     height: 500,
     parent: mainWindow,
@@ -64,14 +70,6 @@ function createMainWindow() {
       pageName = _pageName;
     });
 
-
-    /*
-    ------^ re-use the above function instead
-    */
-    // ipcMain.on('inventory', (e, arg) => {
-    //   console.log('My Inventory');
-    //   redirectToNewPage('inventory');
-    // });
 
     // after the successful user login or cancel login, main process receives 'dismiss-login-modal' message
     ipcMain.on('dismiss-login-modal', () => {
@@ -116,21 +114,21 @@ function createMainWindow() {
 
 
       if (windowType === 'user') {
-        // load user_create html into newDataForm
-        newDataForm.setBackgroundColor('#FFFFFF');
-        newDataForm.loadFile('views/user/user_regis.html');
+        // load user_create html into formWindow
+        formWindow.setBackgroundColor('#FFFFFF');
+        formWindow.loadFile('views/user/user_regis.html');
 
         // show the new data form
-        newDataForm.show();
-        // newDataForm.webContents.openDevTools(); // for debug
+        formWindow.show();
+        // formWindow.webContents.openDevTools(); // for debug
       }
       else if (windowType === 'inventory') {
-        // load create_new_item html into newDataForm
+        // load create_new_item html into formWindow
       }
     });
 
     // close create data window
-    ipcMain.on('dismiss-create-window', () => newDataForm.hide());
+    ipcMain.on('dismiss-form-window', () => formWindow.hide());
 
     // recieve create new user request
     ipcMain.handle('create-new-user', (e, newUser) => {
@@ -139,12 +137,33 @@ function createMainWindow() {
     });
 
     // recive message from renderer process indicating that the new data creation is successfully finished
-    // now can close the newDataForm
+    // now can close the formWindow
     ipcMain.on('create-data-finish', (e) => {
-      newDataForm.hide();
+      formWindow.hide();
       // send ipc message to renderer process to reload the data
       mainWindow.webContents.send('reload-data', 'user');
     });
+
+
+    // receive ipc message to response single user data by id
+    ipcMain.on('user-data', (e, req) => {
+      const { id, method } = req;
+      console.log(req);
+      const user = getUserById(id);
+      console.log(user);
+      if (user) {
+        formWindow.show();
+        formWindow.setBackgroundColor('#FFFFFF');
+        formWindow.loadFile('views/user/edit_show_user.html');
+        formWindow.openDevTools();
+        // after the contents of formWindows are successfully loaded
+        formWindow.webContents.on('did-finish-load', () => {
+          // send user data to be shown in formWindow
+          formWindow.webContents.send('response-user-data', user);
+        });
+      }
+    });
+
 
   });
 }

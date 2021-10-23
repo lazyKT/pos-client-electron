@@ -14,7 +14,7 @@ const createBtn = document.getElementById('create-user');
 
 // close create user window
 cancelBtn.addEventListener('click', () => {
-  ipcRenderer.send('dismiss-create-window', '');
+  ipcRenderer.send('dismiss-form-window', '');
 });
 
 
