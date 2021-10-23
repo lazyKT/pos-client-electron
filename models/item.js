@@ -43,10 +43,17 @@ exports.getAllItems = function getAllItems() {
 exports.addItems = function addItems(item) {
   items.push(item);
 }
-  
-exports.loginUser = function login({username, password}) {
-  // get user from user array
-  const user = users.find(u => u.username === username);
-  if (user) return {status: 200, data: {username}}
-  else return {status: 401, message: 'Incorrect username or password!'}
+
+exports.createNewItem = function createNewItem({description, expireDate, quantity, location}) {
+  const numOfItems = items.length;
+  items.push({
+    id: numOfItems + 1,
+    description,
+    expireDate,
+    quantity,
+    location
+  });
+  if (items.length === (numOfItems + 1))
+    return 201; // http status code 201 Created
+  return 500; // http status code 500 Internal Server Error
 }

@@ -26,7 +26,7 @@ createBtn.addEventListener('click', async (e) => {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
 
-  if (!username && username === '' && !email && email === '' && !password && password === '')
+  if (!username && username === '' || !email && email === '' || !password && password === '')
     return;
 
   try {
@@ -36,7 +36,7 @@ createBtn.addEventListener('click', async (e) => {
     console.log(response);
     if (response === 201) {
       // inform the main process that new data creation is done
-      ipcRenderer.send('create-data-finish', '');
+      ipcRenderer.send('create-data-finish', 'user');
     }
   }
   catch (error) {

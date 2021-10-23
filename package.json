@@ -22,5 +22,6 @@
   "bugs": {
     "url": "https://github.com/lazyKT/pos-client-electron/issues"
   },
-  "homepage": "https://github.com/lazyKT/pos-client-electron#readme"
+  "homepage": "https://github.com/lazyKT/pos-client-electron#readme",
+  "dependencies": {}
 }

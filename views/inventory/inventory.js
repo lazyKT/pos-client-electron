@@ -1,22 +1,25 @@
-function mySearchFunction() {
-    console.log("no");
-    // Declare variables
-    var input, filter, table, tr, td, i, txtValue;
-    input = document.getElementById("item-search");
-    filter = input.value.toUpperCase();
-    table = document.getElementById("myTable");
-    tr = table.getElementsByTagName("tr");
-  
-    // Loop through all table rows, and hide those who don't match the search query
-    for (i = 0; i < tr.length; i++) {
-      td = tr[i].getElementsByTagName("td")[0];
-      if (td) {
-        txtValue = td.textContent || td.innerText;
-        if (txtValue.toUpperCase().indexOf(filter) > -1) {
-          tr[i].style.display = "";
-        } else {
-          tr[i].style.display = "none";
-        }
-      }
-    }
-  }
+console.log('Inventory Scripts Running..');
+
+const { ipcRenderer } = require('electron');
+
+
+// DOM Nodes
+const createItemBtn = document.getElementById('create-item');
+
+
+createItemBtn.addEventListener('click', () => {
+  // send request to open new item create window from main process
+  // @param1 - the channel name from which the main process will recive to open the new window to create new data
+  // @param2 - the data type
+  sendIpcMsgToMain('create-modal', 'inventory');
+});
+
+
+/*
+  send ipc message to Main Process
+  @param1 - ipcChannelName: the channel name from which the main process will receive message
+  @param2 - msg: the content (or the msg), being sent inside the ipc message
+  */
+function sendIpcMsgToMain(ipcChannelName, msg) {
+  ipcRenderer.send(ipcChannelName, msg);
+}

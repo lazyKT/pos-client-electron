@@ -10,3 +10,14 @@ exports.getAllItems = async function getAllItems() {
     console.log(error);
   }
 }
+
+exports.createNewItem = async function createNewItem(newItem) {
+  try {
+    const response = await ipcRenderer.invoke('create-new-item', newItem);
+
+    return response;
+  }
+  catch (error) {
+    console.log('Error Creating New Item', error);
+  }
+}

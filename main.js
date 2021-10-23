@@ -2,7 +2,7 @@ const { app, remote, BrowserWindow, ipcMain } = require('electron');
 
 const { addUser, loginUser, getAllUsers, createNewUser } = require('./models/user.js')
 
-const { addItem, getAllItems } = require('./models/item.js')
+const { addItem, getAllItems, createNewItem } = require('./models/item.js')
 
 let mainWindow
 
@@ -106,7 +106,6 @@ function createMainWindow() {
 
     //response all items to renderer process
     ipcMain.handle('get-all-items', (e, _) => {
-      console.log("hi");
       const result = getAllItems();
       return result;
     });
@@ -126,6 +125,11 @@ function createMainWindow() {
       }
       else if (windowType === 'inventory') {
         // load create_new_item html into newDataForm
+        newDataForm.setBackgroundColor('#FFFFFF');
+        newDataForm.loadFile('views/inventory/item_regis.html');
+
+        // show the new data form
+        newDataForm.show();
       }
     });
 
@@ -138,12 +142,17 @@ function createMainWindow() {
       return response;
     });
 
+    ipcMain.handle('create-new-item', (e, newItem) => {
+      const response = createNewItem(newItem);
+      return response;
+    });
+
     // recive message from renderer process indicating that the new data creation is successfully finished
     // now can close the newDataForm
-    ipcMain.on('create-data-finish', (e) => {
+    ipcMain.on('create-data-finish', (e, windowType) => {
       newDataForm.hide();
       // send ipc message to renderer process to reload the data
-      mainWindow.webContents.send('reload-data', 'user');
+      mainWindow.webContents.send('reload-data', windowType);
     });
 
   });

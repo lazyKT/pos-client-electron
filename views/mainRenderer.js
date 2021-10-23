@@ -67,7 +67,6 @@ ipcRenderer.on('logout-response', (e, response) => {
    sendIpcMsgToMain('create-modal', 'user'); // 'channel-name', 'modal-type'
  }
 
-
 /* send ip message to main process */
 function sendIpcMsgToMain(msg, content) {
   ipcRenderer.send(msg, content);
