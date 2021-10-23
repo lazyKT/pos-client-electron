@@ -49,12 +49,12 @@ editButton.addEventListener('click', async e => {
   try {
     const response = await updateUser({id, username, email});
 
-    const { status } = response;
+    const { status, data } = response;
 
-    if (status === 200) {
+    if ( data && status === 200) {
       // update opreration successful
       // inform the main process that new data update is done
-      ipcRenderer.send('create-data-finish', '');
+      ipcRenderer.send('form-data-finish', {method: 'UPDATE', data, type: 'user'});
     }
   }
   catch(error) {

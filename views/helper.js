@@ -12,6 +12,15 @@ const contentTitle = document.getElementById('content-title');
 
 let newNode
 
+
+
+function showAlert({type, data, method}) {
+  const alertBox = document.getElementById('alert');
+  alertBox.style.display = 'block';
+
+  alertBox.innerHTML = `New ${type} ${method}: ${data.username}`;
+}
+
 // fetch users from main process and render in the renderer process
 function fetchUsers() {
   getAllUsers() // fetch users from main process
@@ -161,15 +170,20 @@ async function fetchContents(dataType) {
 }
 
 
-exports.reloadData = async function reloadData(data) {
+exports.reloadData = async function reloadData(newData) {
   try {
+    const { type, data, method } = newData;
+
     // get table rows from the current data table
     const oldData = newNode.querySelectorAll('tr');
     // excpet the table header, remove all the data
     oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
 
     // reload the data by fetching data based on the data type, and populate the table again
-    await fetchContents(data);
+    await fetchContents(type);
+
+    showAlert(newData);
+
   }
   catch (error) {
     console.log(`Error Reloading ${data} data`, error);

@@ -132,10 +132,10 @@ function createMainWindow() {
 
     // recive message from renderer process indicating that the new data creation is successfully finished
     // now can close the formWindow
-    ipcMain.on('create-data-finish', (e) => {
+    ipcMain.on('form-data-finish', (e, data) => {
       formWindow.hide();
       // send ipc message to renderer process to reload the data
-      mainWindow.webContents.send('reload-data', 'user');
+      mainWindow.webContents.send('reload-data', data);
     });
 
 
@@ -144,7 +144,7 @@ function createMainWindow() {
       const { id, method } = req;
 
       const user = getUserById(id);
-      
+
       if (user) {
         formWindow.show();
         formWindow.setBackgroundColor('#FFFFFF');
