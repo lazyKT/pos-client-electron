@@ -12,7 +12,7 @@ const cancelSearchButton = document.getElementById('cancel-search');
 const searchInput = document.getElementById('search-input');
 
 /* hide cancel search button on first load */
-cancelSearchButton.style.display = 'none';
+// cancelSearchButton.style.display = 'none';
 
 
 createUserBtn.addEventListener('click', () => {
@@ -24,7 +24,7 @@ createUserBtn.addEventListener('click', () => {
 
 /* search user on enter key pressed from keyboard */
 searchInput.addEventListener('keyup', async e => {
-  // console.log('keyup', e.key);
+  console.log('keyup', e.key);
   e.key === 'Enter' && await searchUser();
 })
 

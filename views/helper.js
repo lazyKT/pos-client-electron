@@ -124,7 +124,7 @@ exports.redirectToAdminPannel = async function redirectToAdminPannel(pageName) {
 
     // load newly fetched html and script inside into app content
     setInnerHTML(newNode, data);
-
+    console.log(newNode);
     contents.appendChild(newNode);
 
     // fetch contents based on the page name
@@ -148,7 +148,7 @@ function setInnerHTML(elm, html) {
     // get attributes from the current script
     Array.from(currentScript.attributes).forEach( attribute => {
       // set the current script attributes to new script
-      newScript.setAttribute(attribute.namem, attribute.value);
+      newScript.setAttribute(attribute.name, attribute.value);
     });
     // import all functions and contents of current script into newly created script
     newScript.appendChild(document.createTextNode(currentScript.innerHTML));
@@ -178,6 +178,7 @@ async function fetchContents(dataType) {
 }
 
 
+/* reload the data after some CRUD operations */
 exports.reloadData = async function reloadData(newData) {
   try {
     const { type, data, method } = newData;
@@ -203,7 +204,7 @@ exports.reloadData = async function reloadData(newData) {
 exports.logoutToMainMenu = async function logoutToMainMenu() {
   try {
     contents.style.display = 'none';
-    contents.removeChild(newNode);
+    newNode.remove();
     mainPage.style.display = 'flex';
   }
   catch (error) {

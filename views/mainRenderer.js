@@ -41,13 +41,13 @@ view_inventory.addEventListener('click', () => {
 
 
 ipcRenderer.on('redirect-page', async (e, response) => {
-  console.log('redirect-page', response);
+  // redirect to the new page after successful login
   await redirectToAdminPannel(response);
 });
 
 
 ipcRenderer.on('reload-data', async (e, data) => {
-  console.log('reload-data', data);
+
   await reloadData(data);
 });
 
@@ -56,13 +56,10 @@ ipcRenderer.on('logout-response', (e, response) => {
     logoutToMainMenu();
 });
 
-// createUserBtn.addEventListener('click', openCreateUserModal());
-
 /*
  * Request to open Create User Modal
  */
  function openCreateUserModal() {
-   console.log('requesting create new user')
    // request create user modal by sending ipc message to main process
    sendIpcMsgToMain('create-modal', 'user'); // 'channel-name', 'modal-type'
  }
