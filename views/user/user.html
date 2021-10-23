@@ -11,10 +11,6 @@
   <body>
     <div class="container">
 
-      <div class="alert alert-primary my-2" role="alert" id="alert">
-
-      </div>
-
       <!-- info header -->
       <div class="top-header">
         <h4>Users</h4>
@@ -25,20 +21,22 @@
 
       <div class="card my-2 box">
         <div class="card-body search-div">
-          <input class="w-75" type="text" name="" value="" placeholder="Search Users">
+          <input class="w-75" id='search-input' type="text" name="" value="" placeholder="Search Users">
           <div class="w-25">
-            <button type="button" name="button">Search</button>
+            <button class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
+            <button class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
           </div>
         </div>
       </div>
 
       <div class="card my-2 box">
-        <div class="card-body">
+        <div class="card-body" id="data-container">
           <table class="table" id="user-table">
             <thead>
               <tr>
                 <th scope="col">ID</th>
                 <th scope="col">Username</th>
+                <th scope="col">Email</th>
                 <th scope="col">Actions</th>
               </tr>
             </thead>

@@ -34,3 +34,15 @@ exports.updateUser = async function updateUser(user) {
     console.log('Error Updating User', error);
   }
 }
+
+
+exports.searchUserRequest = async function searchUser(q) {
+  try {
+    const response = await ipcRenderer.invoke('search-data', {data: 'user', q});
+
+    return response;
+  }
+  catch(error) {
+    console.log('Error Searching User', error);
+  }
+}

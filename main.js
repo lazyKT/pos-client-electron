@@ -5,7 +5,8 @@ const {
   getAllUsers,
   createNewUser,
   getUserById,
-  updateUser
+  updateUser,
+  searchUser
 } = require('./models/user.js')
 
 const { addItem, getAllItems } = require('./models/item.js')
@@ -61,7 +62,7 @@ function createMainWindow() {
   // when main window finished loading every dom elements
   mainWindow.webContents.on('did-finish-load', () => {
     let pageName
-
+    console.log('did-finish-load');
     // listen for ipc message from renderer process to open login window
     ipcMain.on('login', (e, _pageName) => {
       // show the login window
@@ -104,7 +105,7 @@ function createMainWindow() {
 
     //response all items to renderer process
     ipcMain.handle('get-all-items', (e, _) => {
-      console.log("hi");
+
       const result = getAllItems();
       return result;
     });
@@ -167,6 +168,19 @@ function createMainWindow() {
     // recieve update user request
     ipcMain.handle('update-user', (e, req) => {
       return updateUser(req);
+    });
+
+
+    ipcMain.handle('search-data', (e, req) => {
+      const { data, q } = req;
+
+      if (data === 'user') {
+        // search user
+        return searchUser(q);
+      }
+      else if (data === 'inventory') {
+        // search inventory here
+      }
     });
 
   });
