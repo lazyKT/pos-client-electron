@@ -26,9 +26,15 @@ const users = [
   {
     id: 5,
     username: 'winter',
-    email: 'summer@site.com',
+    email: 'winter@site.com',
     password: 'summer'
   },
+  {
+    id: 6,
+    username: 'administrator',
+    email: 'lwin@site.com',
+    passowrd: 'lwin'
+  }
 ]
 
 
@@ -47,12 +53,26 @@ exports.createNewUser = function createNewUser({username, email, password}) {
 
 
 exports.getAllUsers = function getAllUsers() {
-  return users
+  return users;
 }
 
 
-exports.addUser = function addUser(user) {
-  users.push(user);
+exports.getUserById = function getUserById(id) {
+  return users.find(user => user.id === parseInt(id));
+}
+
+
+exports.updateUser = function updateUser(request) {
+  const { id, username, email } = request;
+
+  const user = users.find(user => user.id === parseInt(id));
+
+  if (!user)
+    return { error: 'Not Found', status: 404 }; // http status code not_found
+
+  user.username = username;
+  user.email = email;
+  return { data: user, status: 200 }; // http status code 200 OK
 }
 
 
@@ -61,4 +81,10 @@ exports.loginUser = function login({username, password}) {
   const user = users.find(u => u.username === username);
   if (user) return {status: 200, data: {username}}
   else return {status: 401, message: 'Incorrect username or password!'}
+}
+
+
+exports.searchUser = function searchUser(q) {
+  // search user data which match the keyword: q
+  return users.filter(user => (user.username.includes(q) || user.email.includes(q)));
 }

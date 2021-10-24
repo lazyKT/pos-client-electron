@@ -1,6 +1,13 @@
 const { app, remote, BrowserWindow, ipcMain } = require('electron');
-
-const { addUser, loginUser, getAllUsers, createNewUser } = require('./models/user.js')
+const path = require('path');
+const {
+  loginUser,
+  getAllUsers,
+  createNewUser,
+  getUserById,
+  updateUser,
+  searchUser
+} = require('./models/user.js')
 
 const { addItem, getAllItems, createNewItem } = require('./models/item.js')
 
@@ -13,8 +20,9 @@ function createMainWindow() {
     width: 1000,
     height: 800,
     webPreferences: {
-      contextIsolation: false,
-      nodeIntegration: true,
+      nodeIntegration: false,
+      contextIsolation: true, // protect against prototype pollution
+      preload: path.join(__dirname, "preload_scripts/mainPreload.js") // use a preload scrip
     }
   });
 
@@ -32,7 +40,7 @@ function createMainWindow() {
   });
 
   // form window to create new data
-  const newDataForm = new BrowserWindow({
+  const formWindow = new BrowserWindow({
     width: 400,
     height: 500,
     parent: mainWindow,
@@ -55,23 +63,16 @@ function createMainWindow() {
   // when main window finished loading every dom elements
   mainWindow.webContents.on('did-finish-load', () => {
     let pageName
-
+    console.log('did-finish-load');
     // listen for ipc message from renderer process to open login window
     ipcMain.on('login', (e, _pageName) => {
+      console.log('login for pageName', _pageName);
       // show the login window
       loginModal.show();
       // send routeName to LoginModal. Upon Successful login, the LoginModal will redirect to new page based on the page name
       pageName = _pageName;
     });
 
-
-    /*
-    ------^ re-use the above function instead
-    */
-    // ipcMain.on('inventory', (e, arg) => {
-    //   console.log('My Inventory');
-    //   redirectToNewPage('inventory');
-    // });
 
     // after the successful user login or cancel login, main process receives 'dismiss-login-modal' message
     ipcMain.on('dismiss-login-modal', () => {
@@ -88,6 +89,7 @@ function createMainWindow() {
 
       if (loginResponse.status === 200) {
         loginModal.hide();
+        console.log(pageName);
         redirectToNewPage(pageName);
       }
       e.sender.send('register-login-response', loginResponse);
@@ -115,26 +117,50 @@ function createMainWindow() {
 
 
       if (windowType === 'user') {
-        // load user_create html into newDataForm
-        newDataForm.setBackgroundColor('#FFFFFF');
-        newDataForm.loadFile('views/user/user_regis.html');
+        // load user_create html into formWindow
+        formWindow.setBackgroundColor('#FFFFFF');
+        formWindow.loadFile('views/user/user_regis.html');
 
         // show the new data form
-        newDataForm.show();
-        // newDataForm.webContents.openDevTools(); // for debug
+        formWindow.show();
+        // formWindow.webContents.openDevTools(); // for debug
       }
       else if (windowType === 'inventory') {
-        // load create_new_item html into newDataForm
-        newDataForm.setBackgroundColor('#FFFFFF');
-        newDataForm.loadFile('views/inventory/item_regis.html');
-
-        // show the new data form
-        newDataForm.show();
+        // load create_new_item html into formWindow
       }
     });
 
     // close create data window
-    ipcMain.on('dismiss-create-window', () => newDataForm.hide());
+    ipcMain.on('dismiss-form-window', () => formWindow.hide());
+
+    // recive message from renderer process indicating that the new data creation is successfully finished
+    // now can close the formWindow
+    ipcMain.on('form-data-finish', (e, data) => {
+      console.log('form-data-finish');
+      formWindow.hide();
+      // send ipc message to renderer process to reload the data
+      mainWindow.webContents.send('reload-data', data);
+    });
+
+
+    // receive ipc message to response single user data by id
+    ipcMain.on('user-data', (e, req) => {
+      const { id, method } = req;
+
+      const user = getUserById(id);
+
+      if (user) {
+        formWindow.show();
+        formWindow.setBackgroundColor('#FFFFFF');
+        formWindow.loadFile('views/user/edit_show_user.html');
+        formWindow.openDevTools();
+        // after the contents of formWindows are successfully loaded
+        formWindow.webContents.on('did-finish-load', () => {
+          // send user data to be shown in formWindow
+          formWindow.webContents.send('response-user-data', {user, method});
+        });
+      }
+    });
 
     // recieve create new user request
     ipcMain.handle('create-new-user', (e, newUser) => {
@@ -142,17 +168,23 @@ function createMainWindow() {
       return response;
     });
 
-    ipcMain.handle('create-new-item', (e, newItem) => {
-      const response = createNewItem(newItem);
-      return response;
+    // recieve update user request
+    ipcMain.handle('update-user', (e, req) => {
+      return updateUser(req);
     });
 
-    // recive message from renderer process indicating that the new data creation is successfully finished
-    // now can close the newDataForm
-    ipcMain.on('create-data-finish', (e, windowType) => {
-      newDataForm.hide();
-      // send ipc message to renderer process to reload the data
-      mainWindow.webContents.send('reload-data', windowType);
+
+    ipcMain.handle('search-data', (e, req) => {
+      console.log(req);
+      const { data, q } = req;
+
+      if (data === 'user') {
+        // search user
+        return searchUser(q);
+      }
+      else if (data === 'inventory') {
+        // search inventory here
+      }
     });
 
   });
@@ -160,6 +192,7 @@ function createMainWindow() {
 
 
 function redirectToNewPage(page) {
+  console.log('page', page);
   mainWindow.webContents.send('redirect-page', page);
 }
 

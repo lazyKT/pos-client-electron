@@ -14,7 +14,7 @@ const createBtn = document.getElementById('create-user');
 
 // close create user window
 cancelBtn.addEventListener('click', () => {
-  ipcRenderer.send('dismiss-create-window', '');
+  ipcRenderer.send('dismiss-form-window', '');
 });
 
 
@@ -36,7 +36,11 @@ createBtn.addEventListener('click', async (e) => {
     console.log(response);
     if (response === 201) {
       // inform the main process that new data creation is done
+<<<<<<< HEAD
       ipcRenderer.send('create-data-finish', 'user');
+=======
+      ipcRenderer.send('form-data-finish', {method: 'CREATE', data: {username}, type: 'user'});
+>>>>>>> d8cfe81f5458e2d3a902a2c1acd614b691e2ae10
     }
   }
   catch (error) {

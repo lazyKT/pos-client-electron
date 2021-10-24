@@ -43,6 +43,7 @@ exports.getAllItems = function getAllItems() {
 exports.addItems = function addItems(item) {
   items.push(item);
 }
+<<<<<<< HEAD
 
 exports.createNewItem = function createNewItem({description, expireDate, quantity, location}) {
   const numOfItems = items.length;
@@ -57,3 +58,5 @@ exports.createNewItem = function createNewItem({description, expireDate, quantit
     return 201; // http status code 201 Created
   return 500; // http status code 500 Internal Server Error
 }
+=======
+>>>>>>> d8cfe81f5458e2d3a902a2c1acd614b691e2ae10
