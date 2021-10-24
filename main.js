@@ -1,4 +1,4 @@
-const { app, remote, BrowserWindow, ipcMain } = require('electron');
+const { app, remote, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const {
   loginUser,
@@ -6,7 +6,8 @@ const {
   createNewUser,
   getUserById,
   updateUser,
-  searchUser
+  searchUser,
+  exportUserCSV
 } = require('./models/user.js')
 
 const { addItem, getAllItems, createNewItem } = require('./models/item.js')
@@ -63,10 +64,10 @@ function createMainWindow() {
   // when main window finished loading every dom elements
   mainWindow.webContents.on('did-finish-load', () => {
     let pageName
-    console.log('did-finish-load');
+
     // listen for ipc message from renderer process to open login window
     ipcMain.on('login', (e, _pageName) => {
-      console.log('login for pageName', _pageName);
+
       // show the login window
       loginModal.show();
       // send routeName to LoginModal. Upon Successful login, the LoginModal will redirect to new page based on the page name
@@ -89,7 +90,7 @@ function createMainWindow() {
 
       if (loginResponse.status === 200) {
         loginModal.hide();
-        console.log(pageName);
+
         redirectToNewPage(pageName);
       }
       e.sender.send('register-login-response', loginResponse);
@@ -136,7 +137,7 @@ function createMainWindow() {
     // recive message from renderer process indicating that the new data creation is successfully finished
     // now can close the formWindow
     ipcMain.on('form-data-finish', (e, data) => {
-      console.log('form-data-finish');
+
       formWindow.hide();
       // send ipc message to renderer process to reload the data
       mainWindow.webContents.send('reload-data', data);
@@ -175,7 +176,6 @@ function createMainWindow() {
 
 
     ipcMain.handle('search-data', (e, req) => {
-      console.log(req);
       const { data, q } = req;
 
       if (data === 'user') {
@@ -191,8 +191,36 @@ function createMainWindow() {
 }
 
 
+ipcMain.on('export-csv', async (e, args) => {
+  try {
+    const dest = await dialog.showSaveDialog({
+      filters: [
+        { name: 'CSV files', extensions: ['csv']}
+      ]
+    });
+
+    if (dest.canceled) return;
+
+    if (args === 'user') {
+      exportUserCSV(dest.filePath)
+        .then(() => {
+          // show info dialog after successful export
+          dialog.showMessageBox ({
+            title: 'CSV File Exported',
+            message: `File saved in ${dest.filePath}`
+          });
+        })
+        .catch(erorr => console.log('Error Exporting', args, 'csv file ->', error));
+    }
+  }
+  catch(error) {
+    console.log('Error Exporting', args, 'csv file ->', error);
+  }
+});
+
+
 function redirectToNewPage(page) {
-  console.log('page', page);
+
   mainWindow.webContents.send('redirect-page', page);
 }
 

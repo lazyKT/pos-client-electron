@@ -5,20 +5,6 @@
 }
 
 
-.top-header button {
-  width: 100px;
-  border: none;
-  border-radius: 5px;
-  background: dodgerblue;
-  color: white;
-}
-
-
-.top-header button:hover {
-  background: cornflowerblue;
-}
-
-
 .top-header h4 {
   color: dodgerblue;
 }

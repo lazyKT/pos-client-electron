@@ -1,3 +1,6 @@
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+
+
 const users = [
   {
     id: 1,
@@ -38,7 +41,27 @@ const users = [
 ]
 
 
-exports.createNewUser = function createNewUser({username, email, password}) {
+function getCsvWriter (filePath) {
+  const csvWriter = createCsvWriter({
+    path: filePath,
+    header: [
+      {id: 'id', title: 'USER ID'},
+      {id: 'username', title: 'USERNAME'},
+      {id: 'email', title: 'EMAIL ADDRESS'}
+    ]
+  });
+  return csvWriter;
+}
+
+
+function getFileNameFromPath (filePath) {
+  const delimeter = process.platform === 'win32' ? '\\' : '/';
+  const segs = filePath.split(delimeter);
+  return filePath[segs.length - 1];
+}
+
+
+exports.createNewUser = function createNewUser ({username, email, password}) {
   const numOfUsers = users.length;
   users.push({
     id: numOfUsers + 1,
@@ -52,17 +75,17 @@ exports.createNewUser = function createNewUser({username, email, password}) {
 }
 
 
-exports.getAllUsers = function getAllUsers() {
+exports.getAllUsers = function getAllUsers () {
   return users;
 }
 
 
-exports.getUserById = function getUserById(id) {
+exports.getUserById = function getUserById (id) {
   return users.find(user => user.id === parseInt(id));
 }
 
 
-exports.updateUser = function updateUser(request) {
+exports.updateUser = function updateUser (request) {
   const { id, username, email } = request;
 
   const user = users.find(user => user.id === parseInt(id));
@@ -87,4 +110,18 @@ exports.loginUser = function login({username, password}) {
 exports.searchUser = function searchUser(q) {
   // search user data which match the keyword: q
   return users.filter(user => (user.username.includes(q) || user.email.includes(q)));
+}
+
+
+exports.exportUserCSV = async function exportCSV(targetFilePath) {
+
+  try {
+    const csvWriter = getCsvWriter (targetFilePath);
+    const fileName = getFileNameFromPath (targetFilePath);
+
+    await csvWriter.writeRecords(users);
+  }
+  catch (error) {
+    console.log('Error Exporting CSV File', error)
+  }
 }

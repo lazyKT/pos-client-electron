@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "csv-writer": "^1.6.0",
     "electron": "^15.2.0",
     "nodemon": "^2.0.13"
   },
