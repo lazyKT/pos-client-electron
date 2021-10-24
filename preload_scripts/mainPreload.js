@@ -32,10 +32,8 @@ const ALLOWED_INVOKED_CHANNELS = [
  expose some of the functionalities from main process using ContextBridge.
  This approach emphasizes safety and security by limiting renderer processing to access required functions only.
  */
-contextBridge.exposeInMainWorld(
-  "api", {
+contextBridge.exposeInMainWorld("api", {
     send: (channel, data) => {
-
       /*
         if the channel name used is listed in allowed received channels, send to Main Process
         otherwise, no action
