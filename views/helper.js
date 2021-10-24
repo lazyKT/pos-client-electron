@@ -201,7 +201,7 @@ exports.reloadData = async function reloadData(newData) {
 }
 
 
-exports.logoutToMainMenu = async function logoutToMainMenu() {
+exports.logoutToMainMenu = function logoutToMainMenu() {
   try {
     contents.style.display = 'none';
     newNode.remove();

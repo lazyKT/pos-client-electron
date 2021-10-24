@@ -51,7 +51,7 @@ async function redirectToNewPage(pageName) {
     contents.appendChild(newNode);
 
     // fetch contents based on the page name
-    await fetchContents(pageName);
+    // await fetchContents(pageName); <---- remove this
   }
   catch (error) {
     console.log(error);
@@ -83,24 +83,25 @@ function setInnerHTML(elm, html) {
 
 
 // fetch and fill contents into app window, based on the page name
-async function fetchContents(dataType) {
-
-  switch (dataType) {
-    case 'user':
-      // fetch users
-      window.api.send('get-all-users', 'user');
-      break;
-    case 'inventory':
-      // fetch inventory
-      await fetchItems();
-      break;
-    case 'setting':
-      // show setting page
-      break;
-    default:
-      throw new Error('Unkown Page Name Received');
-  }
-}
+// v---- remove the below functions now all the contents fetching will go under content-specific scripts
+// async function fetchContents(dataType) {
+//
+//   switch (dataType) {
+//     case 'user':
+//       // fetch users
+//       window.api.send('get-all-users', 'user');
+//       break;
+//     case 'inventory':
+//       // fetch inventory
+//       await fetchItems();
+//       break;
+//     case 'setting':
+//       // show setting page
+//       break;
+//     default:
+//       throw new Error('Unkown Page Name Received');
+//   }
+// }
 
 // logout
 function logoutToMainMenu() {

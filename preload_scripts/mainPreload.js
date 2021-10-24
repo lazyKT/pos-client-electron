@@ -22,7 +22,8 @@ const ALLOWED_RECEIVED_CHANNELS = [
 
 const ALLOWED_INVOKED_CHANNELS = [
   'get-all-users',
-  'search-data'
+  'search-data',
+  'get-all-items'
 ];
 
 /*
