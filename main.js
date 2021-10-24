@@ -1,5 +1,12 @@
-const { app, remote, BrowserWindow, ipcMain, dialog } = require('electron');
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  dialog,
+  Menu
+} = require('electron');
 const path = require('path');
+
 const {
   loginUser,
   getAllUsers,
@@ -17,7 +24,9 @@ const {
    updateItem,
    searchItem,
    exportItemCSV
-} = require('./models/item.js')
+} = require('./models/item.js');
+const { createCashierWindow, closeCashierWindow } = require('./cashierWindow.js')
+const applicationMenu = Menu.buildFromTemplate(require('./applicationMenu.js'));
 
 let mainWindow
 
@@ -41,6 +50,7 @@ function createMainWindow() {
     parent: mainWindow,
     modal: true,
     show: false,
+    frame: false,
     webPreferences: {
       contextIsolation: false,
       nodeIntegration: true,
@@ -65,8 +75,8 @@ function createMainWindow() {
   mainWindow.loadFile('views/main.html');
   loginModal.loadFile('views/login.html');
 
-  mainWindow.webContents.openDevTools();
-  loginModal.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
+  // loginModal.webContents.openDevTools();
 
   // when main window finished loading every dom elements
   mainWindow.webContents.on('did-finish-load', () => {
@@ -98,7 +108,7 @@ function createMainWindow() {
       if (loginResponse.status === 200) {
         loginModal.hide();
 
-        redirectToNewPage(pageName);
+        pageName === 'cashier' ? createCashierWindow() : redirectToNewPage(pageName);
       }
       e.sender.send('register-login-response', loginResponse);
     });
@@ -131,7 +141,7 @@ function createMainWindow() {
 
         // show the new data form
         formWindow.show();
-        formWindow.webContents.openDevTools(); // for debug
+        //formWindow.webContents.openDevTools(); // for debug
       }
       else if (windowType === 'item') {
         // load create_new_item html into formWindow
@@ -167,7 +177,7 @@ function createMainWindow() {
         formWindow.show();
         formWindow.setBackgroundColor('#FFFFFF');
         formWindow.loadFile('views/user/edit_show_user.html');
-        formWindow.openDevTools();
+        //formWindow.openDevTools();
         // after the contents of formWindows are successfully loaded
         formWindow.webContents.on('did-finish-load', () => {
           // send user data to be shown in formWindow
@@ -197,8 +207,8 @@ function createMainWindow() {
 
     // recieve create new user request
     ipcMain.handle('create-new-user', (e, newUser) => {
-      // const response = createNewUser(newUser);
-      console.log(response);
+      const response = createNewUser(newUser);
+      // console.log(response);
       return response;
     });
 
@@ -234,6 +244,9 @@ function createMainWindow() {
 
 
   });
+
+  /* set application menu */
+  Menu.setApplicationMenu(applicationMenu);
 }
 
 
