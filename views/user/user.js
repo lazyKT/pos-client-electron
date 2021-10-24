@@ -8,7 +8,7 @@ userRenderer = {
   /* renderer status */
   status: 'ready',
   /* fetch all user data */
-  loadUserData: async function loadUserData() {
+  loadUserData: async () => {
 
     try {
       const response = await window.api.invoke('get-all-users');
@@ -20,7 +20,7 @@ userRenderer = {
     }
   },
   /* create new user */
-  createUser: function createUser() {
+  createUser: () => {
     window.api.send('create-modal', 'user');
   },
   onKeyUp: function onKeyUp(event) {
@@ -28,7 +28,7 @@ userRenderer = {
       window.userRenderer.filterUsers();
   },
   /* filter user data */
-  filterUsers: async function filterUsers() {
+  filterUsers: async () => {
     const q = document.getElementById('search-input').value;
 
     if (!q || q === '')
@@ -44,7 +44,7 @@ userRenderer = {
     }
   },
   /* reset filter */
-  resetFilter: function resetFilter() {
+  resetFilter: () => {
     const searchInput = document.getElementById('search-input');
     searchInput.value = '';
 
@@ -57,7 +57,7 @@ userRenderer = {
     window.userRenderer.reloadData({method: 'GET', type: 'user'});
   },
   /* reload data after every mutation event on user data */
-  reloadData: async function reloadData(newData) {
+  reloadData: async newData => {
 
     try {
       const { type, data, method } = newData;
@@ -83,7 +83,7 @@ userRenderer = {
     }
   },
   /* display filtered results */
-  displayFilteredResults: function displayFilteredResults(results) {
+  displayFilteredResults: (results) => {
     // get table rows from the current data table
     const oldData = document.querySelectorAll('tr');
 
@@ -100,7 +100,7 @@ userRenderer = {
       window.userRenderer.showEmptyMessage();
   },
   /* display the user data in the table */
-  populateUserTable: function populateUserTable({id, username, email}, idx=1) {
+  populateUserTable: ({id, username, email}, idx=1) => {
     const userTable = document.getElementById('user-table');
 
     const row = userTable.insertRow(idx);
@@ -132,7 +132,7 @@ userRenderer = {
       window.api.send('user-data', {id, method: 'GET'});
     })
   },
-  showEmptyMessage: function () {
+  showEmptyMessage: () => {
     const searchInput = document.getElementById('search-input');
     const dataContainer = document.getElementById('data-container');
     const div = document.createElement('div');
@@ -141,6 +141,10 @@ userRenderer = {
     div.setAttribute('role', 'alert');
     div.innerHTML = `No result found related to ${searchInput.value}`;
     dataContainer.appendChild(div);
+  },
+  exportCSV: () => {
+    console.log('Export CSV');
+    window.api.send('export-csv', 'user');
   }
 };
 

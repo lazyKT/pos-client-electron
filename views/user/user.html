@@ -10,9 +10,14 @@
       <!-- info header -->
       <div class="top-header">
         <h4>Users</h4>
-        <button type="button" name="button" id="create-user" onclick="userRenderer.createUser()">
-          Create
-        </button>
+        <div class="">
+          <button class="btn btn-primary mx-1" type="button" name="button" id="create-user" onclick="userRenderer.createUser()">
+            Create
+          </button>
+          <button class="btn btn-success mx-1" type="button" name="button" id="create-user" onclick="userRenderer.exportCSV()">
+            Export CSV
+          </button>
+        </div>
       </div>
 
       <div class="card my-2 box">
@@ -24,6 +29,8 @@
           </div>
         </div>
       </div>
+
+
 
       <div class="card my-2 box">
         <div class="card-body" id="data-container">
