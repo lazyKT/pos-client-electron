@@ -21,6 +21,10 @@ userRenderer = {
   createUser: function createUser() {
     window.api.send('create-modal', 'user');
   },
+  onKeyUp: function onKeyUp(event) {
+    if (event.key === 'Enter')
+      window.userRenderer.filterUsers();
+  },
   /* filter user data */
   filterUsers: async function filterUsers() {
     const q = document.getElementById('search-input').value;
@@ -29,13 +33,25 @@ userRenderer = {
       return;
 
     try {
-        const results = await window.api.invoke('search-data');
+        const results = await window.api.invoke('search-data', {data: 'user', q});
         console.log(results);
-        window.userRenderer.displayFilteredResults(results, {data: 'user', q});
+        window.userRenderer.displayFilteredResults(results);
     }
     catch (error) {
         console.log('Error filtering user data', error);
     }
+  },
+  /* reset filter */
+  resetFilter: function resetFilter() {
+    const searchInput = document.getElementById('search-input');
+    searchInput.value = '';
+
+    /* remove the empty message box if the search results were found */
+    const emptyMessageBox = document.getElementById('empty-message-box');
+    if (emptyMessageBox)
+      emptyMessageBox.remove();
+
+    window.api.send('form-data-finish', {method: 'GET', type: 'user'});
   },
   /* reload data after every mutation event on user data */
   reloadData: async function reloadData(newData) {
@@ -44,6 +60,7 @@ userRenderer = {
 
       // get table rows from the current data table
       const oldData = newNode.querySelectorAll('tr');
+      console.log('oldData'. oldData);
       // excpet the table header, remove all the data
       oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
 
@@ -65,13 +82,17 @@ userRenderer = {
     // get table rows from the current data table
     const oldData = document.querySelectorAll('tr');
 
+    // get rid of the empty-message-box if avaialble
+    const emptyMessageBox = document.getElementById('empty-message-box');
+    if (emptyMessageBox) emptyMessageBox.remove();
+
     // excpet the table header, remove all the data
     oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
 
     if (results.length > 0)
-      results.forEach( (result, idx) => populateUserTable(result, idx + 1));
-    // else
-    //   showEmptyMessage();
+      results.forEach( (result, idx) => window.userRenderer.populateUserTable(result, idx + 1));
+    else
+      window.userRenderer.showEmptyMessage();
   },
   /* display the user data in the table */
   populateUserTable: function populateUserTable({id, username, email}, idx=1) {
@@ -107,6 +128,16 @@ userRenderer = {
       window.api.send('user-data', {id, method: 'GET'});
     })
   },
+  showEmptyMessage: function () {
+    const searchInput = document.getElementById('search-input');
+    const dataContainer = document.getElementById('data-container');
+    const div = document.createElement('div');
+    div.setAttribute('id', 'empty-message-box');
+    div.setAttribute('class', 'alert alert-info');
+    div.setAttribute('role', 'alert');
+    div.innerHTML = `No result found related to ${searchInput.value}`;
+    dataContainer.appendChild(div);
+  }
 };
 
 

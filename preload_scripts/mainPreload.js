@@ -10,7 +10,8 @@ const ALLOWED_SEND_CHANNELS = [
   'login',
   'logout',
   'create-modal',
-  'user-data'
+  'user-data',
+  'form-data-finish'
 ];
 
 const ALLOWED_RECEIVED_CHANNELS = [

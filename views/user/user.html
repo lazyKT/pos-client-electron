@@ -17,10 +17,10 @@
 
       <div class="card my-2 box">
         <div class="card-body search-div">
-          <input class="w-75" id='search-input' type="text" name="" value="" placeholder="Search Users">
+          <input class="w-75" id='search-input' type="text" name="" value="" placeholder="Search Users" onkeyup="userRenderer.onKeyUp(event)">
           <div class="w-25">
             <button onclick="userRenderer.filterUsers()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
-            <button class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
+            <button onclick="userRenderer.resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
           </div>
         </div>
       </div>
