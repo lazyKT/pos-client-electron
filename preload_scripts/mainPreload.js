@@ -1,7 +1,8 @@
 /* preload scripts for main browser window */
 const {
   ipcRenderer,
-  contextBridge
+  contextBridge,
+  dialog
 } = require('electron');
 
 
@@ -11,7 +12,8 @@ const ALLOWED_SEND_CHANNELS = [
   'logout',
   'create-modal',
   'user-data',
-  'form-data-finish'
+  'form-data-finish',
+  'export-csv'
 ];
 
 const ALLOWED_RECEIVED_CHANNELS = [
