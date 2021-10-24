@@ -14,7 +14,7 @@ git clone https://github.com/lazyKT/pos-client-electron.git
 npm init -y
 ```
 ```
-npm install --save-dev electron nodemon
+npm install --save-dev electron nodemon csv-writer
 ```
 
 ### Run the app
