@@ -12,13 +12,9 @@ const ALLOWED_SEND_CHANNELS = [
   'logout',
   'create-modal',
   'user-data',
-<<<<<<< HEAD
-  'inventory-data',
-  'form-data-finish'
-=======
+  'item-data',
   'form-data-finish',
   'export-csv'
->>>>>>> e713eb90f880f0115b565cca74cc7da13f5cc953
 ];
 
 const ALLOWED_RECEIVED_CHANNELS = [
@@ -29,13 +25,8 @@ const ALLOWED_RECEIVED_CHANNELS = [
 
 const ALLOWED_INVOKED_CHANNELS = [
   'get-all-users',
-<<<<<<< HEAD
-  'get-all-items',
-  'search-data'
-=======
   'search-data',
   'get-all-items'
->>>>>>> e713eb90f880f0115b565cca74cc7da13f5cc953
 ];
 
 /*

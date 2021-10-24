@@ -21,6 +21,7 @@ cancelBtn.addEventListener('click', () => {
 createBtn.addEventListener('click', async (e) => {
   // prevent default behaviour on form submit
   e.preventDefault();
+  console.log('Create btn clcl');
 
   const username = document.getElementById('username').value;
   const email = document.getElementById('email').value;
@@ -36,11 +37,8 @@ createBtn.addEventListener('click', async (e) => {
     console.log(response);
     if (response === 201) {
       // inform the main process that new data creation is done
-<<<<<<< HEAD
-      ipcRenderer.send('create-data-finish', 'user');
-=======
+      // console.log('response', response);
       ipcRenderer.send('form-data-finish', {method: 'CREATE', data: {username}, type: 'user'});
->>>>>>> d8cfe81f5458e2d3a902a2c1acd614b691e2ae10
     }
   }
   catch (error) {

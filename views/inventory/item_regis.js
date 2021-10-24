@@ -14,7 +14,7 @@ const createBtn = document.getElementById('create-item');
 
 // close create user window
 cancelBtn.addEventListener('click', () => {
-  ipcRenderer.send('dismiss-create-window', '');
+  ipcRenderer.send('dismiss-form-window', '');
 });
 
 
@@ -33,11 +33,10 @@ createBtn.addEventListener('click', async (e) => {
   try {
     // make create new item request to main process
     const response = await createNewItem({description, expireDate, quantity, location});
-    console.log('clicking');
-    console.log(response);
+    
     if (response === 201) {
       // inform the main process that new data creation is done
-      ipcRenderer.send('create-data-finish', 'inventory');
+      ipcRenderer.send('form-data-finish', {method: 'CREATE', data: {description}, type: 'item'});
     }
   }
   catch (error) {

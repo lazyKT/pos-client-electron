@@ -10,7 +10,14 @@ const {
   exportUserCSV
 } = require('./models/user.js')
 
-const { addItem, getAllItems, createNewItem } = require('./models/item.js')
+const { 
+   getAllItems, 
+   createNewItem,
+   getItemById,
+   updateItem,
+   searchItem,
+   exportItemCSV
+} = require('./models/item.js')
 
 let mainWindow
 
@@ -59,7 +66,7 @@ function createMainWindow() {
   loginModal.loadFile('views/login.html');
 
   mainWindow.webContents.openDevTools();
-  // loginModal.webContents.openDevTools();
+  loginModal.webContents.openDevTools();
 
   // when main window finished loading every dom elements
   mainWindow.webContents.on('did-finish-load', () => {
@@ -124,10 +131,16 @@ function createMainWindow() {
 
         // show the new data form
         formWindow.show();
-        // formWindow.webContents.openDevTools(); // for debug
+        formWindow.webContents.openDevTools(); // for debug
       }
-      else if (windowType === 'inventory') {
+      else if (windowType === 'item') {
         // load create_new_item html into formWindow
+        formWindow.setBackgroundColor('#FFFFFF');
+        formWindow.loadFile('views/inventory/item_regis.html');
+
+        // show the new data form
+        formWindow.show();
+        // formWindow.webContents.openDevTools(); // for debug
       }
     });
 
@@ -163,9 +176,29 @@ function createMainWindow() {
       }
     });
 
+    // receive ipc message to response single item data by id
+    ipcMain.on('item-data', (e, req) => {
+      const { id, method } = req;
+
+      const item = getItemById(id);
+
+      if (item) {
+        formWindow.show();
+        formWindow.setBackgroundColor('#FFFFFF');
+        formWindow.loadFile('views/inventory/edit_show_item.html');
+        formWindow.openDevTools();
+        // after the contents of formWindows are successfully loaded
+        formWindow.webContents.on('did-finish-load', () => {
+          // send user data to be shown in formWindow
+          formWindow.webContents.send('response-item-data', {item, method});
+        });
+      }
+    });
+
     // recieve create new user request
     ipcMain.handle('create-new-user', (e, newUser) => {
-      const response = createNewUser(newUser);
+      // const response = createNewUser(newUser);
+      console.log(response);
       return response;
     });
 
@@ -182,10 +215,23 @@ function createMainWindow() {
         // search user
         return searchUser(q);
       }
-      else if (data === 'inventory') {
+      else if (data === 'item') {
         // search inventory here
+        return searchItem(q);
       }
     });
+
+    // recieve create new item request
+    ipcMain.handle('create-new-item', (e, newItem) => {
+      const response = createNewItem(newItem);
+      return response;
+    });
+
+    // recieve update item request
+    ipcMain.handle('update-item', (e, req) => {
+      return updateItem(req);
+    });
+
 
   });
 }
@@ -211,6 +257,17 @@ ipcMain.on('export-csv', async (e, args) => {
           });
         })
         .catch(erorr => console.log('Error Exporting', args, 'csv file ->', error));
+    }
+    else if(args === 'item') {
+      exportItemCSV(dest.filePath)
+        .then(() => {
+          // show info dialog after successful export
+          dialog.showMessageBox ({
+            title: 'CSV File Exported',
+            message: `File saved in ${dest.filePath}`
+          });
+        })
+        .catch(error => console.log('Error Exporting', args, 'csv file ->', error));
     }
   }
   catch(error) {

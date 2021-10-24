@@ -1,3 +1,5 @@
+const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+
 const items = [
   {
     id: 1,
@@ -47,6 +49,7 @@ exports.getItemById = function getItemrById(id) {
 
 
 exports.updateItem = function updateItem(request) {
+  
   const { id, description, expireDate, quantity, location } = request;
 
   const item = items.find(item => item.id === parseInt(id));
@@ -78,4 +81,37 @@ exports.createNewItem = function createNewItem({description, expireDate, quantit
   if (items.length === (numOfItems + 1))
     return 201; // http status code 201 Created
   return 500; // http status code 500 Internal Server Error
+}
+
+function getCsvWriter (filePath) {
+  const csvWriter = createCsvWriter({
+    path: filePath,
+    header: [
+      {id: 'id', title: 'ITEM ID'},
+      {id: 'description', title: 'DESCRIPTION'},
+      {id: 'expireDate', title: 'EXPIRE DATE'},
+      {id: 'quantity', title: 'QUANTITY'},
+      {id: 'location', title: 'LOCATION'}
+    ]
+  });
+  return csvWriter;
+}
+
+function getFileNameFromPath (filePath) {
+  const delimeter = process.platform === 'win32' ? '\\' : '/';
+  const segs = filePath.split(delimeter);
+  return filePath[segs.length - 1];
+}
+
+exports.exportItemCSV = async function exportCSV(targetFilePath) {
+
+  try {
+    const csvWriter = getCsvWriter (targetFilePath);
+    const fileName = getFileNameFromPath (targetFilePath);
+
+    await csvWriter.writeRecords(items);
+  }
+  catch (error) {
+    console.log('Error Exporting CSV File', error)
+  }
 }
