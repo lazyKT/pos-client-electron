@@ -1,5 +1,12 @@
-const { app, remote, BrowserWindow, ipcMain, dialog } = require('electron');
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  dialog,
+  Menu
+} = require('electron');
 const path = require('path');
+
 const {
   loginUser,
   getAllUsers,
@@ -8,9 +15,10 @@ const {
   updateUser,
   searchUser,
   exportUserCSV
-} = require('./models/user.js')
-
-const { addItem, getAllItems } = require('./models/item.js')
+} = require('./models/user.js');
+const { addItem, getAllItems } = require('./models/item.js');
+const { createCashierWindow, closeCashierWindow } = require('./cashierWindow.js')
+const applicationMenu = Menu.buildFromTemplate(require('./applicationMenu.js'));
 
 let mainWindow
 
@@ -34,6 +42,7 @@ function createMainWindow() {
     parent: mainWindow,
     modal: true,
     show: false,
+    frame: false,
     webPreferences: {
       contextIsolation: false,
       nodeIntegration: true,
@@ -58,7 +67,7 @@ function createMainWindow() {
   mainWindow.loadFile('views/main.html');
   loginModal.loadFile('views/login.html');
 
-  mainWindow.webContents.openDevTools();
+  // mainWindow.webContents.openDevTools();
   // loginModal.webContents.openDevTools();
 
   // when main window finished loading every dom elements
@@ -91,7 +100,7 @@ function createMainWindow() {
       if (loginResponse.status === 200) {
         loginModal.hide();
 
-        redirectToNewPage(pageName);
+        pageName === 'cashier' ? createCashierWindow() : redirectToNewPage(pageName);
       }
       e.sender.send('register-login-response', loginResponse);
     });
@@ -187,8 +196,10 @@ function createMainWindow() {
         // search inventory here
       }
     });
-
   });
+
+  /* set application menu */
+  Menu.setApplicationMenu(applicationMenu);
 }
 
 
