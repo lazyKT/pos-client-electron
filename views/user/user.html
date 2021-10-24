@@ -10,7 +10,7 @@
       <!-- info header -->
       <div class="top-header">
         <h4>Users</h4>
-        <button type="button" name="button" id="create-user">
+        <button type="button" name="button" id="create-user" onclick="userRenderer.createUser()">
           Create
         </button>
       </div>
@@ -19,7 +19,7 @@
         <div class="card-body search-div">
           <input class="w-75" id='search-input' type="text" name="" value="" placeholder="Search Users">
           <div class="w-25">
-            <button class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
+            <button onclick="userRenderer.filterUsers()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
             <button class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
           </div>
         </div>
@@ -44,8 +44,7 @@
       </div>
     </div>
   </body>
-  <script>
-    // You can also require other files to run in this process
-    require('./user/user.js')
+  <script src="user/user.js" data-name="user">
+
   </script>
 </html>

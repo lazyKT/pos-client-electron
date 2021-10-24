@@ -1,5 +1,5 @@
 const { app, remote, BrowserWindow, ipcMain } = require('electron');
-
+const path = require('path');
 const {
   loginUser,
   getAllUsers,
@@ -20,8 +20,9 @@ function createMainWindow() {
     width: 1000,
     height: 800,
     webPreferences: {
-      contextIsolation: false,
-      nodeIntegration: true,
+      nodeIntegration: false,
+      contextIsolation: true, // protect against prototype pollution
+      preload: path.join(__dirname, "preload_scripts/mainPreload.js") // use a preload scrip
     }
   });
 
@@ -65,6 +66,7 @@ function createMainWindow() {
     console.log('did-finish-load');
     // listen for ipc message from renderer process to open login window
     ipcMain.on('login', (e, _pageName) => {
+      console.log('login for pageName', _pageName);
       // show the login window
       loginModal.show();
       // send routeName to LoginModal. Upon Successful login, the LoginModal will redirect to new page based on the page name
@@ -87,6 +89,7 @@ function createMainWindow() {
 
       if (loginResponse.status === 200) {
         loginModal.hide();
+        console.log(pageName);
         redirectToNewPage(pageName);
       }
       e.sender.send('register-login-response', loginResponse);
@@ -172,6 +175,7 @@ function createMainWindow() {
 
 
     ipcMain.handle('search-data', (e, req) => {
+      console.log(req);
       const { data, q } = req;
 
       if (data === 'user') {
@@ -188,6 +192,7 @@ function createMainWindow() {
 
 
 function redirectToNewPage(page) {
+  console.log('page', page);
   mainWindow.webContents.send('redirect-page', page);
 }
 

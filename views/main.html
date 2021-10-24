@@ -16,8 +16,8 @@
     <!-- login contents -->
     <div id="contents">
       <header>
-        <h4 id='content-title'>Register New User</h4>
-        <button class="btn-logout" id="logout">
+        <h4 id='content-title'>Pharmacy</h4>
+        <button class="btn-logout" id="logout" onclick="logoutToMainMenu()">
           Logout<i class="fas fa-sign-out-alt"></i>
         </button>
       </header>
@@ -27,14 +27,20 @@
     <div id="main-container" class="main-container">
       <div class="container">
         <div class="row my-1">
-          <div class="col menu-item card mx-1">
-            <div class="card-body" id="user">
+          <div
+            class="col menu-item card mx-1"
+            id="user"
+            onclick="requestLoginWindow('user')">
+            <div class="card-body">
               <i class="fas fa-key"></i>
               <p>Manage Users</p>
             </div>
           </div>
-          <div class="col menu-item card mx-1">
-            <div class="card-body" id="inventory">
+          <div
+            class="col menu-item card mx-1"
+            id="inventory"
+            onclick="requestLoginWindow('inventory')">
+            <div class="card-body">
               <i class="fas fa-cart-plus"></i>
               <p>Inventory</p>
             </div>
@@ -47,8 +53,11 @@
               <p>Cashier</p>
             </div>
           </div>
-          <div class="col order-1 menu-item card mx-1">
-            <div class="card-body" id="setting">
+          <div
+            class="col order-1 menu-item card mx-1"
+            id="setting"
+            onclick="requestLoginWindow('setting')">
+            <div class="card-body">
               <i class="fas fa-cog"></i>
               <p>Setting</p>
             </div>
@@ -80,9 +89,8 @@
         </div>
       </div>
     </div>
-    <script>
-      // You can also require other files to run in this process
-      require('./mainRenderer.js')
+    <script src="main.js" data-name='main'>
+
     </script>
   </body>
 </html>
