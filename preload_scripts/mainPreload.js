@@ -11,6 +11,7 @@ const ALLOWED_SEND_CHANNELS = [
   'logout',
   'create-modal',
   'user-data',
+  'inventory-data',
   'form-data-finish'
 ];
 
@@ -22,6 +23,7 @@ const ALLOWED_RECEIVED_CHANNELS = [
 
 const ALLOWED_INVOKED_CHANNELS = [
   'get-all-users',
+  'get-all-items',
   'search-data'
 ];
 
@@ -77,6 +79,21 @@ contextBridge.exposeInMainWorld(
         else if (method === 'UPDATE') {
           const NOTIFICATION_TITLE = 'User Successfully Updated';
           const NOTIFICATION_BODY = `Updated User, username : ${data.username}.`
+
+          new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
+        }
+      }
+
+      else if(type === 'item') {
+        if (method === 'CREATE') {
+          const NOTIFICATION_TITLE = 'New Item Created';
+          const NOTIFICATION_BODY = `New Item, Description : ${data.description}.`
+
+          new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
+        }
+        else if (method === 'UPDATE') {
+          const NOTIFICATION_TITLE = 'Item Successfully Updated';
+          const NOTIFICATION_BODY = `Updated Item, Description : ${data.description}.`
 
           new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
         }
