@@ -14,11 +14,21 @@ let newNode
 
 
 
-function showAlert({type, data, method}) {
-  const alertBox = document.getElementById('alert');
-  alertBox.style.display = 'block';
+function showNotification ({type, data, method}) {
+  if (type === 'user') {
+    if (method === 'CREATE') {
+      const NOTIFICATION_TITLE = 'New User Created';
+      const NOTIFICATION_BODY = `New User, username : ${data.username}.`
 
-  alertBox.innerHTML = `New ${type} ${method}: ${data.username}`;
+      new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
+    }
+    else if (method === 'UPDATE') {
+      const NOTIFICATION_TITLE = 'User Successfully Updated';
+      const NOTIFICATION_BODY = `Updated User, username : ${data.username}.`
+
+      new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
+    }
+  }
 }
 
 // fetch users from main process and render in the renderer process
@@ -61,21 +71,23 @@ function populateItemTable({id, description, expireDate, quantity, location}) {
 
 }
 
-function populateUserTable({id, username}) {
+function populateUserTable({id, username, email}) {
   const userTable = document.getElementById('user-table');
 
   const row = userTable.insertRow(id);
   const firstColumn = row.insertCell(0);
   const secondColumn = row.insertCell(1);
   const thirdColumn = row.insertCell(2);
+  const fourthColumn = row.insertCell(3);
   firstColumn.innerHTML = id;
   secondColumn.innerHTML = username;
+  thirdColumn.innerHTML = email;
   /* edit button */
   const editBtn = document.createElement('button');
   editBtn.setAttribute('class', 'btn mx-1 btn-primary');
   editBtn.setAttribute('data-id', id);
   editBtn.innerHTML = 'EDIT';
-  thirdColumn.appendChild(editBtn);
+  fourthColumn.appendChild(editBtn);
 
   editBtn.addEventListener('click', e => {
     console.log('id', id);
@@ -87,15 +99,11 @@ function populateUserTable({id, username}) {
   viewBtn.setAttribute('class', 'btn mx-1 btn-info');
   viewBtn.setAttribute('data-id', id);
   viewBtn.innerHTML = 'View More Details';
-  thirdColumn.appendChild(viewBtn);
+  fourthColumn.appendChild(viewBtn);
 
   viewBtn.addEventListener('click', e => {
     ipcRenderer.send('user-data', {id, method: 'GET'});
   })
-}
-
-function editOnClick() {
-  alert('on click');
 }
 
 // if admin user login is successful, redirect into admin pannel
@@ -116,7 +124,7 @@ exports.redirectToAdminPannel = async function redirectToAdminPannel(pageName) {
 
     // load newly fetched html and script inside into app content
     setInnerHTML(newNode, data);
-
+    console.log(newNode);
     contents.appendChild(newNode);
 
     // fetch contents based on the page name
@@ -140,7 +148,7 @@ function setInnerHTML(elm, html) {
     // get attributes from the current script
     Array.from(currentScript.attributes).forEach( attribute => {
       // set the current script attributes to new script
-      newScript.setAttribute(attribute.namem, attribute.value);
+      newScript.setAttribute(attribute.name, attribute.value);
     });
     // import all functions and contents of current script into newly created script
     newScript.appendChild(document.createTextNode(currentScript.innerHTML));
@@ -170,6 +178,7 @@ async function fetchContents(dataType) {
 }
 
 
+/* reload the data after some CRUD operations */
 exports.reloadData = async function reloadData(newData) {
   try {
     const { type, data, method } = newData;
@@ -182,7 +191,8 @@ exports.reloadData = async function reloadData(newData) {
     // reload the data by fetching data based on the data type, and populate the table again
     await fetchContents(type);
 
-    showAlert(newData);
+    if (method === 'CREATE' || method === 'UPDATE')
+      showNotification(newData);
 
   }
   catch (error) {
@@ -194,7 +204,7 @@ exports.reloadData = async function reloadData(newData) {
 exports.logoutToMainMenu = async function logoutToMainMenu() {
   try {
     contents.style.display = 'none';
-    contents.removeChild(newNode);
+    newNode.remove();
     mainPage.style.display = 'flex';
   }
   catch (error) {

@@ -1,11 +1,12 @@
 const { app, remote, BrowserWindow, ipcMain } = require('electron');
-
+const path = require('path');
 const {
   loginUser,
   getAllUsers,
   createNewUser,
   getUserById,
-  updateUser
+  updateUser,
+  searchUser
 } = require('./models/user.js')
 
 const { addItem, getAllItems } = require('./models/item.js')
@@ -19,8 +20,9 @@ function createMainWindow() {
     width: 1000,
     height: 800,
     webPreferences: {
-      contextIsolation: false,
-      nodeIntegration: true,
+      nodeIntegration: false,
+      contextIsolation: true, // protect against prototype pollution
+      preload: path.join(__dirname, "preload_scripts/mainPreload.js") // use a preload scrip
     }
   });
 
@@ -61,9 +63,10 @@ function createMainWindow() {
   // when main window finished loading every dom elements
   mainWindow.webContents.on('did-finish-load', () => {
     let pageName
-
+    console.log('did-finish-load');
     // listen for ipc message from renderer process to open login window
     ipcMain.on('login', (e, _pageName) => {
+      console.log('login for pageName', _pageName);
       // show the login window
       loginModal.show();
       // send routeName to LoginModal. Upon Successful login, the LoginModal will redirect to new page based on the page name
@@ -86,6 +89,7 @@ function createMainWindow() {
 
       if (loginResponse.status === 200) {
         loginModal.hide();
+        console.log(pageName);
         redirectToNewPage(pageName);
       }
       e.sender.send('register-login-response', loginResponse);
@@ -104,7 +108,7 @@ function createMainWindow() {
 
     //response all items to renderer process
     ipcMain.handle('get-all-items', (e, _) => {
-      console.log("hi");
+
       const result = getAllItems();
       return result;
     });
@@ -133,6 +137,7 @@ function createMainWindow() {
     // recive message from renderer process indicating that the new data creation is successfully finished
     // now can close the formWindow
     ipcMain.on('form-data-finish', (e, data) => {
+      console.log('form-data-finish');
       formWindow.hide();
       // send ipc message to renderer process to reload the data
       mainWindow.webContents.send('reload-data', data);
@@ -169,11 +174,26 @@ function createMainWindow() {
       return updateUser(req);
     });
 
+
+    ipcMain.handle('search-data', (e, req) => {
+      console.log(req);
+      const { data, q } = req;
+
+      if (data === 'user') {
+        // search user
+        return searchUser(q);
+      }
+      else if (data === 'inventory') {
+        // search inventory here
+      }
+    });
+
   });
 }
 
 
 function redirectToNewPage(page) {
+  console.log('page', page);
   mainWindow.webContents.send('redirect-page', page);
 }
 

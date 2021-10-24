@@ -10,7 +10,7 @@ const editButton = document.getElementById('edit-user');
 if (editButton) editButton.style.display = 'none'; // hide the edit button on the first load
 
 ipcRenderer.on('response-user-data', (e, data) => {
-  console.log(data);
+  
   const { user, method } = data;
   const userId = document.getElementById('user-id');
   const username = document.getElementById('username');

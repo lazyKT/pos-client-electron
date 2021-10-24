@@ -29,6 +29,12 @@ const users = [
     email: 'winter@site.com',
     password: 'summer'
   },
+  {
+    id: 6,
+    username: 'administrator',
+    email: 'lwin@site.com',
+    passowrd: 'lwin'
+  }
 ]
 
 
@@ -75,4 +81,10 @@ exports.loginUser = function login({username, password}) {
   const user = users.find(u => u.username === username);
   if (user) return {status: 200, data: {username}}
   else return {status: 401, message: 'Incorrect username or password!'}
+}
+
+
+exports.searchUser = function searchUser(q) {
+  // search user data which match the keyword: q
+  return users.filter(user => (user.username.includes(q) || user.email.includes(q)));
 }
