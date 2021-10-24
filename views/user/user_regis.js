@@ -21,12 +21,13 @@ cancelBtn.addEventListener('click', () => {
 createBtn.addEventListener('click', async (e) => {
   // prevent default behaviour on form submit
   e.preventDefault();
+  console.log('Create btn clcl');
 
   const username = document.getElementById('username').value;
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
 
-  if (!username && username === '' && !email && email === '' && !password && password === '')
+  if (!username && username === '' || !email && email === '' || !password && password === '')
     return;
 
   try {
@@ -36,6 +37,7 @@ createBtn.addEventListener('click', async (e) => {
     console.log(response);
     if (response === 201) {
       // inform the main process that new data creation is done
+      // console.log('response', response);
       ipcRenderer.send('form-data-finish', {method: 'CREATE', data: {username}, type: 'user'});
     }
   }

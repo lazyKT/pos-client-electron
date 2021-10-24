@@ -11,28 +11,34 @@
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
           crossorigin="anonymous">
         <link rel="stylesheet" href="inventory/inventory.css">
-        <script>
-            
-            </script>
+        <script src="inventory/inventory.js" data-name="item">
+
+        </script>
     </head>
 <body>
 
 <div class="container">
 <div class="top-header">
    <h4>My Inventory</h4>
-   <button type="button" name="button" idea="create-user">
-     Create
-   </button>
+   <div class= "">
+   <button class="btn btn-primary mx-1" type="button" name="button" id="create-item" onclick="itemRenderer.createItem()">
+    Create
+  </button>
+   <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="itemRenderer.exportCSV()">
+    Export CSV
+  </button>
+  </div>
 </div>
 <div class="card my-2 box">
-    <div class="card-body search-div">
-      <input class="w-75" type="text" name="" value="" placeholder="Search items">
-      <div class="w-25">
-        <button type="button" name="button">Search</button>
-      </div>
+  <div class="card-body search-div">
+    <input class="w-75" id='search-input' type="text" name="" value="" placeholder="Search Items" onkeyup="itemRenderer.onKeyUp(event)">
+    <div class="w-25">
+      <button onclick="itemRenderer.filterItems()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
+      <button onclick="itemRenderer.resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
     </div>
   </div>
-  <div class="card my-2 box">
+</div>
+  <div class="card my-2 box" width = 'auto'>
     <div class="card-body">
     <table class="table" id="item-table">
         <thead>
