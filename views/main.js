@@ -11,6 +11,8 @@ const logout = document.getElementById('logout');
 const contents = document.getElementById('contents');
 const mainPage = document.getElementById('main-container');
 
+let newNode = null;
+
 /* hide contents window on first load */
 if(contents) contents.style.display = 'none';
 
@@ -105,6 +107,7 @@ function logoutToMainMenu() {
   try {
     contents.style.display = 'none';
     newNode.remove();
+    newNode = null;
     mainPage.style.display = 'flex';
   }
   catch (error) {

@@ -54,8 +54,8 @@ contextBridge.exposeInMainWorld(
     invoke: async (channel, data) => {
       try {
         if (ALLOWED_INVOKED_CHANNELS.includes(channel)) {
-          console.log('channel', channel);
-          console.log('data', data);
+          // console.log('channel', channel);
+          // console.log('data', data);
           const response = await ipcRenderer.invoke(channel, data);
 
           return response;
@@ -66,7 +66,7 @@ contextBridge.exposeInMainWorld(
       }
     },
     showNotification: ({type, data, method}) => {
-      console.log('show notification', type, data, method);
+      // console.log('show notification', type, data, method);
       if (type === 'user') {
         if (method === 'CREATE') {
           const NOTIFICATION_TITLE = 'New User Created';

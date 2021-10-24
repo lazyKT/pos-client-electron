@@ -137,6 +137,7 @@ function createMainWindow() {
     // recive message from renderer process indicating that the new data creation is successfully finished
     // now can close the formWindow
     ipcMain.on('form-data-finish', (e, data) => {
+      console.log('form-data-finish');
       formWindow.hide();
       // send ipc message to renderer process to reload the data
       mainWindow.webContents.send('reload-data', data);
