@@ -50,7 +50,7 @@ editButton.addEventListener('click', async e => {
   const id = document.getElementById('item-id')?.value;
   const description = document.getElementById('description')?.value;
   const expireDate = document.getElementById('expireDate')?.value;
-  const quantity = document.getElementById('quanity')?.value;
+  const quantity = document.getElementById('quantity')?.value;
   const location = document.getElementById('location')?.value;
 
   if (!id || id === '' || !description || description === '' || !expireDate || expireDate === '' || !quantity || quantity === '' || !location || location === '')

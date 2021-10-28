@@ -150,7 +150,7 @@ function createMainWindow() {
 
         // show the new data form
         formWindow.show();
-        // formWindow.webContents.openDevTools(); // for debug
+        formWindow.webContents.openDevTools(); // for debug
       }
     });
 
