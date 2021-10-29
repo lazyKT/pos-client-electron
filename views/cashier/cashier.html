@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" style="height: 95vh;">
   <head>
     <meta charset="utf-8">
     <title></title>
@@ -26,28 +26,66 @@
     <!-- contents -->
     <div class="container pt-3 h-100">
 
-      <!-- add to cart -->
-      <div class="card mb-3">
-        <h5 class="m-2">Add item to the cart</h5>
-        <div class="card-body d-flex justify-content-between">
-          <input class="w-75 form-control px-2" type="text" name="" value="" placeholder="Item Code">
-          <div class="w-25 d-flex justify-content-end">
-            <button class="btn btn-primary" type="button" name="button">Add item</button>
+      <div class="row h-100">
+        <div class="col">
+          <!-- add to cart -->
+          <h5 class="m-2 text-muted">Pharmacy</h5>
+          <div class="card mb-3">
+            <h6 class="m-2">Add item to the cart</h6>
+            <div class="card-body d-flex justify-content-between">
+              <input class="w-75 form-control px-2" type="text" id="item-input" placeholder="Item Code">
+              <div class="w-25 d-flex justify-content-end">
+                <button class="btn btn-primary" name="button" id="add-item">Add item</button>
+              </div>
+            </div>
+          </div>
+          <!-- end of add to cart -->
+          <!-- clinic fees -->
+          <h5 class="mx-2 mt-4 text-muted">Clinic</h5>
+          <div class="card mb-3">
+            <h6 class="m-2">Add Clinic Fees</h6>
+            <div class="card-body d-flex justify-content-between">
+              <input class="w-75 form-control px-2" type="text" name="" value="" placeholder="Consultation Fees, Doctor Fees, etc">
+              <div class="w-25 d-flex justify-content-end">
+                <button class="btn btn-primary" name="button" id="add-fees">Add Fees</button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      <!-- end of add to cart -->
 
-      <!-- cart -->
-      <h6 class="m-2">Cart</h6>
-      <div class="card h-700">
-        <div class="card-body d-flex justify-content-between">
-          <div class="alert alert-info empty-alert" role="alert">
-            Cart is Empty!
+        <div class="col">
+          <!-- cart -->
+          <h6 class="m-2 text-muted">Cart</h6>
+          <div class="card h-75">
+            <div class="card-body" id="cart">
+              <div class="alert alert-info empty-alert" role="alert">
+                Cart is Empty!
+              </div>
+            </div>
+          </div>
+          <!-- end of cart -->
+          <div class="card my-2">
+            <div class="card-body d-flex justify-content-between">
+              <h6 class="text-muted">Total :</h6>
+              <h5 class="text-muted" id="total-price"></h5>
+            </div>
+          </div>
+
+          <!-- actions -->
+          <div class="d-flex justify-content-between" id="cashier-action">
+            <button class="btn btn-primary w-25" type="button" id="save-btn">
+              <i class="fas fa-save"></i>&nbsp;Save
+            </button>
+            <button class="btn btn-dark w-25" type="button" id="save-btn">
+              <i class="fas fa-print"></i>&nbsp;Print
+            </button>
+            <button class="btn btn-secondary w-25" type="button" id="save-btn">
+              <i class="fas fa-trash text-white"></i>&nbsp;
+              <span class="text-white">Discard</span>
+            </button>
           </div>
         </div>
       </div>
-      <!-- end of cart -->
 
     </div>
     <!-- end of contents -->

@@ -5,10 +5,12 @@ const {
 const path = require('path');
 
 const { createMainWindow } = require("./windows/mainWindow.js");
+const { createCashierWindow } = require("./windows/cashierWindow.js");
 
 
 app.whenReady().then(() => {
-  createMainWindow();
+  // createMainWindow();
+  createCashierWindow();
 
   app.on('activate', () => {
     // if app is already open, do not start the new instance

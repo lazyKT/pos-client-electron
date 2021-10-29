@@ -54,7 +54,6 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
     /** LogOut **/
     ipcMain.on("logout", () => {
-      ipcMain.removeAllListeners(); // remove all exisiting active IPC listeners on logout
       if (win)
         win.close();
     });
