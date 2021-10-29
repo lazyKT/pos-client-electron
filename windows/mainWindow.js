@@ -18,7 +18,6 @@ const {
   searchUser,
   exportUserCSV
 } = require("../models/user.js");
-const { getAllItems } = require("../models/item.js");
 const applicationMenu = Menu.buildFromTemplate(require('../applicationMenu.js'));
 
 let win
@@ -63,16 +62,13 @@ exports.createMainWindow = function createMainWindow () {
       e.sender.send('logout-response', 200);
     })
 
+    /**
+    ##### USER IPC CHANNELS #####
+    **/
+
     // reponse all users to renderer process
     ipcMain.handle('get-all-users', (e, _) => {
      const result = getAllUsers();
-     return result;
-    });
-
-    //response all items to renderer process
-    ipcMain.handle('get-all-items', (e, _) => {
-
-     const result = getAllItems();
      return result;
     });
 
