@@ -18,7 +18,7 @@ if(contents) contents.style.display = 'none';
 
 // request for login window to go into new page
 function requestLoginWindow(pageName) {
-  console.log(pageName);
+  
   window.api.send('login', pageName);
 }
 

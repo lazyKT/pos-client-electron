@@ -1,6 +1,4 @@
 console.log('external login scripts');
-const { ipcRenderer } = require('electron');
-// const { redirectToAdminPannel } = require('./helper.js');
 
 // DOM nodes
 const username = document.getElementById('username');
@@ -11,12 +9,10 @@ const errorDiv = document.getElementById('error');
 let route = null
 
 
-
-
-// ipcRenderer.on('route-name', (e, routeName) => {
-//   console.log('routeName', routeName);
-//   route = routeName;
-// });
+cancelButton.addEventListener ("click", e => {
+  e.preventDefault();
+  window.loginAPI.send("dismiss-login-window");
+});
 
 
 function toggleModalButtons(show) {
@@ -32,12 +28,8 @@ function toggleModalButtons(show) {
   }
 }
 
-/* send ip message to main process */
-function sendIpcMsgToMain(msg, content) {
-  ipcRenderer.send(msg, content);
-}
 
-
+/** show error message */
 function showErrorMessage(msg) {
   let errorNode = document.createElement('div');
   errorNode.setAttribute('class', 'alert alert-danger');
@@ -46,34 +38,33 @@ function showErrorMessage(msg) {
   errorDiv.appendChild(errorNode);
 }
 
-loginButton.addEventListener('click', (e) => {
+
+// user login/ response
+loginButton.addEventListener('click', async (e) => {
   e.preventDefault();
   console.log(username.value, password.value);
-  if (username.value === '' || password.value === '')
-    return;
-  sendIpcMsgToMain('login-request', {username: username.value, password : password.value});
+  try {
+    if (username.value === '' || password.value === '') {
+      throw new Error("Required Missing Inputs");
+      return;
+    }
 
-  toggleModalButtons(false);
-})
+    toggleModalButtons(false);
 
-// handle login response from main process
-ipcRenderer.on('register-login-response', async (e, response) => {
-  console.log(response);
-  if (!response)
-    showErrorMessage('Internal Server Error!');
-  else if (response.status === 401)
-    showErrorMessage(response.message);
-  else if (response.status === 200) {
-    // await redirectToAdminPannel('user-register');
-    console.log('Login Successful!')
-    password.value = ''
+    const response = await window.loginAPI.invoke('login-request', {
+      username: username.value,
+      password : password.value
+    });
+
+    console.log(response);
+    if (response.status !== 200) {
+      showErrorMessage(response.message);
+    }
+
+    toggleModalButtons(true);
   }
-  else
-    showErrorMessage('Unknown Error!');
-  toggleModalButtons(true);
-});
-
-cancelButton.addEventListener('click', () => {
-  console.log('Cancel Login');
-  sendIpcMsgToMain('dismiss-login-modal', '');
+  catch (error) {
+    showErrorMessage(error);
+    toggleModalButtons(true);
+  }
 });

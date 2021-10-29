@@ -91,7 +91,7 @@ exports.updateUser = function updateUser (request) {
   const user = users.find(user => user.id === parseInt(id));
 
   if (!user)
-    return { error: 'Not Found', status: 404 }; // http status code not_found
+    return { error: 'User Not Found', status: 404 }; // http status code not_found
 
   user.username = username;
   user.email = email;
