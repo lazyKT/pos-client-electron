@@ -12,6 +12,7 @@ const ALLOWED_SEND_CHANNELS = [
   'logout',
   'create-modal',
   'user-data',
+  'item-data',
   'form-data-finish',
   'export-csv'
 ];
@@ -79,6 +80,21 @@ contextBridge.exposeInMainWorld("api", {
         else if (method === 'UPDATE') {
           const NOTIFICATION_TITLE = 'User Successfully Updated';
           const NOTIFICATION_BODY = `Updated User, username : ${data.username}.`
+
+          new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
+        }
+      }
+
+      else if(type === 'item') {
+        if (method === 'CREATE') {
+          const NOTIFICATION_TITLE = 'New Item Created';
+          const NOTIFICATION_BODY = `New Item, Description : ${data.description}.`
+
+          new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
+        }
+        else if (method === 'UPDATE') {
+          const NOTIFICATION_TITLE = 'Item Successfully Updated';
+          const NOTIFICATION_BODY = `Updated Item, Description : ${data.description}.`
 
           new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
         }

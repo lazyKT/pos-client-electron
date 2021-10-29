@@ -14,13 +14,13 @@ exports.createCashierWindow = function createCashierWindow() {
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: true,
-      preload: path.join(__dirname, 'preload_scripts/cashierPreload.js')
+      preload: path.join(__dirname, "../preload_scripts/cashierPreload.js")
     }
   });
 
   win.loadFile(path.join(__dirname, "../views/cashier/cashier.html"));
 
-  win.openDevTools();
+  // win.openDevTools();
 
   win.once('ready-to-show', () => {
     win.show();

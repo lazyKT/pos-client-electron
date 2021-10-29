@@ -2,6 +2,18 @@
  WE ARE NOT USING RENDERER FILES ANYMORE.
  INSTEAD, WE WILL USED PRELOAD SCRIPTS
  */
+<<<<<<< HEAD
+ function openCreateUserModal() {
+   console.log('requesting create new user')
+   // request create user modal by sending ipc message to main process
+   sendIpcMsgToMain('create-modal', 'user'); // 'channel-name', 'modal-type'
+ }
+
+/* send ip message to main process */
+function sendIpcMsgToMain(msg, content) {
+  ipcRenderer.send(msg, content);
+}
+=======
 
 // /** renderer file for main.html */
 // console.log('Main Renderer');
@@ -87,3 +99,4 @@
 // // function sendIpcMsgToMain(msg, content) {
 // //   ipcRenderer.send(msg, content);
 // // }
+>>>>>>> d8cfe81f5458e2d3a902a2c1acd614b691e2ae10
