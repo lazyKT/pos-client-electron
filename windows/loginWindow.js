@@ -8,6 +8,7 @@ const {
   ipcMain
 } = require("electron");
 const { createCashierWindow } = require("./cashierWindow.js");
+const { createInventoryWindow } = require("./inventoryWindow.js");
 const { loginUser } = require("../models/user.js")
 
 
@@ -104,6 +105,9 @@ function redirectPage (parent) {
       break;
     case "user":
       parent.webContents.send("redirect-page", "user");
+      break;
+    case "inventory":
+      createInventoryWindow();
       break;
     default:
       throw new Error("Unknown Page Route!");
