@@ -18,7 +18,7 @@ if(contents) contents.style.display = 'none';
 
 // request for login window to go into new page
 function requestLoginWindow(pageName) {
-
+  console.log("PageName", pageName);
   window.api.send('login', pageName);
 }
 
@@ -35,7 +35,7 @@ async function redirectToNewPage(pageName) {
   try {
     mainPage.style.display = 'none';
     contents.style.display = 'block';
-    
+
     // IMPORTANT *** set new page filename as [pagename].html. for example inventory.html ***
 
     // fetch HTML data related to the page name

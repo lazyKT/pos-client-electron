@@ -7,10 +7,10 @@ let win
 exports.createCashierWindow = function createCashierWindow() {
 
   win = new BrowserWindow({
-    width: 800,
-    height: 1200,
+    width: 1200,
+    height: 1000,
     show: false,
-    fullscreen: true,
+    // fullscreen: true,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: true,
@@ -20,7 +20,7 @@ exports.createCashierWindow = function createCashierWindow() {
 
   win.loadFile(path.join(__dirname, "../views/cashier/cashier.html"));
 
-  // win.openDevTools();
+  win.openDevTools();
 
   win.once('ready-to-show', () => {
     win.show();

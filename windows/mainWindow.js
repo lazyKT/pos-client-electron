@@ -38,7 +38,7 @@ exports.createMainWindow = function createMainWindow () {
 
 
   win.loadFile(path.join(__dirname, "../views/main.html"));
-  win.openDevTools();
+  // win.openDevTools();
 
   win.once("ready-to-show", () => win.show() );
 
