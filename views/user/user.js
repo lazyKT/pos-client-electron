@@ -143,7 +143,7 @@ userRenderer = {
     dataContainer.appendChild(div);
   },
   exportCSV: () => {
-    console.log('Export CSV');
+
     window.api.send('export-csv', 'user');
   }
 };

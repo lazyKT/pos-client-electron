@@ -18,7 +18,7 @@ if(contents) contents.style.display = 'none';
 
 // request for login window to go into new page
 function requestLoginWindow(pageName) {
-  console.log(pageName);
+
   window.api.send('login', pageName);
 }
 
@@ -35,7 +35,7 @@ async function redirectToNewPage(pageName) {
   try {
     mainPage.style.display = 'none';
     contents.style.display = 'block';
-    console.log('pageName', pageName);
+    
     // IMPORTANT *** set new page filename as [pagename].html. for example inventory.html ***
 
     // fetch HTML data related to the page name
@@ -47,11 +47,9 @@ async function redirectToNewPage(pageName) {
 
     // load newly fetched html and script inside into app content
     setInnerHTML(newNode, data);
-    console.log(newNode);
+    // console.log(newNode);
     contents.appendChild(newNode);
 
-    // fetch contents based on the page name
-    // await fetchContents(pageName); <---- remove this
   }
   catch (error) {
     console.log(error);
