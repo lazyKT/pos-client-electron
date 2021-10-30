@@ -34,8 +34,8 @@ function createMainWindow() {
 
   // application main window
   mainWindow = new BrowserWindow({
-    width: 1000,
-    height: 800,
+    width: 1200,
+    height: 1000,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true, // protect against prototype pollution
@@ -60,6 +60,20 @@ function createMainWindow() {
   // form window to create new data
   const formWindow = new BrowserWindow({
     width: 400,
+    height: 500,
+    parent: mainWindow,
+    modal: true,
+    show: false,
+    backgroundColor: '#ffffff',
+    webPreferences: {
+      contextIsolation: false,
+      nodeIntegration: true,
+    }
+  });
+
+  // edit window to edit items
+  const itemFormWindow = new BrowserWindow({
+    width: 800,
     height: 500,
     parent: mainWindow,
     modal: true,

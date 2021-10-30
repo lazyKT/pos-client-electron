@@ -7,7 +7,7 @@ console.log('Item Scripts Running..');
 itemRenderer = {
   /* renderer status */
   status: 'ready',
-  /* fetch all user data */
+  /* fetch all item data */
   loadItemData: async () => {
 
     try {
@@ -102,7 +102,7 @@ itemRenderer = {
       window.itemRenderer.showEmptyMessage();
   },
   /* display the user data in the table */
-  populateItemTable: ({id, description, expireDate, quantity, location}, idx=1) => {
+  populateItemTable: ({id, description, location}, idx=1) => {
     const itemTable = document.getElementById('item-table');
 
     const row = itemTable.insertRow(idx);
@@ -110,19 +110,15 @@ itemRenderer = {
     const secondColumn = row.insertCell(1);
     const thirdColumn = row.insertCell(2);
     const fourthColumn = row.insertCell(3);
-    const fifthColumn = row.insertCell(4);
-    const sixthColumn = row.insertCell(5);
     firstColumn.innerHTML = id;
     secondColumn.innerHTML = description;
-    thirdColumn.innerHTML = expireDate;
-    fourthColumn.innerHTML = quantity;
-    fifthColumn.innerHTML = location;
+    thirdColumn.innerHTML = location;
     /* edit button */
     const editBtn = document.createElement('button');
     editBtn.setAttribute('class', 'btn mx-1 btn-primary');
     editBtn.setAttribute('data-id', id);
     editBtn.innerHTML = 'EDIT';
-    sixthColumn.appendChild(editBtn);
+    fourthColumn.appendChild(editBtn);
 
     editBtn.addEventListener('click', e => {
       window.api.send('item-data', {id, method: 'PUT'});
@@ -132,11 +128,24 @@ itemRenderer = {
     viewBtn.setAttribute('class', 'btn mx-1 btn-info');
     viewBtn.setAttribute('data-id', id);
     viewBtn.innerHTML = 'View More Details';
-    sixthColumn.appendChild(viewBtn);
+    fourthColumn.appendChild(viewBtn);
 
     viewBtn.addEventListener('click', e => {
-      window.api.send('item-data', {id, method: 'GET'});
+      window.api.send('item-details', {id, method: 'GET'});
     })
+  },
+  populateSubItemTable: ({productId, description, expireDate, location}, idx=1) => {
+      const subItemTable = document.getElementById('sub-item-table');
+
+      const row = subItemTable.insertRow(idx);
+      const firstColumn = row.insertCell(0);
+      const secondColumn = row.insertCell(1);
+      const thirdColumn = row.insertCell(2);
+      const fourthColumn = row.insertCell(3);
+      firstColumn.innerHTML = productId;
+      secondColumn.innerHTML = description;
+      thirdColumn.innerHTML = expireDate;
+      fourthColumn.innerHTML = location;
   },
   showEmptyMessage: () => {
     const searchInput = document.getElementById('search-input');

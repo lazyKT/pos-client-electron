@@ -4,36 +4,126 @@ const items = [
   {
     id: 1,
     description: 'panadol1',
-    expireDate: "23-04-2022",
-    quantity: '30mg',
+    subdescription: [
+      {
+          productId: 2345,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      },
+      {
+          productId: 2346,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      },
+      {
+          productId: 2347,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      }
+    ],
     location: "C1"
   },
   {
     id: 2,
     description: 'panadol2',
-    expireDate: "23-04-2022",
-    quantity: '30mg',
+    subdescription: [
+      {
+          productId: 2348,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      },
+      {
+          productId: 2349,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      },
+      {
+          productId: 2350,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      }
+    ],
     location: "C1"
   },
   {
     id: 3,
     description: 'panadol3',
-    expireDate: "23-04-2022",
-    quantity: '30mg',
+    subdescription: [
+      {
+          productId: 2351,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      },
+      {
+          productId: 2352,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      },
+      {
+          productId: 2353,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      }
+    ],
     location: "C1"
   },
   {
     id: 4,
     description: 'panadol4',
-    expireDate: "23-04-2022",
-    quantity: '30mg',
+    subdescription: [
+      {
+          productId: 2354,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      },
+      {
+          productId: 2355,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      },
+      {
+          productId: 2356,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      }
+    ],
     location: "C1"
   },
   {
     id: 5,
     description: 'panadol5',
-    expireDate: "23-04-2022",
-    quantity: '30mg',
+    subdescription: [
+      {
+          productId: 2357,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      },
+      {
+          productId: 2358,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      },
+      {
+          productId: 2359,
+          description: 'panadol1',
+          expireDate: '22-04-2022',
+          quantity: 20
+      }
+    ],
     location: "C1"
   }
 ]
@@ -43,14 +133,14 @@ exports.getAllItems = function getAllItems() {
 }
 
 
-exports.getItemById = function getItemrById(id) {
+exports.getItemById = function getItemById(id) {
   return items.find(item => item.id === parseInt(id));
 }
 
 
 exports.updateItem = function updateItem(request) {
   
-  const { id, description, expireDate, quantity, location } = request;
+  const { id, description, location } = request;
 
   const item = items.find(item => item.id === parseInt(id));
 
@@ -58,15 +148,13 @@ exports.updateItem = function updateItem(request) {
     return { error: 'Not Found', status: 404 }; // http status code not_found
 
   item.description = description;
-  item.expireDate = expireDate;
-  item.quantity = quantity;
   item.location = location;
   return { data: item, status: 200 }; // http status code 200 OK
 }
 
 exports.searchItem = function searchItem(q) {
   // search item data which match the keyword: q
-  return items.filter(item => (item.description.includes(q) || item.expireDate.includes(q) || item.quantity.includes(q) || item.location.includes(q)));
+  return items.filter(item => (item.description.includes(q) || item.location.includes(q)));
 }
 
 exports.createNewItem = function createNewItem({description, expireDate, quantity, location}) {
