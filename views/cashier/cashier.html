@@ -73,13 +73,13 @@
 
           <!-- actions -->
           <div class="d-flex justify-content-between" id="cashier-action">
-            <button class="btn btn-primary w-25" type="button" id="save-btn">
-              <i class="fas fa-save"></i>&nbsp;Save
+            <button class="btn btn-primary w-25" type="button" id="pay-btn">
+              <i class="fas fa-save"></i>&nbsp;Pay
             </button>
-            <button class="btn btn-dark w-25" type="button" id="save-btn">
+            <button class="btn btn-dark w-25" type="button" id="print-btn">
               <i class="fas fa-print"></i>&nbsp;Print
             </button>
-            <button class="btn btn-secondary w-25" type="button" id="save-btn">
+            <button class="btn btn-secondary w-25" type="button" id="discard-btn">
               <i class="fas fa-trash text-white"></i>&nbsp;
               <span class="text-white">Discard</span>
             </button>
@@ -90,6 +90,15 @@
     </div>
     <!-- end of contents -->
 
+    <!-- checkout modal -->
+    <div class="my-modal-container" id="checkout-modal">
+      <div class="my-modal p-4">
+        <h5 class="text-muted">Member Checkout?</h5>
+        <button class="btn btn-primary mt-4 w-100" id="member-checkout-btn">Yes</button>
+        <button class="btn btn-light mt-4 w-100" id="normal-checkout-btn">No</button>
+      </div>
+    </div>
+    <!-- end of checkout modal -->
   </body>
   <script src="cashier.js" data-name="user">
 

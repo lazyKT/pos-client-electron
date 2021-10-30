@@ -43,7 +43,21 @@ const items = [
 // DOM Nodes
 const addItemBtn = document.getElementById("add-item");
 const addFeesBtn = document.getElementById("add-fees");
+const payBtn = document.getElementById("pay-btn");
+const discardBtn = document.getElementById("discard-btn");
+const printBtn = document.getElementById("print-btn");
+const checkoutModal = document.getElementById("checkout-modal");
+const memberCheckoutBtn = document.getElementById("member-checkout-btn");
+const normalCheckoutBtn = document.getElementById("normal-checkout-btn");
 let totalPrice = 0;
+
+
+/**
+# Once the window loads up, disable all three action buttons
+**/
+toggleButtonState(payBtn, false);
+toggleButtonState(printBtn, false);
+toggleButtonState(discardBtn, false);
 
 
 function logoutToMainMenu() {
@@ -85,6 +99,42 @@ addFeesBtn.addEventListener("click", e => {
   // console.log("clicl");
   removeMessageBox();
 
+});
+
+
+/**
+# Clear the cart when discard button is pressed
+**/
+discardBtn.addEventListener("click", e => {
+  clearCart();
+});
+
+
+/**
+# Checkout
+**/
+payBtn.addEventListener("click", e => {
+  checkoutModal.style.display = "flex";
+});
+
+
+/**
+# Member Checkout
+**/
+memberCheckoutBtn.addEventListener("click", e => {
+  /** request for member checkout(information) window */
+  checkoutModal.style.display = "none";
+  window.cashierAPI.send("member-checkout-window", "");
+});
+
+
+/**
+# Normal Checkout
+**/
+normalCheckoutBtn.addEventListener("click", e => {
+  /** Just dismiss the modal and proceed */
+  checkoutModal.style.display = "none";
+  toggleButtonState(printBtn, enabled=true); // enable print btn to print receipt
 });
 
 
@@ -141,6 +191,8 @@ function addItemToCart ({id, name, price}) {
     // item price
     const itemPrice = document.createElement("h6");
     itemPrice.setAttribute("class", "text-muted mx-1 my-2");
+    itemPrice.setAttribute("id", `item-price-${id}`);
+    itemPrice.setAttribute("data-price-item-id", id);
     itemPrice.innerHTML = `${price} ks`;
     priceDiv.appendChild(itemPrice);
 
@@ -148,6 +200,10 @@ function addItemToCart ({id, name, price}) {
 
     totalPrice += parseInt(price);
     (document.getElementById("total-price")).innerHTML = totalPrice;
+
+    /** Enable Pay and Discard Button once there is at least one item in the cart */
+    toggleButtonState(payBtn, true);
+    toggleButtonState(discardBtn, true);
   }
 }
 
@@ -171,6 +227,14 @@ function updateExistingItemsInCart ({id, price}) {
 
     existingItems[0].innerHTML = parseInt(currentQty) + 1;
 
+    // update price for the cart item
+    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${id}"]`)[0].innerHTML;
+
+    const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
+
+    (document.getElementById(`item-price-${id}`)).innerHTML = `${2 * parseInt(priceTag)} ks`;
+
+    // update total price for the cart
     totalPrice += price;
     (document.getElementById("total-price")).innerHTML = totalPrice;
 
@@ -239,6 +303,14 @@ function reduceQuantityInCart (id, price) {
       if (cartItem) cartItem.remove();
     }
 
+    // update price for the cart item
+    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${id}"]`)[0].innerHTML;
+
+    const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
+    console.log(parseInt(priceTag));
+
+    (document.getElementById(`item-price-${id}`)).innerHTML = `${parseInt(priceTag) - price} ks`;
+
     totalPrice -= price;
     (document.getElementById("total-price")).innerHTML = totalPrice;
   }
@@ -257,6 +329,13 @@ function increaseQuantityInCart (id, price) {
 
     existingItems[0].innerHTML = parseInt(currentQty) + 1;
 
+    // update price for the cart item
+    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${id}"]`)[0].innerHTML;
+
+    const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
+
+    (document.getElementById(`item-price-${id}`)).innerHTML = `${parseInt(priceTag) + price} ks`;
+
     totalPrice += price;
     (document.getElementById("total-price")).innerHTML = totalPrice;
   }
@@ -273,6 +352,25 @@ function clearCart() {
   // remove all child nodes
   while (cart.lastChild) {
     cart.removeChild(cart.lastChild);
+  }
+
+  /** disable all actions buttons */
+  toggleButtonState(printBtn, enabled=false);
+  toggleButtonState(payBtn, enabled=false);
+  toggleButtonState(discardBtn, enabled=false);
+}
+
+
+/**
+# Toggle Button State -> Disabled/enabled
+**/
+function toggleButtonState(btn, enabled) {
+
+  if (enabled) {
+    if (btn) btn.removeAttribute("disabled"); // enable
+  }
+  else {
+    if (btn) btn.setAttribute("disabled", true); // disable
   }
 }
 
