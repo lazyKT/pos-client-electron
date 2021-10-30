@@ -40,6 +40,7 @@ contextBridge.exposeInMainWorld("api", {
         otherwise, no action
         */
       if (ALLOWED_SEND_CHANNELS.includes(channel)) {
+        
         ipcRenderer.send(channel, data);
       }
     },

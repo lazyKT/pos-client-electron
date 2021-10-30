@@ -10,8 +10,9 @@
           rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
           crossorigin="anonymous">
-        <link rel="stylesheet" href="inventory/inventory.css">
-        <script src="inventory/inventory.js" data-name="item">
+        <link rel="stylesheet" href="inventory.css">
+        <script src="inventory.js" data-name="item">
+
         </script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <!-- JavaScript Bundle with Popper -->
@@ -19,7 +20,13 @@
 
     </head>
 <body>
-
+  <div id="contents">
+    <header>
+      <h4 id='content-title'>Pharmacy</h4>
+      <button class="btn btn-primary" id="logout" onclick="logout()">
+        Logout<i class="fas fa-sign-out-alt"></i>
+      </button>
+    </header>
 <div class="container">
 <div class="top-header">
    <h4>My Inventory</h4>
@@ -88,6 +95,5 @@
       </div>
     </div>
   </div>
-</div>
 </body>
 </html>

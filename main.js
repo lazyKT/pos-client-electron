@@ -1,12 +1,10 @@
 const {
   app,
-  BrowserWindow,
-  ipcMain,
-  dialog,
-  Menu
+  BrowserWindow
 } = require('electron');
 const path = require('path');
 
+<<<<<<< HEAD
 const {
   loginUser,
   getAllUsers,
@@ -307,10 +305,15 @@ function redirectToNewPage(page) {
 
   mainWindow.webContents.send('redirect-page', page);
 }
+=======
+const { createMainWindow } = require("./windows/mainWindow.js");
+const { createCashierWindow } = require("./windows/cashierWindow.js");
+>>>>>>> 6e491a9e54bf956c8acf6434700e30ca1467ca42
 
 
 app.whenReady().then(() => {
-  createMainWindow();
+  // createMainWindow();
+  createCashierWindow();
 
   app.on('activate', () => {
     // if app is already open, do not start the new instance
@@ -325,7 +328,3 @@ app.on('all-window-closed', () => {
   if (process.platform === 'darwin')
     app.quit();
 });
-
-
-// clean up
-app.on('close', () => mainWindow=null)
