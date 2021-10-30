@@ -1,93 +1,5 @@
 console.log('Item Scripts Running..');
 
-<<<<<<< HEAD
-/*
-  create userRenderer property and assign to the global window object
- */
-// console.log(this, this === window);
-itemRenderer = {
-  /* renderer status */
-  status: 'ready',
-  /* fetch all item data */
-  loadItemData: async () => {
-
-    try {
-      const response = await window.api.invoke('get-all-items');
-
-      return response;
-    }
-    catch (error) {
-      console.log('Error fetching all items', error);
-    }
-  },
-  /* create new item */
-  createItem: () => {
-    window.api.send('create-modal', 'item');
-  },
-  onKeyUp: function onKeyUp(event) {
-    if (event.key === 'Enter')
-      window.itemRenderer.filterItems();
-  },
-  /* filter user data */
-  filterItems: async () => {
-    const q = document.getElementById('search-input').value;
-
-    if (!q || q === '')
-      return;
-
-    try {
-        const results = await window.api.invoke('search-data', {data: 'item', q});
-
-        window.itemRenderer.displayFilteredResults(results);
-    }
-    catch (error) {
-        console.log('Error filtering inventory data', error);
-    }
-  },
-  /* reset filter */
-  resetFilter: () => {
-    const searchInput = document.getElementById('search-input');
-    searchInput.value = '';
-
-    /* remove the empty message box if the search results were found */
-    const emptyMessageBox = document.getElementById('empty-message-box');
-    if (emptyMessageBox)
-      emptyMessageBox.remove();
-
-    // window.api.send('form-data-finish', {method: 'GET', type: 'user'});
-    window.itemRenderer.reloadData({method: 'GET', type: 'item'});
-  },
-  /* reload data after every mutation event on item data */
-  reloadData: async newData => {
-
-    try {
-      const { type, data, method } = newData;
-
-      // get table rows from the current data table
-      const oldData = newNode.querySelectorAll('tr');
-
-      // excpet the table header, remove all the data
-      oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
-
-      // reload the data by fetching data based on the data type, and populate the table again
-      const items = await window.itemRenderer.loadItemData();
-
-      items.forEach( item => window.itemRenderer.populateItemTable(item));
-
-      if (method === 'CREATE' || method === 'UPDATE')
-        window.api.showNotification(newData);
-
-      window.itemRenderer.status = 'ready';
-    }
-    catch (error) {
-      console.log(`Error Reloading ${newData.type} data`, error);
-    }
-  },
-  /* display filtered results */
-  displayFilteredResults: (results) => {
-    // get table rows from the current data table
-    const oldData = document.querySelectorAll('tr');
-=======
 // /*
 //   create inventory property and assign to the global window object
 //  */
@@ -220,7 +132,6 @@ window.inventoryAPI.receive('reload-data', async data => {
   }
 });
 
->>>>>>> 6e491a9e54bf956c8acf6434700e30ca1467ca42
 
 /**
  Reload the inventory data fetched from main process
@@ -237,74 +148,6 @@ const reloadData = async newData => {
     // excpet the table header, remove all the data
     oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
 
-<<<<<<< HEAD
-    
-
-    if (results.length > 0)
-      results.forEach( (result, idx) => window.itemRenderer.populateItemTable(result, idx + 1));
-    else
-      window.itemRenderer.showEmptyMessage();
-  },
-  /* display the user data in the table */
-  populateItemTable: ({id, description, location}, idx=1) => {
-    const itemTable = document.getElementById('item-table');
-
-    const row = itemTable.insertRow(idx);
-    const firstColumn = row.insertCell(0);
-    const secondColumn = row.insertCell(1);
-    const thirdColumn = row.insertCell(2);
-    const fourthColumn = row.insertCell(3);
-    firstColumn.innerHTML = id;
-    secondColumn.innerHTML = description;
-    thirdColumn.innerHTML = location;
-    /* edit button */
-    const editBtn = document.createElement('button');
-    editBtn.setAttribute('class', 'btn mx-1 btn-primary');
-    editBtn.setAttribute('data-id', id);
-    editBtn.innerHTML = 'EDIT';
-    fourthColumn.appendChild(editBtn);
-
-    editBtn.addEventListener('click', e => {
-      window.api.send('item-data', {id, method: 'PUT'});
-    });
-    /* View Details button */
-    const viewBtn = document.createElement('button');
-    viewBtn.setAttribute('class', 'btn mx-1 btn-info');
-    viewBtn.setAttribute('data-id', id);
-    viewBtn.innerHTML = 'View More Details';
-    fourthColumn.appendChild(viewBtn);
-
-    viewBtn.addEventListener('click', e => {
-      window.api.send('item-details', {id, method: 'GET'});
-    })
-  },
-  populateSubItemTable: ({productId, description, expireDate, location}, idx=1) => {
-      const subItemTable = document.getElementById('sub-item-table');
-
-      const row = subItemTable.insertRow(idx);
-      const firstColumn = row.insertCell(0);
-      const secondColumn = row.insertCell(1);
-      const thirdColumn = row.insertCell(2);
-      const fourthColumn = row.insertCell(3);
-      firstColumn.innerHTML = productId;
-      secondColumn.innerHTML = description;
-      thirdColumn.innerHTML = expireDate;
-      fourthColumn.innerHTML = location;
-  },
-  showEmptyMessage: () => {
-    const searchInput = document.getElementById('search-input');
-    const dataContainer = document.getElementById('data-container');
-    const div = document.createElement('div');
-    div.setAttribute('id', 'empty-message-box');
-    div.setAttribute('class', 'alert alert-info');
-    div.setAttribute('role', 'alert');
-    div.innerHTML = `No result found related to ${searchInput.value}`;
-    dataContainer.appendChild(div);
-  },
-  exportCSV: () => {
-    console.log('Export CSV');
-    window.api.send('export-csv', 'item');
-=======
     // reload the data by fetching data based on the data type, and populate the table again
     const items = await requestAllItems();
 
@@ -317,7 +160,6 @@ const reloadData = async newData => {
   }
   catch (error) {
     console.log(`Error Reloading ${newData.type} data`, error);
->>>>>>> 6e491a9e54bf956c8acf6434700e30ca1467ca42
   }
 };
 
