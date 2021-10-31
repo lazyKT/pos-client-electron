@@ -11,6 +11,17 @@ exports.getAllItems = async function getAllItems() {
   }
 }
 
+exports.getAllDetailItems = async function getAllDetailItems() {
+  try {
+    const res = await ipcRenderer.invoke('get-all-detail-items', '');
+    console.log(res);
+    return res;
+  }
+  catch(error) {
+    console.log(error);
+  }
+}
+
 exports.createNewItem = async function createNewItem(newItem) {
   try {
     const response = await ipcRenderer.invoke('create-new-item', newItem);

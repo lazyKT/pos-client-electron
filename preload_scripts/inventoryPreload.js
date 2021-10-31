@@ -11,12 +11,14 @@ const {
 const ALLOWED_SEND_CHANNELS = [
   /** write your allowed channels herer */
   "logout",
-  "item-data"
+  "item-data",
+  "item-details"
 ];
 
 const ALLOWED_INVOKED_CHANNELS = [
   /** write your allowed channels herer */
   "get-all-items",
+  "search-data"
 ];
 
 

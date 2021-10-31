@@ -18,6 +18,7 @@ const {
   searchUser,
   exportUserCSV
 } = require("../models/user.js");
+const { searchItem } = require('../models/item.js');
 const applicationMenu = Menu.buildFromTemplate(require('../applicationMenu.js'));
 
 let win
@@ -38,7 +39,7 @@ exports.createMainWindow = function createMainWindow () {
 
 
   win.loadFile(path.join(__dirname, "../views/main.html"));
-  // win.openDevTools();
+  //win.openDevTools();
 
   win.once("ready-to-show", () => win.show() );
 
@@ -96,8 +97,9 @@ exports.createMainWindow = function createMainWindow () {
         // search user
         return searchUser(q);
       }
-      else if (data === 'inventory') {
+      else if (data === 'item') {
         // search inventory here
+        return searchItem(q);
       }
     });
 

@@ -4,6 +4,10 @@ const items = [
   {
     id: 1,
     description: 'panadol1',
+    expireDate: '22-04-2022',
+    dateAlert: '4 Days',
+    quantityAlert: 5,
+    quantity: 30,
     subdescription: [
       {
           productId: 2345,
@@ -29,6 +33,10 @@ const items = [
   {
     id: 2,
     description: 'panadol2',
+    expireDate: '22-04-2022',
+    dateAlert: '4 Days',
+    quantityAlert: 5,
+    quantity: 30,
     subdescription: [
       {
           productId: 2348,
@@ -54,6 +62,10 @@ const items = [
   {
     id: 3,
     description: 'panadol3',
+    expireDate: '22-04-2022',
+    dateAlert: '4 Days',
+    quantityAlert: 5,
+    quantity: 30,
     subdescription: [
       {
           productId: 2351,
@@ -79,6 +91,10 @@ const items = [
   {
     id: 4,
     description: 'panadol4',
+    expireDate: '22-04-2022',
+    dateAlert: '4 Days',
+    quantityAlert: 5,
+    quantity: 30,
     subdescription: [
       {
           productId: 2354,
@@ -104,6 +120,10 @@ const items = [
   {
     id: 5,
     description: 'panadol5',
+    expireDate: '22-04-2022',
+    dateAlert: '4 Days',
+    quantityAlert: 5,
+    quantity: 30,
     subdescription: [
       {
           productId: 2357,
@@ -149,6 +169,24 @@ exports.updateItem = function updateItem(request) {
 
   item.description = description;
   item.location = location;
+  return { data: item, status: 200 }; // http status code 200 OK
+}
+
+exports.updateDetailItem = function updateDetailItem(request) {
+  
+  const { id, description, expireDate, quantity, location, dateAlert, quantityAlert } = request;
+
+  const item = items.find(item => item.id === parseInt(id));
+
+  if (!item)
+    return { error: 'Not Found', status: 404 }; // http status code not_found
+
+  item.description = description;
+  item.expireDate = expireDate;
+  item.quantity = quantity;
+  item.location = location;
+  item.dateAlert = dateAlert;
+  item.quantityAlert = quantityAlert;
   return { data: item, status: 200 }; // http status code 200 OK
 }
 

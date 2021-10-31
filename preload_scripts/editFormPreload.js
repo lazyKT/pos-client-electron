@@ -11,6 +11,7 @@ const {
 
 const ALLOWED_RECEIVED_CHANNELS = [
   "response-user-data",
+  "response-item-data"
 ];
 
 
@@ -22,6 +23,8 @@ const ALLOWED_SEND_CHANNELS = [
 
 const ALLOWED_INVOKED_CHANNELS = [
   "edit-user",
+  "edit-item",
+  "edit-detail-item"
 ];
 
 

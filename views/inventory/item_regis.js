@@ -1,6 +1,6 @@
 /*
  * Create New Item
- **/
+ 
 console.log('item_regis.js running...');
 
 const { ipcRenderer } = require('electron');
@@ -43,3 +43,4 @@ createBtn.addEventListener('click', async (e) => {
     console.log('Error Fetching Create-New-Item Response', error);
   }
 });
+*/
