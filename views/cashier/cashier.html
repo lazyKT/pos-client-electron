@@ -56,7 +56,10 @@
           <div class="mt-4" id="member-info-div">
             <h5 class="mx-2 mt-4 text-muted">Member Checkout</h5>
             <div class="card mb-3">
-              <big class="m-2">Member info:</big>
+              <div class="d-flex justify-content-between m-1">
+                <big class="m-2">Member info:</big>
+                <button class="btn btn-danger" id="remove-member-checkout">Remove</button>
+              </div>
               <div class="card-body">
 
                 <!-- member id -->
@@ -84,9 +87,14 @@
                 </div>
 
                 <div class="mb-2 d-flex justify-content-between">
-                  <input class="form-control form-control-sm w-25" placeholder="Pts" id="apply-member-points"/>
-                  <button class="btn btn-success w-25" id="use-member-points">Use Points</button>
+                  <input class="form-control form-control-sm w-25" placeholder="Pts" id="member-points-input"/>
+                  <div class="d-flex">
+                    <button class="btn btn-success" id="use-member-points">Use Points</button>
+                    <button class="btn btn-danger" id="remove-member-points">Remove Points</button>
+                  </div>
                 </div>
+
+                <span class="text-danger mb-2" id="use-member-point-alert"></span>
 
               </div>
             </div>

@@ -10,12 +10,12 @@ const {
 
 
 const ALLOWED_SEND_CHANNELS = [
-  "close-payment-window"
+  "close-payment-summary-window"
 ];
 
 
 const ALLOWED_RECEIVED_CHANNELS = [
-
+  "cart-items"
 ];
 
 
@@ -38,11 +38,11 @@ contextBridge.exposeInMainWorld ("paymentAPI", {
   /**
   ipcRenderer.recieve
   **/
-  receive: (channel, callback) => {
+  receive: (channel, cb) => {
     if (ALLOWED_RECEIVED_CHANNELS.includes(channel)) {
-      ipcRenderer.on( (channel, ...args) => callback(...args));
+      ipcRenderer.on(channel, (event, ...args) => cb(...args));
     }
-    else throw new Error("Unknown Channel Detected in paymentAPI.receive");
+    else throw new Error ("Unkown IPC Channels detected at chashierAPI.reciee");
   },
   /**
   ipcRenderer.invoke

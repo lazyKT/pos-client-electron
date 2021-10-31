@@ -5,6 +5,7 @@ const {
 } = require('electron');
 
 const { createMemberCheckoutWindow } = require("./memberCheckoutWindow.js");
+const { createPaymentSummaryWindow } = require("./PaymentSummaryWindow.js");
 
 
 let win
@@ -39,10 +40,18 @@ exports.createCashierWindow = function createCashierWindow() {
     /**
     IPC Messages
     **/
+    ipcMain.on("cashier-close", () => {
+      if (win) win.close();
+    })
 
     // open member checkout window
-    ipcMain.on("member-checkout-window", (e, args) => {
+    ipcMain.on("member-checkout-window", (event, args) => {
       createMemberCheckoutWindow(win);
+    });
+
+    // open payment summary window
+    ipcMain.on("open-payment-summary", (event, args) => {
+      createPaymentSummaryWindow(win, args);
     });
 
   });

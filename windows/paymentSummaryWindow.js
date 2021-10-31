@@ -32,12 +32,14 @@ exports.createPaymentSummaryWindow = function (parent, args) {
 
 
   win.loadFile(path.join(__dirname, "../views/cashier/payment_summary.html"));
-  win.openDevTools();
+  // win.openDevTools();
 
   win.once("ready-to-show", () => win.show());
 
   win.on("close", () => {
     if (win) win = null;
+    // reset cashier window
+    parent.webContents.send("reset-cashier-window", "");
   });
 
 
@@ -47,9 +49,11 @@ exports.createPaymentSummaryWindow = function (parent, args) {
       IPC Messages
     **/
 
-    ipcMain.on("close-payment-window", () => {
+    ipcMain.on("close-payment-summary-window", () => {
       if (win) win.close();
     });
+
+    win.webContents.send("cart-items", args);
 
   });
 

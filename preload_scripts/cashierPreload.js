@@ -1,3 +1,7 @@
+/**
+# Preload Scripts for cashier browser window
+**/
+
 const {
   ipcRenderer,
   contextBridge
@@ -7,17 +11,20 @@ const {
 
 const ALLOWED_SEND_CHANNELS = [
   "member-checkout-window",
+  "open-payment-summary",
+  "cashier-close"
 ];
 
 
 const ALLOWED_RECEIVED_CHANNELS = [
-  "member-select"
+  "member-select",
+  "reset-cashier-window"
 ];
 
-
-const ALLOWED_INVOKED_CHANNELS = [
-
-];
+//
+// const ALLOWED_INVOKED_CHANNELS = [
+//
+// ];
 
 
 

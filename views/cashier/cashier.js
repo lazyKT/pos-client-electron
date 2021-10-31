@@ -43,7 +43,9 @@ const items = [
 
 let shoppingCart = {
   items: [],
-  total: 0
+  total: 0,
+  memberPts: 0,
+  memberDetails: null
 }
 
 // DOM Nodes
@@ -57,6 +59,9 @@ const printBtn = document.getElementById("print-btn");
 const checkoutModal = document.getElementById("checkout-modal");
 const memberCheckoutBtn = document.getElementById("member-checkout-btn");
 const normalCheckoutBtn = document.getElementById("normal-checkout-btn");
+const removeMemberCheckoutBtn = document.getElementById("remove-member-checkout");
+const useMemberPtsBtn = document.getElementById("use-member-points");
+const removeMemberPtsBtn = document.getElementById("remove-member-points");
 let totalPrice = 0;
 
 
@@ -65,6 +70,8 @@ let totalPrice = 0;
 **/
 memberInfoDiv.style.display = "none"; // hide member info division
 showHideButtons(payBtn, show=false); // hide the paybtn
+showHideButtons(removeMemberPtsBtn, show=false); // hide remove member points button
+toggleButtonState(removeMemberPtsBtn, enabled=false);
 toggleButtonState(checkoutBtn, false);
 toggleButtonState(payBtn, false);
 toggleButtonState(printBtn, false);
@@ -77,6 +84,7 @@ toggleButtonState(discardBtn, false);
 window.cashierAPI.receive("member-select", data => {
 
   const { id, username, point, fullname } = data;
+  shoppingCart.memberDetails = data;
 
   memberInfoDiv.style.display = "block";
 
@@ -91,7 +99,35 @@ window.cashierAPI.receive("member-select", data => {
   // member points
   (document.getElementById("member-points")).value = point;
 
-})
+  showHideButtons(payBtn, show=true);
+  showHideButtons(checkoutBtn, show=false);
+  toggleButtonState(payBtn, enabled=true);
+  toggleButtonState(printBtn, enabled=true); // enable print btn to print receipt
+  toggleButtonState(checkoutBtn, enabled=false); // disable pay button
+  toggleButtonState(discardBtn, enabled=false); // disable discard Button
+
+});
+
+
+/**
+# reset cashier window
+**/
+window.cashierAPI.receive("reset-cashier-window", () => {
+
+  memberInfoDiv.style.display = "none"; // hide member info division
+  showHideButtons(payBtn, show=false); // hide the paybtn
+  showHideButtons(checkoutBtn, show=true); // show checkoutBtn
+  showHideButtons(removeMemberPtsBtn, show=false); // hide remove member points button
+  toggleButtonState(removeMemberPtsBtn, enabled=false);
+  toggleButtonState(checkoutBtn, false);
+  toggleButtonState(payBtn, false);
+  toggleButtonState(printBtn, false);
+  toggleButtonState(discardBtn, false);
+
+  clearCart(); // clear cart
+
+  addEmptyMessageBox();
+});
 
 
 function logoutToMainMenu() {
@@ -120,7 +156,7 @@ addItemBtn.addEventListener("click", e => {
     addItemToCart(item);
   }
 
-
+  document.getElementById("item-input").value = "";
   addItemBtn.removeAttribute("disabled");
   addItemBtn.innerHTML = "Add Item";
 });
@@ -177,11 +213,68 @@ normalCheckoutBtn.addEventListener("click", e => {
 });
 
 
+/**
+# Remove Member Checkout Button and change to Normal Checkout
+**/
+removeMemberCheckoutBtn.addEventListener("click", e => {
+  shoppingCart.memberPts = 0;
+  shoppingCart.memberDetails = null;
+
+  memberInfoDiv.style.display = "none";
+});
+
+
+
+/**
+# Apply member points at checkout
+**/
+useMemberPtsBtn.addEventListener("click", e => {
+
+  e.preventDefault();
+
+  const pts = document.getElementById("member-points-input").value;
+  const availablePts = document.getElementById("member-points").value;
+
+  if (!pts || pts === "")
+    return;
+
+  if (parseInt(pts) > parseInt(availablePts)) {
+    alert("Invalid Member Points. Not enough.");
+    return;
+  }
+
+  showHideButtons(useMemberPtsBtn, show=false); // hide use member point btn
+  toggleButtonState(useMemberPtsBtn, enabled=false); // disable use member point btn
+  showHideButtons(removeMemberPtsBtn, show=true); // show remove member point btn
+  toggleButtonState(removeMemberPtsBtn, enabled=true); // enable remove member point btn
+
+  shoppingCart.memberPts = parseInt(pts);
+  (document.getElementById("use-member-point-alert")).innerHTML = `* Member Point(s) applied: ${pts}`;
+
+});
+
+
+/**
+# Remove applied member points
+**/
+removeMemberPtsBtn.addEventListener("click", e => {
+  (document.getElementById("use-member-point-alert")).innerHTML = null;
+
+  document.getElementById("member-points-input").value = '';
+
+  showHideButtons(useMemberPtsBtn, show=true); // hide use member point btn
+  toggleButtonState(useMemberPtsBtn, enabled=true); // disable use member point btn
+  showHideButtons(removeMemberPtsBtn, show=false); // show remove member point btn
+  toggleButtonState(removeMemberPtsBtn, enabled=false); // enable remove member point btn
+});
+
+
+
 /** pay btn **/
 payBtn.addEventListener("click", e => {
   // open payment summary window
-  // window.cashierAPI.send("open-payment-summary", {})
-  console.log(shoppingCart);
+
+  window.cashierAPI.send("open-payment-summary", shoppingCart);
 });
 
 
@@ -194,6 +287,20 @@ function removeMessageBox() {
   const messageBox = document.getElementsByClassName("alert")[0];
 
   if (messageBox) messageBox.remove();
+}
+
+
+/**
+# Add Empty Message Box
+**/
+function addEmptyMessageBox() {
+  const msgBox = document.createElement("div");
+  msgBox.setAttribute("class", "alert alert-info text-center");
+  msgBox.setAttribute("role", "alert");
+  msgBox.innerHTML = "Card is Empty!";
+
+  const cart = document.getElementById("cart");
+  cart.appendChild(msgBox);
 }
 
 
@@ -274,7 +381,6 @@ function updateExistingItemsInCart ({id, price}) {
 
   if (existingItems.length > 0) {
     const currentQty = existingItems[0].innerHTML;
-    console.log(currentQty);
 
     existingItems[0].innerHTML = parseInt(currentQty) + 1;
 
@@ -347,7 +453,6 @@ function reduceQuantityInCart (id, price) {
 
   if (existingItems.length > 0) {
     const currentQty = existingItems[0].innerHTML;
-    console.log(currentQty);
 
     existingItems[0].innerHTML = parseInt(currentQty) - 1;
 
@@ -361,7 +466,6 @@ function reduceQuantityInCart (id, price) {
       const priceDOM = cart.querySelectorAll(`[data-price-item-id="${id}"]`)[0].innerHTML;
 
       const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
-      console.log(parseInt(priceTag));
 
       (document.getElementById(`item-price-${id}`)).innerHTML = `${parseInt(priceTag) - price} ks`;
     }
@@ -382,7 +486,6 @@ function increaseQuantityInCart (id, price) {
 
   if (existingItems.length > 0) {
     const currentQty = existingItems[0].innerHTML;
-    console.log(currentQty);
 
     existingItems[0].innerHTML = parseInt(currentQty) + 1;
 
@@ -415,7 +518,6 @@ function updateShoppingCart (newItem, method) {
     if (method === "add") {
       // increase the qty
       // re-calculate the price
-      console.log("Update Existing Items");
       shoppingCart.items = shoppingCart.items.map (
         i => i.id === newItem.id
         ? {
@@ -455,7 +557,6 @@ function updateShoppingCart (newItem, method) {
   }
   else {
     // add new
-    console.log("Add New Items");
     shoppingCart.items.push({
       id: newItem.id,
       name: newItem.name,
@@ -527,7 +628,7 @@ function showHideButtons(btn, show) {
 function getItem (itemCode) {
   let item = null;
   for (let i of items) {
-    console.log(i.id, itemCode, i.id===itemCode);
+    // console.log(i.id, itemCode, i.id===itemCode);
     if (i.id === itemCode) {
       item = i;
       break;

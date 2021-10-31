@@ -33,20 +33,22 @@ exports.createFormWindow = function createFormWindow(parentWindow, content) {
 
 
   /** load view file based on the contents type */
-  switch (content) {
+  // switch (content) {
+  //
+  //   case "user":
+  //
+  //     break;
+  //
+  //   case "item":
+  //     break;
+  //
+  //   default: throw new Error("Unknown Contents!");
+  //
+  // }
 
-    case "user":
-      win.setBackgroundColor('#FFFFFF');
-      win.loadFile(path.join(__dirname, "../views/user/user_regis.html"));
-      // win.openDevTools();
-      break;
-
-    case "item":
-      break;
-
-    default: throw new Error("Unknown Contents!");
-
-  }
+  win.setBackgroundColor('#FFFFFF');
+  win.loadFile(path.join(__dirname, "../views/user/user_regis.html"));
+  // win.openDevTools();
 
 
   win.once("ready-to-show", () => win.show());
@@ -62,11 +64,11 @@ exports.createFormWindow = function createFormWindow(parentWindow, content) {
 
     // close create data window
     ipcMain.on ('dismiss-form-window', () => {
-      if(win) win.close();
       /**
       *** upon the window close, remove all the existing handlers to prevent second handler registration error in the future
       **/
       ipcMain.removeHandler("create-new-user");  // <======
+      if(win) win.close();
     });
 
 
