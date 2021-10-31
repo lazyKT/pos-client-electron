@@ -58,7 +58,7 @@ editButton.addEventListener('click', async e => {
     if ( data && status === 200) {
       // update opreration successful
       // inform the main process that new data update is done
-      window.editContentAPI.send('form-data-finish', {method: 'UPDATE', data, type: 'item'});
+      window.editContentAPI.send('item-form-data-finish', {method: 'UPDATE', data, type: 'item'});
     }
     else {
       showErrorMessage(error);

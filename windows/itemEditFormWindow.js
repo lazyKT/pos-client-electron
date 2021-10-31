@@ -65,7 +65,7 @@
      });
  
      /* close form when the renderer process informs that the edit process is finished */
-     ipcMain.on("form-data-finish", (event, args) => {
+     ipcMain.on("item-form-data-finish", (event, args) => {
        if(win) win.close();
        ipcMain.removeHandler("edit-item"); // remove existing handler
        parentWindow.webContents.send("reload-data", getAllItems());

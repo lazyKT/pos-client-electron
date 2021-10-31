@@ -17,7 +17,8 @@ const ALLOWED_RECEIVED_CHANNELS = [
 
 const ALLOWED_SEND_CHANNELS = [
   "dismiss-form-window",
-  "form-data-finish"
+  "form-data-finish",
+  "item-form-data-finish"
 ];
 
 
