@@ -39,7 +39,7 @@ exports.createEditFormWindow = function createEditFormWindow(parentWindow, type,
 
 
   win.loadFile(path.join(__dirname, "../views/user/edit_show_user.html"));
-  win.openDevTools();
+  //win.openDevTools();
 
 
   win.once("ready-to-show", () => win.show());

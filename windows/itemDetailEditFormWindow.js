@@ -7,7 +7,7 @@
    ipcMain
  } = require("electron");
  const {
-   updateItem,
+   updateDetailItem,
    getAllItems,
  } = require("../models/item.js");
  
@@ -51,7 +51,6 @@
      /**
      IPC Messages
      **/
-    ipcMain.removeHandler("get-all-detail-items");
  
      /* Dimiss Window */
      ipcMain.on("dismiss-form-window", (event, args) => {
@@ -62,8 +61,7 @@
  
      /* Edit user */
      ipcMain.handle("edit-detail-item", (event, args) => {
-       ipcMain.removeHandler("get-all-detail-items");
-       return updateItem(args);
+       return updateDetailItem(args);
      });
  
      /* close form when the renderer process informs that the edit process is finished */

@@ -66,16 +66,18 @@
       const item = getItemById(id);
 
       if (item) {
-        ipcMain.removeHandler("get-all-detail-items");
         createEditFormWindow(win, method, item)
       }
     });
  
      /* Dimiss Window */
-     ipcMain.on("dismiss-form-window", (event, args) => {
-       if(win) win.close();
-       ipcMain.removeHandler("get-all-detail-items");
-     })
+     ipcMain.on('dismiss-form-window', () => {
+      if(win) win.close();
+      /**
+      *** upon the window close, remove all the existing handlers to prevent second handler registration error in the future
+      **/
+      ipcMain.removeHandler("item-detail-data");  // <======
+    });
  
    });
  
