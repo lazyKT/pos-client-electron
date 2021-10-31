@@ -31,13 +31,19 @@ exports.createEditFormWindow = function createEditFormWindow(parentWindow, type,
         preload: path.join(__dirname, "../preload_scripts/editFormPreload.js")
       }
     });
+    
   }
+
+  
+  
 
 
   win.loadFile(path.join(__dirname, "../views/user/edit_show_user.html"));
-  // win.openDevTools();
+  //win.openDevTools();
+
 
   win.once("ready-to-show", () => win.show());
+  console.log(contents);
 
   win.on("close", () => { if(win) win = null;})
 

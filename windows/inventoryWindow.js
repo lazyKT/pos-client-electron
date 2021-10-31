@@ -8,8 +8,17 @@ const {
   ipcMain
 } = require("electron");
 const {
-  getAllItems
+  getAllItems,
+  getItemById
 } = require("../models/item.js");
+
+const { 
+  createEditFormWindow
+ } = require("./itemEditFormWindow.js");
+
+const {
+  createDetailFormWindow
+} = require("./detailFormWindow.js");
 
 
 let win
@@ -33,7 +42,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
 
   win.loadFile(path.join(__dirname, "../views/inventory/inventory.html"));
-  win.openDevTools();
+  //win.openDevTools();
 
 
   win.once("ready-to-show", () => {
@@ -71,11 +80,34 @@ exports.createInventoryWindow = function createInventoryWindow () {
      return result;
     });
 
+    ipcMain.on('item-data', (e, req) => {
+      const { id, method } = req;
+      const item = getItemById(id);
+
+      if (item) {
+        createEditFormWindow(win, method, item)
+      }
+    });
+
+    ipcMain.on('item-details', (e, req) => {
+      const {id, method} = req;
+      const item = getItemById(id);
+
+      if(item) {
+        ipcMain.removeHandler("get-all-items");
+        createDetailFormWindow(win, method, item)
+        
+      }
+    });
+
 
   });
 }
 
 
 exports.closeInventoryWindow = function closeInventoryWindow() {
-  if(win) win.close();
+  if(win){ 
+  win.close();
+  ipcMain.removeHandler("get-all-items");
+  }
 }

@@ -11,17 +11,21 @@ const {
 
 const ALLOWED_RECEIVED_CHANNELS = [
   "response-user-data",
+  "response-item-data"
 ];
 
 
 const ALLOWED_SEND_CHANNELS = [
   "dismiss-form-window",
-  "form-data-finish"
+  "form-data-finish",
+  "item-form-data-finish"
 ];
 
 
 const ALLOWED_INVOKED_CHANNELS = [
   "edit-user",
+  "edit-item",
+  "edit-detail-item"
 ];
 
 

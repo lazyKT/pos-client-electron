@@ -17,7 +17,6 @@ cancelBtn.addEventListener('click', () => {
 
 
 createBtn.addEventListener('click', async (e) => {
-
   try {
     // prevent default behaviour on form submit
     e.preventDefault();
@@ -29,7 +28,7 @@ createBtn.addEventListener('click', async (e) => {
     if (!username && username === '' && !email && email === '' && !password && password === '') {
       throw new Error ("Missing Required Inputs");
     }
-
+    
     // make create new user request to main process
     const response = await window.formAPI.invoke ("create-new-user", {username, email, password});
 
