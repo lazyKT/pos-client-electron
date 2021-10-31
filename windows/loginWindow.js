@@ -39,7 +39,14 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
 
   win.once("ready-to-show", () => win.show());
 
-  win.on("close", () => win = null);
+  win.on("close", () => {
+    /**
+    *** upon the window close, remove all the existing handlers to prevent second handler registration error in the future
+    **/
+    ipcMain.removeHandler("login-request");
+
+    win = null
+  });
 
 
   win.webContents.on("did-finish-load", () => {
@@ -48,11 +55,12 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
      IPC Messages
      */
     ipcMain.on("dismiss-login-window", (e, from) => {
-      if (win) win.close();
       /**
       *** upon the window close, remove all the existing handlers to prevent second handler registration error in the future
       **/
       ipcMain.removeHandler("login-request");
+
+      if (win) win.close();
     });
 
 

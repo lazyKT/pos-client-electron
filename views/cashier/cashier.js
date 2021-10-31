@@ -126,6 +126,9 @@ window.cashierAPI.receive("reset-cashier-window", () => {
 
   clearCart(); // clear cart
 
+  totalPrice = 0;
+  (document.getElementById("total-price")).innerHTML = totalPrice;
+
   addEmptyMessageBox();
 });
 
@@ -177,6 +180,11 @@ addFeesBtn.addEventListener("click", e => {
 **/
 discardBtn.addEventListener("click", e => {
   clearCart();
+
+  totalPrice = 0;
+  (document.getElementById("total-price")).innerHTML = totalPrice;
+
+  addEmptyMessageBox();
 });
 
 
@@ -209,7 +217,6 @@ normalCheckoutBtn.addEventListener("click", e => {
   toggleButtonState(payBtn, enabled=true);
   toggleButtonState(printBtn, enabled=true); // enable print btn to print receipt
   toggleButtonState(checkoutBtn, enabled=false); // disable pay button
-  toggleButtonState(discardBtn, enabled=false); // disable discard Button
 });
 
 
@@ -221,6 +228,7 @@ removeMemberCheckoutBtn.addEventListener("click", e => {
   shoppingCart.memberDetails = null;
 
   memberInfoDiv.style.display = "none";
+  useMemberPtsBtn.style.display = "block";
 });
 
 
