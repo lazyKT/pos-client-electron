@@ -10,7 +10,6 @@ const { createCashierWindow } = require("./windows/cashierWindow.js");
 
 app.whenReady().then(() => {
   createMainWindow();
-  //createCashierWindow();
 
   app.on('activate', () => {
     // if app is already open, do not start the new instance
