@@ -10,7 +10,8 @@ const {
 
 
 const ALLOWED_SEND_CHANNELS  = [
-
+  "close-member-window",
+  "select-member"
 ];
 
 
@@ -20,7 +21,7 @@ const ALLOWED_RECEIVED_CHANNELS = [
 
 
 const ALLOWED_INVOKED_CHANNELS = [
-
+  "search-members"
 ];
 
 
@@ -29,7 +30,7 @@ contextBridge.exposeInMainWorld ( "memberCheckoutAPI", {
   /**
   ipcRenderer.send
   **/
-  send: (channel, date) => {
+  send: (channel, data) => {
     if (ALLOWED_SEND_CHANNELS.includes(channel)) {
       ipcRenderer.send(channel, data);
     }

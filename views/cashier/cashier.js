@@ -43,6 +43,7 @@ const items = [
 // DOM Nodes
 const addItemBtn = document.getElementById("add-item");
 const addFeesBtn = document.getElementById("add-fees");
+const checkoutBtn = document.getElementById("checkout-btn");
 const payBtn = document.getElementById("pay-btn");
 const discardBtn = document.getElementById("discard-btn");
 const printBtn = document.getElementById("print-btn");
@@ -55,6 +56,8 @@ let totalPrice = 0;
 /**
 # Once the window loads up, disable all three action buttons
 **/
+showHideButtons(payBtn, show=false); // hide the paybtn
+toggleButtonState(checkoutBtn, false);
 toggleButtonState(payBtn, false);
 toggleButtonState(printBtn, false);
 toggleButtonState(discardBtn, false);
@@ -113,7 +116,7 @@ discardBtn.addEventListener("click", e => {
 /**
 # Checkout
 **/
-payBtn.addEventListener("click", e => {
+checkoutBtn.addEventListener("click", e => {
   checkoutModal.style.display = "flex";
 });
 
@@ -134,7 +137,12 @@ memberCheckoutBtn.addEventListener("click", e => {
 normalCheckoutBtn.addEventListener("click", e => {
   /** Just dismiss the modal and proceed */
   checkoutModal.style.display = "none";
+  showHideButtons(payBtn, show=true);
+  showHideButtons(checkoutBtn, show=false);
+  toggleButtonState(payBtn, enabled=true);
   toggleButtonState(printBtn, enabled=true); // enable print btn to print receipt
+  toggleButtonState(checkoutBtn, enabled=false); // disable pay button
+  toggleButtonState(discardBtn, enabled=false); // disable discard Button
 });
 
 
@@ -202,7 +210,7 @@ function addItemToCart ({id, name, price}) {
     (document.getElementById("total-price")).innerHTML = totalPrice;
 
     /** Enable Pay and Discard Button once there is at least one item in the cart */
-    toggleButtonState(payBtn, true);
+    toggleButtonState(checkoutBtn, true);
     toggleButtonState(discardBtn, true);
   }
 }
@@ -355,6 +363,7 @@ function clearCart() {
   }
 
   /** disable all actions buttons */
+  toggleButoonState(checkoutBtn, enabled=false);
   toggleButtonState(printBtn, enabled=false);
   toggleButtonState(payBtn, enabled=false);
   toggleButtonState(discardBtn, enabled=false);
@@ -371,6 +380,19 @@ function toggleButtonState(btn, enabled) {
   }
   else {
     if (btn) btn.setAttribute("disabled", true); // disable
+  }
+}
+
+
+/**
+# Show or Hide buttons
+**/
+function showHideButtons(btn, show) {
+  if (show) {
+    if (btn) btn.style.display = "block";
+  }
+  else {
+    if (btn) btn.style.display = "none";
   }
 }
 
