@@ -8,6 +8,7 @@ const cancelBtn = document.getElementById('dismiss-window');
 const createBtn = document.getElementById('create-user');
 const errorDiv = document.getElementById('error');
 
+document.getElementById('username').focus();
 
 // close create user window
 cancelBtn.addEventListener('click', () => {
@@ -16,12 +17,6 @@ cancelBtn.addEventListener('click', () => {
 
 
 createBtn.addEventListener('click', async (e) => {
-<<<<<<< HEAD
-=======
-  // prevent default behaviour on form submit
-  e.preventDefault();
-  console.log('Create btn clcl');
->>>>>>> b15d05f7cb00bb1743d2823a5cb5851396f9eca2
 
   try {
     // prevent default behaviour on form submit
@@ -34,12 +29,6 @@ createBtn.addEventListener('click', async (e) => {
     if (!username && username === '' && !email && email === '' && !password && password === '') {
       throw new Error ("Missing Required Inputs");
     }
-
-<<<<<<< HEAD
-=======
-  if (!username && username === '' || !email && email === '' || !password && password === '')
-    return;
->>>>>>> b15d05f7cb00bb1743d2823a5cb5851396f9eca2
 
     // make create new user request to main process
     const response = await window.formAPI.invoke ("create-new-user", {username, email, password});

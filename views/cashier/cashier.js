@@ -40,10 +40,94 @@ const items = [
   },
 ]
 
+
+let shoppingCart = {
+  items: [],
+  total: 0,
+  memberPts: 0,
+  memberDetails: null
+}
+
 // DOM Nodes
+const memberInfoDiv = document.getElementById("member-info-div");
 const addItemBtn = document.getElementById("add-item");
 const addFeesBtn = document.getElementById("add-fees");
+const checkoutBtn = document.getElementById("checkout-btn");
+const payBtn = document.getElementById("pay-btn");
+const discardBtn = document.getElementById("discard-btn");
+const printBtn = document.getElementById("print-btn");
+const checkoutModal = document.getElementById("checkout-modal");
+const memberCheckoutBtn = document.getElementById("member-checkout-btn");
+const normalCheckoutBtn = document.getElementById("normal-checkout-btn");
+const removeMemberCheckoutBtn = document.getElementById("remove-member-checkout");
+const useMemberPtsBtn = document.getElementById("use-member-points");
+const removeMemberPtsBtn = document.getElementById("remove-member-points");
 let totalPrice = 0;
+
+
+/**
+# Once the window loads up, disable all three action buttons and hide what's necessary
+**/
+memberInfoDiv.style.display = "none"; // hide member info division
+showHideButtons(payBtn, show=false); // hide the paybtn
+showHideButtons(removeMemberPtsBtn, show=false); // hide remove member points button
+toggleButtonState(removeMemberPtsBtn, enabled=false);
+toggleButtonState(checkoutBtn, false);
+toggleButtonState(payBtn, false);
+toggleButtonState(printBtn, false);
+toggleButtonState(discardBtn, false);
+
+
+/**
+# receive IPC event from the main process after member selection
+**/
+window.cashierAPI.receive("member-select", data => {
+
+  const { id, username, point, fullname } = data;
+  shoppingCart.memberDetails = data;
+
+  memberInfoDiv.style.display = "block";
+
+  (document.getElementById("member-id")).value = id;
+
+  // member username
+  (document.getElementById("member-uname")).value = username;
+
+  // member fname
+  (document.getElementById("member-fname")).value = fullname;
+
+  // member points
+  (document.getElementById("member-points")).value = point;
+
+  showHideButtons(payBtn, show=true);
+  showHideButtons(checkoutBtn, show=false);
+  toggleButtonState(payBtn, enabled=true);
+  toggleButtonState(printBtn, enabled=true); // enable print btn to print receipt
+  toggleButtonState(checkoutBtn, enabled=false); // disable pay button
+  toggleButtonState(discardBtn, enabled=false); // disable discard Button
+
+});
+
+
+/**
+# reset cashier window
+**/
+window.cashierAPI.receive("reset-cashier-window", () => {
+
+  memberInfoDiv.style.display = "none"; // hide member info division
+  showHideButtons(payBtn, show=false); // hide the paybtn
+  showHideButtons(checkoutBtn, show=true); // show checkoutBtn
+  showHideButtons(removeMemberPtsBtn, show=false); // hide remove member points button
+  toggleButtonState(removeMemberPtsBtn, enabled=false);
+  toggleButtonState(checkoutBtn, false);
+  toggleButtonState(payBtn, false);
+  toggleButtonState(printBtn, false);
+  toggleButtonState(discardBtn, false);
+
+  clearCart(); // clear cart
+
+  addEmptyMessageBox();
+});
 
 
 function logoutToMainMenu() {
@@ -72,7 +156,7 @@ addItemBtn.addEventListener("click", e => {
     addItemToCart(item);
   }
 
-
+  document.getElementById("item-input").value = "";
   addItemBtn.removeAttribute("disabled");
   addItemBtn.innerHTML = "Add Item";
 });
@@ -88,6 +172,113 @@ addFeesBtn.addEventListener("click", e => {
 });
 
 
+/**
+# Clear the cart when discard button is pressed
+**/
+discardBtn.addEventListener("click", e => {
+  clearCart();
+});
+
+
+/**
+# Checkout
+**/
+checkoutBtn.addEventListener("click", e => {
+  checkoutModal.style.display = "flex";
+});
+
+
+/**
+# Member Checkout
+**/
+memberCheckoutBtn.addEventListener("click", e => {
+  /** request for member checkout(information) window */
+  checkoutModal.style.display = "none";
+  window.cashierAPI.send("member-checkout-window", "");
+});
+
+
+/**
+# Normal Checkout
+**/
+normalCheckoutBtn.addEventListener("click", e => {
+  /** Just dismiss the modal and proceed */
+  checkoutModal.style.display = "none";
+  showHideButtons(payBtn, show=true);
+  showHideButtons(checkoutBtn, show=false);
+  toggleButtonState(payBtn, enabled=true);
+  toggleButtonState(printBtn, enabled=true); // enable print btn to print receipt
+  toggleButtonState(checkoutBtn, enabled=false); // disable pay button
+  toggleButtonState(discardBtn, enabled=false); // disable discard Button
+});
+
+
+/**
+# Remove Member Checkout Button and change to Normal Checkout
+**/
+removeMemberCheckoutBtn.addEventListener("click", e => {
+  shoppingCart.memberPts = 0;
+  shoppingCart.memberDetails = null;
+
+  memberInfoDiv.style.display = "none";
+});
+
+
+
+/**
+# Apply member points at checkout
+**/
+useMemberPtsBtn.addEventListener("click", e => {
+
+  e.preventDefault();
+
+  const pts = document.getElementById("member-points-input").value;
+  const availablePts = document.getElementById("member-points").value;
+
+  if (!pts || pts === "")
+    return;
+
+  if (parseInt(pts) > parseInt(availablePts)) {
+    alert("Invalid Member Points. Not enough.");
+    return;
+  }
+
+  showHideButtons(useMemberPtsBtn, show=false); // hide use member point btn
+  toggleButtonState(useMemberPtsBtn, enabled=false); // disable use member point btn
+  showHideButtons(removeMemberPtsBtn, show=true); // show remove member point btn
+  toggleButtonState(removeMemberPtsBtn, enabled=true); // enable remove member point btn
+
+  shoppingCart.memberPts = parseInt(pts);
+  (document.getElementById("use-member-point-alert")).innerHTML = `* Member Point(s) applied: ${pts}`;
+
+});
+
+
+/**
+# Remove applied member points
+**/
+removeMemberPtsBtn.addEventListener("click", e => {
+  (document.getElementById("use-member-point-alert")).innerHTML = null;
+
+  document.getElementById("member-points-input").value = '';
+
+  showHideButtons(useMemberPtsBtn, show=true); // hide use member point btn
+  toggleButtonState(useMemberPtsBtn, enabled=true); // disable use member point btn
+  showHideButtons(removeMemberPtsBtn, show=false); // show remove member point btn
+  toggleButtonState(removeMemberPtsBtn, enabled=false); // enable remove member point btn
+});
+
+
+
+/** pay btn **/
+payBtn.addEventListener("click", e => {
+  // open payment summary window
+
+  window.cashierAPI.send("open-payment-summary", shoppingCart);
+});
+
+
+
 
 /**
 # Remove Cart Empty Message
@@ -96,6 +287,20 @@ function removeMessageBox() {
   const messageBox = document.getElementsByClassName("alert")[0];
 
   if (messageBox) messageBox.remove();
+}
+
+
+/**
+# Add Empty Message Box
+**/
+function addEmptyMessageBox() {
+  const msgBox = document.createElement("div");
+  msgBox.setAttribute("class", "alert alert-info text-center");
+  msgBox.setAttribute("role", "alert");
+  msgBox.innerHTML = "Card is Empty!";
+
+  const cart = document.getElementById("cart");
+  cart.appendChild(msgBox);
 }
 
 
@@ -141,6 +346,8 @@ function addItemToCart ({id, name, price}) {
     // item price
     const itemPrice = document.createElement("h6");
     itemPrice.setAttribute("class", "text-muted mx-1 my-2");
+    itemPrice.setAttribute("id", `item-price-${id}`);
+    itemPrice.setAttribute("data-price-item-id", id);
     itemPrice.innerHTML = `${price} ks`;
     priceDiv.appendChild(itemPrice);
 
@@ -148,6 +355,13 @@ function addItemToCart ({id, name, price}) {
 
     totalPrice += parseInt(price);
     (document.getElementById("total-price")).innerHTML = totalPrice;
+
+    /** Enable Pay and Discard Button once there is at least one item in the cart */
+    toggleButtonState(checkoutBtn, true);
+    toggleButtonState(discardBtn, true);
+
+    /* update the shopping cart object */
+    updateShoppingCart({id, name, price}, "add");
   }
 }
 
@@ -167,12 +381,22 @@ function updateExistingItemsInCart ({id, price}) {
 
   if (existingItems.length > 0) {
     const currentQty = existingItems[0].innerHTML;
-    console.log(currentQty);
 
     existingItems[0].innerHTML = parseInt(currentQty) + 1;
 
+    // update price for the cart item
+    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${id}"]`)[0].innerHTML;
+
+    const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
+
+    (document.getElementById(`item-price-${id}`)).innerHTML = `${2 * parseInt(priceTag)} ks`;
+
+    // update total price for the cart
     totalPrice += price;
     (document.getElementById("total-price")).innerHTML = totalPrice;
+
+    /* update the shopping cart object */
+    updateShoppingCart({id, price}, "add");
 
     return parseInt(currentQty);
   }
@@ -229,7 +453,6 @@ function reduceQuantityInCart (id, price) {
 
   if (existingItems.length > 0) {
     const currentQty = existingItems[0].innerHTML;
-    console.log(currentQty);
 
     existingItems[0].innerHTML = parseInt(currentQty) - 1;
 
@@ -238,6 +461,16 @@ function reduceQuantityInCart (id, price) {
       const cartItem = document.getElementById(`data-item-${id}`);
       if (cartItem) cartItem.remove();
     }
+    else {
+      // update price for the cart item
+      const priceDOM = cart.querySelectorAll(`[data-price-item-id="${id}"]`)[0].innerHTML;
+
+      const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
+
+      (document.getElementById(`item-price-${id}`)).innerHTML = `${parseInt(priceTag) - price} ks`;
+    }
+
+    updateShoppingCart({id, price}, "remove");
 
     totalPrice -= price;
     (document.getElementById("total-price")).innerHTML = totalPrice;
@@ -253,13 +486,90 @@ function increaseQuantityInCart (id, price) {
 
   if (existingItems.length > 0) {
     const currentQty = existingItems[0].innerHTML;
-    console.log(currentQty);
 
     existingItems[0].innerHTML = parseInt(currentQty) + 1;
+
+    // update price for the cart item
+    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${id}"]`)[0].innerHTML;
+
+    const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
+
+    (document.getElementById(`item-price-${id}`)).innerHTML = `${parseInt(priceTag) + price} ks`;
+
+    updateShoppingCart({id, price}, "add");
 
     totalPrice += price;
     (document.getElementById("total-price")).innerHTML = totalPrice;
   }
+}
+
+
+
+/**
+# Update Shopping Cart
+**/
+function updateShoppingCart (newItem, method) {
+
+  // check if the new Item is already exists in the cart
+  // if then increase the qty and price, otherwise add new
+  const item = shoppingCart.items.find( i => i.id === newItem.id);
+
+  if (item) {
+    if (method === "add") {
+      // increase the qty
+      // re-calculate the price
+      shoppingCart.items = shoppingCart.items.map (
+        i => i.id === newItem.id
+        ? {
+          ...i,
+          qty: (i.qty + 1),
+          price: (i.price + newItem.price)
+        }
+        : i
+      );
+    }
+    else {
+      // Remove item from shopping cart
+      // console.log("Remove Existing Items");
+      const currentQty = item.qty;
+
+      if (currentQty > 1) {
+        shoppingCart.items = shoppingCart.items.map (
+          i =>
+          i.id === newItem.id
+          ? {
+            ...i,
+            qty: (i.qty - 1),
+            price: (i.price - newItem.price)
+          }
+          : i
+        );
+      }
+      else {
+        // remove item from array
+        shoppingCart.items = shoppingCart.items.filter (
+          i => i.id !== newItem.id
+        );
+      }
+
+    }
+
+  }
+  else {
+    // add new
+    shoppingCart.items.push({
+      id: newItem.id,
+      name: newItem.name,
+      qty: 1,
+      price: parseInt(newItem.price)
+    });
+  }
+
+  // update total
+  if (method === "add")
+    shoppingCart.total += parseInt(newItem.price);
+  else
+    shoppingCart.total -= parseInt(newItem.price);
 }
 
 
@@ -274,6 +584,41 @@ function clearCart() {
   while (cart.lastChild) {
     cart.removeChild(cart.lastChild);
   }
+
+  /** disable all actions buttons */
+  toggleButtonState(checkoutBtn, enabled=false);
+  toggleButtonState(printBtn, enabled=false);
+  toggleButtonState(payBtn, enabled=false);
+  toggleButtonState(discardBtn, enabled=false);
+  /** hide the member info div **/
+  memberInfoDiv.style.display = "none";
+}
+
+
+/**
+# Toggle Button State -> Disabled/enabled
+**/
+function toggleButtonState(btn, enabled) {
+
+  if (enabled) {
+    if (btn) btn.removeAttribute("disabled"); // enable
+  }
+  else {
+    if (btn) btn.setAttribute("disabled", true); // disable
+  }
+}
+
+
+/**
+# Show or Hide buttons
+**/
+function showHideButtons(btn, show) {
+  if (show) {
+    if (btn) btn.style.display = "block";
+  }
+  else {
+    if (btn) btn.style.display = "none";
+  }
 }
 
 
@@ -283,7 +628,7 @@ function clearCart() {
 function getItem (itemCode) {
   let item = null;
   for (let i of items) {
-    console.log(i.id, itemCode, i.id===itemCode);
+    // console.log(i.id, itemCode, i.id===itemCode);
     if (i.id === itemCode) {
       item = i;
       break;
