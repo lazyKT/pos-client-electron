@@ -5,31 +5,37 @@
 const members = [
   {
     id: 1,
+    fullname: "Kyaw Thit Lwin",
     username: "ktl123",
     point: 12
   },
   {
     id: 2,
-    username: "kz12",
+    fullname: "Pyay Nyein Aung",
+    username: "pna123",
     point: 10
   },
   {
     id: 3,
+    fullname: "Thomas",
     username: "uname123",
     point: 12
   },
   {
     id: 4,
+    fullname: "Kevin",
     username: "kkttll",
     point: 5
   },
   {
     id: 5,
+    fullname: "Jake",
     username: "jazz",
     point: 1
   },
   {
     id: 6,
+    fullname: "Amy",
     username: "doe",
     point: 9
   },

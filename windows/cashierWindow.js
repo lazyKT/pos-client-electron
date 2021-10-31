@@ -25,7 +25,7 @@ exports.createCashierWindow = function createCashierWindow() {
 
   win.loadFile(path.join(__dirname, "../views/cashier/cashier.html"));
 
-  // win.openDevTools();
+  win.openDevTools();
 
   win.once('ready-to-show', () => {
     win.show();

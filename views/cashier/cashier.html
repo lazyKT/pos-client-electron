@@ -51,6 +51,46 @@
               </div>
             </div>
           </div>
+
+          <!-- member info if available -->
+          <div class="mt-4" id="member-info-div">
+            <h5 class="mx-2 mt-4 text-muted">Member Checkout</h5>
+            <div class="card mb-3">
+              <big class="m-2">Member info:</big>
+              <div class="card-body">
+
+                <!-- member id -->
+                <div class="mb-2">
+                  <small for="member-id" class="text-muted">Member ID:</small>
+                  <input name="member-id" id="member-id" class="form-control form-control-sm" readonly/>
+                </div>
+
+                <!-- member username -->
+                <div class="mb-2">
+                  <small for="member-id" class="text-muted">Member Username:</small>
+                  <input name="member-id" id="member-uname" class="form-control form-control-sm" readonly/>
+                </div>
+
+                <!-- member full name -->
+                <div class="mb-2">
+                  <small for="member-id" class="text-muted">Member Full Name:</small>
+                  <input name="member-id" id="member-fname" class="form-control form-control-sm" readonly/>
+                </div>
+
+                <!-- available points -->
+                <div class="mb-2">
+                  <small for="member-id" class="text-muted">Member Points:</small>
+                  <input name="member-id" id="member-points" class="form-control form-control-sm" readonly/>
+                </div>
+
+                <div class="mb-2 d-flex justify-content-between">
+                  <input class="form-control form-control-sm w-25" placeholder="Pts" id="apply-member-points"/>
+                  <button class="btn btn-success w-25" id="use-member-points">Use Points</button>
+                </div>
+
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="col">

@@ -40,7 +40,14 @@ const items = [
   },
 ]
 
+
+let shoppingCart = {
+  items: [],
+  total: 0
+}
+
 // DOM Nodes
+const memberInfoDiv = document.getElementById("member-info-div");
 const addItemBtn = document.getElementById("add-item");
 const addFeesBtn = document.getElementById("add-fees");
 const checkoutBtn = document.getElementById("checkout-btn");
@@ -54,13 +61,37 @@ let totalPrice = 0;
 
 
 /**
-# Once the window loads up, disable all three action buttons
+# Once the window loads up, disable all three action buttons and hide what's necessary
 **/
+memberInfoDiv.style.display = "none"; // hide member info division
 showHideButtons(payBtn, show=false); // hide the paybtn
 toggleButtonState(checkoutBtn, false);
 toggleButtonState(payBtn, false);
 toggleButtonState(printBtn, false);
 toggleButtonState(discardBtn, false);
+
+
+/**
+# receive IPC event from the main process after member selection
+**/
+window.cashierAPI.receive("member-select", data => {
+
+  const { id, username, point, fullname } = data;
+
+  memberInfoDiv.style.display = "block";
+
+  (document.getElementById("member-id")).value = id;
+
+  // member username
+  (document.getElementById("member-uname")).value = username;
+
+  // member fname
+  (document.getElementById("member-fname")).value = fullname;
+
+  // member points
+  (document.getElementById("member-points")).value = point;
+
+})
 
 
 function logoutToMainMenu() {
@@ -146,6 +177,15 @@ normalCheckoutBtn.addEventListener("click", e => {
 });
 
 
+/** pay btn **/
+payBtn.addEventListener("click", e => {
+  // open payment summary window
+  // window.cashierAPI.send("open-payment-summary", {})
+  console.log(shoppingCart);
+});
+
+
+
 
 /**
 # Remove Cart Empty Message
@@ -212,6 +252,9 @@ function addItemToCart ({id, name, price}) {
     /** Enable Pay and Discard Button once there is at least one item in the cart */
     toggleButtonState(checkoutBtn, true);
     toggleButtonState(discardBtn, true);
+
+    /* update the shopping cart object */
+    updateShoppingCart({id, name, price}, "add");
   }
 }
 
@@ -245,6 +288,9 @@ function updateExistingItemsInCart ({id, price}) {
     // update total price for the cart
     totalPrice += price;
     (document.getElementById("total-price")).innerHTML = totalPrice;
+
+    /* update the shopping cart object */
+    updateShoppingCart({id, price}, "add");
 
     return parseInt(currentQty);
   }
@@ -310,14 +356,17 @@ function reduceQuantityInCart (id, price) {
       const cartItem = document.getElementById(`data-item-${id}`);
       if (cartItem) cartItem.remove();
     }
+    else {
+      // update price for the cart item
+      const priceDOM = cart.querySelectorAll(`[data-price-item-id="${id}"]`)[0].innerHTML;
 
-    // update price for the cart item
-    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${id}"]`)[0].innerHTML;
+      const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
+      console.log(parseInt(priceTag));
 
-    const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
-    console.log(parseInt(priceTag));
+      (document.getElementById(`item-price-${id}`)).innerHTML = `${parseInt(priceTag) - price} ks`;
+    }
 
-    (document.getElementById(`item-price-${id}`)).innerHTML = `${parseInt(priceTag) - price} ks`;
+    updateShoppingCart({id, price}, "remove");
 
     totalPrice -= price;
     (document.getElementById("total-price")).innerHTML = totalPrice;
@@ -344,9 +393,82 @@ function increaseQuantityInCart (id, price) {
 
     (document.getElementById(`item-price-${id}`)).innerHTML = `${parseInt(priceTag) + price} ks`;
 
+    updateShoppingCart({id, price}, "add");
+
     totalPrice += price;
     (document.getElementById("total-price")).innerHTML = totalPrice;
   }
+}
+
+
+
+/**
+# Update Shopping Cart
+**/
+function updateShoppingCart (newItem, method) {
+
+  // check if the new Item is already exists in the cart
+  // if then increase the qty and price, otherwise add new
+  const item = shoppingCart.items.find( i => i.id === newItem.id);
+
+  if (item) {
+    if (method === "add") {
+      // increase the qty
+      // re-calculate the price
+      console.log("Update Existing Items");
+      shoppingCart.items = shoppingCart.items.map (
+        i => i.id === newItem.id
+        ? {
+          ...i,
+          qty: (i.qty + 1),
+          price: (i.price + newItem.price)
+        }
+        : i
+      );
+    }
+    else {
+      // Remove item from shopping cart
+      // console.log("Remove Existing Items");
+      const currentQty = item.qty;
+
+      if (currentQty > 1) {
+        shoppingCart.items = shoppingCart.items.map (
+          i =>
+          i.id === newItem.id
+          ? {
+            ...i,
+            qty: (i.qty - 1),
+            price: (i.price - newItem.price)
+          }
+          : i
+        );
+      }
+      else {
+        // remove item from array
+        shoppingCart.items = shoppingCart.items.filter (
+          i => i.id !== newItem.id
+        );
+      }
+
+    }
+
+  }
+  else {
+    // add new
+    console.log("Add New Items");
+    shoppingCart.items.push({
+      id: newItem.id,
+      name: newItem.name,
+      qty: 1,
+      price: parseInt(newItem.price)
+    });
+  }
+
+  // update total
+  if (method === "add")
+    shoppingCart.total += parseInt(newItem.price);
+  else
+    shoppingCart.total -= parseInt(newItem.price);
 }
 
 
@@ -363,10 +485,12 @@ function clearCart() {
   }
 
   /** disable all actions buttons */
-  toggleButoonState(checkoutBtn, enabled=false);
+  toggleButtonState(checkoutBtn, enabled=false);
   toggleButtonState(printBtn, enabled=false);
   toggleButtonState(payBtn, enabled=false);
   toggleButtonState(discardBtn, enabled=false);
+  /** hide the member info div **/
+  memberInfoDiv.style.display = "none";
 }
 
 
