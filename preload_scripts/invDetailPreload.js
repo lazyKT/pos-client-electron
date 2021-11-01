@@ -12,7 +12,8 @@ const {
     /** write your allowed channels herer */
     "item-details",
     "dismiss-form-window",
-    "item-detail-data"
+    "item-detail-data",
+    "get-all-detail-items"
   ];
   
   const ALLOWED_INVOKED_CHANNELS = [
@@ -24,7 +25,7 @@ const {
   const ALLOWED_RECEIVED_CHANNELS = [
     /** write your allowed channels herer */
     "reload-data",
-    "response-item-details-data"
+    "response-item-detail-data"
   ];
   
   
@@ -52,6 +53,7 @@ const {
         otherwise, throw an error
         */
       if (ALLOWED_RECEIVED_CHANNELS.includes(channel)) {
+        console.log("receive 123123");
         ipcRenderer.on(channel, (event, ...args) => callback(...args));
       }
       else throw new Error("Unknown IPC Channels Detected in inventoryPreload.recieve");

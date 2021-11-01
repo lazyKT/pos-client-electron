@@ -9,6 +9,8 @@
  const {
    updateItem,
    getAllItems,
+   getItemById,
+   getDetailItemById
  } = require("../models/item.js");
  
  
@@ -39,21 +41,22 @@
  
  
    win.once("ready-to-show", () => win.show());
-   console.log(contents);
+   console.log('contents', contents);
  
    win.on("close", () => { if(win) win = null;})
  
    win.webContents.on("did-finish-load", () => {
+       const q = getDetailItemById(contents);
+       console.log("contents11", q);
+ 
+    win.webContents.send("response-item-detail-data", q);
 
-    /**
-    # GET ALL INVENTORY ITEMS
-    **/
-    win.webContents.send("reload-data", getAllItems());
 
-    //response all items to renderer process
-    ipcMain.handle('get-all-detail-items', (e, _) => {
 
-     const result = getAllItems();
+    //response all detail subdescription items to renderer process
+    ipcMain.handle('get-all-detail-items', (e, contents) => {
+
+     const result = getDetailItemById(contents);
      return result;
     });
  
