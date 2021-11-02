@@ -7,7 +7,7 @@ const detailButton = document.getElementById('')
 
 if (editButton) editButton.style.display = 'none'; // hide the edit button on the first load
 
-window.editContentAPI.receive('response-item-data', data => {
+window.editContentAPI.receive('response-edit-item-data', data => {
 
   const { item, method } = data;
   const itemId = document.getElementById('item-id');
@@ -41,7 +41,7 @@ window.editContentAPI.receive('response-item-data', data => {
 
 // dismiss/close form window
 cancelButton.addEventListener('click', () => {
-  window.editContentAPI.send('dismiss-form-window', '');
+  window.editContentAPI.send('dismiss-edit-item-form-window', '');
 })
 
 

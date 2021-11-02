@@ -204,7 +204,15 @@ exports.getAllItems = function getAllItems() {
 
 exports.getDetailItemById = function getDetailItemById(data){
   const detailItem = items.find(item => item.id === parseInt(data.id));
+  console.log(data, "item.js");
   return detailItem.subdescription;
+}
+
+exports.getSubItemDetailById = function getSubItemDetailById(productId){
+  console.log("check id", productId);
+  const subItem = items.find(item => item.subdescription.productId === parseInt(productId));
+  console.log("checking subItems", subItem);
+  return subItem;
 }
 
 exports.getItemById = function getItemById(id) {

@@ -9,10 +9,8 @@ window.onload = function () {
             data.forEach( item => populateDetailItemTable(item));
             //reloadData(data);
         }
-    });
-             
-  
-    
+    });          
+      
     
     const populateDetailItemTable = ({productId, description, expireDate, quantity, doctorApproval, ingredients}, idx=1) => {
     
@@ -36,41 +34,20 @@ window.onload = function () {
         fifthColumn.innerHTML = doctorApproval;
         sixthColumn.innerHTML = ingredients;
 
-        row.addEventListener("click", () => {
+        row.addEventListener("click", async e => {
             console.log("row clk", description);
-            detailItemsDisplay.style.display = "none";
-
+            detailItemsDisplay.style.display = 'none';
+            if(detailItemsDisplay.style.display === "none"){
+            const detailSubItemDisplay = document.getElementById("subItem-edit-box");
+            detailSubItemDisplay.style.display = 'block';
+            }
+            const closeEdit = document.getElementById("sub-item-dismiss-window");
+            closeEdit;
+            //console.log("checkId", productId);
+            const response = await window.detailInventoryAPI.invoke('item-details-edit', {productId, method: 'GET'});
+            
         });
-        // /* edit button */
-        // const editBtn = document.createElement('button');
-        // editBtn.setAttribute('class', 'btn mx-1 btn-primary');
-        // editBtn.setAttribute('data-id', productId);
-        // editBtn.innerHTML = 'EDIT';
-        // seventhColumn.appendChild(editBtn);
-      
-        // editBtn.addEventListener('click', e => {
-        //   window.detailInventoryAPI.send('item-details', {productId, method: 'PUT'});
-        // });
 
-        // const deleteBtn = document.createElement('button');
-        // deleteBtn.setAttribute('class', 'btn mx-1 btn-primary');
-        // deleteBtn.setAttribute('data-id', productId);
-        // deleteBtn.innerHTML = 'Delete';
-        // seventhColumn.appendChild(deleteBtn);
-      
-        // deleteBtn.addEventListener('click', e => {
-        //   window.detailInventoryAPI.send('item-details', {productId, method: 'PUT'});
-        // });
-
-        // const detailBtn = document.createElement('button');
-        // detailBtn.setAttribute('class', 'btn mx-1 btn-primary');
-        // detailBtn.setAttribute('data-id', productId);
-        // detailBtn.innerHTML = 'Details';
-        // seventhColumn.appendChild(detailBtn);
-      
-        // detailBtn.addEventListener('click', e => {
-        //   window.detailInventoryAPI.send('item-details', {productId, method: 'PUT'});
-        // });
 
       };
     const cancelButton = document.getElementById("dismiss-window");
