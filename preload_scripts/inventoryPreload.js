@@ -12,7 +12,8 @@ const ALLOWED_SEND_CHANNELS = [
   /** write your allowed channels herer */
   "logout",
   "item-data",
-  "item-details"
+  "item-details",
+  "get-all-detail-items"
 ];
 
 const ALLOWED_INVOKED_CHANNELS = [

@@ -4,28 +4,38 @@ const items = [
   {
     id: 1,
     description: 'panadol1',
-    expireDate: '22-04-2022',
     dateAlert: '4 Days',
-    quantityAlert: 5,
-    quantity: 30,
+    quantityAlert: '5',
     subdescription: [
       {
           productId: 2345,
           description: 'panadol1',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman, Stephen Chow',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       },
       {
           productId: 2346,
           description: 'panadol1',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       },
       {
           productId: 2347,
           description: 'panadol1',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       }
     ],
     location: "C1"
@@ -33,28 +43,38 @@ const items = [
   {
     id: 2,
     description: 'panadol2',
-    expireDate: '22-04-2022',
     dateAlert: '4 Days',
-    quantityAlert: 5,
-    quantity: 30,
+    quantityAlert: '5',
     subdescription: [
       {
           productId: 2348,
           description: 'panadol1',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       },
       {
           productId: 2349,
           description: 'panadol1',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       },
       {
           productId: 2350,
           description: 'panadol1',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       }
     ],
     location: "C1"
@@ -62,28 +82,38 @@ const items = [
   {
     id: 3,
     description: 'panadol3',
-    expireDate: '22-04-2022',
     dateAlert: '4 Days',
-    quantityAlert: 5,
-    quantity: 30,
+    quantityAlert: '5',
     subdescription: [
       {
           productId: 2351,
           description: 'panadol1',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       },
       {
           productId: 2352,
           description: 'panadol1',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       },
       {
           productId: 2353,
           description: 'panadol1',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       }
     ],
     location: "C1"
@@ -91,28 +121,38 @@ const items = [
   {
     id: 4,
     description: 'panadol4',
-    expireDate: '22-04-2022',
     dateAlert: '4 Days',
-    quantityAlert: 5,
-    quantity: 30,
+    quantityAlert: '5',
     subdescription: [
       {
           productId: 2354,
           description: 'panadol1',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       },
       {
           productId: 2355,
           description: 'panadol1',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       },
       {
           productId: 2356,
           description: 'panadol1',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       }
     ],
     location: "C1"
@@ -120,28 +160,38 @@ const items = [
   {
     id: 5,
     description: 'panadol5',
-    expireDate: '22-04-2022',
     dateAlert: '4 Days',
-    quantityAlert: 5,
-    quantity: 30,
+    quantityAlert: '5',
     subdescription: [
       {
           productId: 2357,
           description: 'panadol1',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       },
       {
           productId: 2358,
-          description: 'panadol1',
+          description: 'panadol2',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       },
       {
           productId: 2359,
           description: 'panadol1',
           expireDate: '22-04-2022',
-          quantity: 20
+          quantity: '20',
+          doctorApproval: 'true',
+          ingredients: 'Acid, Base, Vitamins, Godzilla, Ultraman',
+          dateCreated: '23-06-2021',
+          dateUpdated: '24-06-2021'
       }
     ],
     location: "C1"
@@ -152,6 +202,18 @@ exports.getAllItems = function getAllItems() {
   return items;
 }
 
+exports.getDetailItemById = function getDetailItemById(data){
+  const detailItem = items.find(item => item.id === parseInt(data.id));
+  console.log(data, "item.js");
+  return detailItem.subdescription;
+}
+
+exports.getSubItemDetailById = function getSubItemDetailById(productId){
+  console.log("check id", productId);
+  const subItem = items.find(item => item.subdescription.productId === parseInt(productId));
+  console.log("checking subItems", subItem);
+  return subItem;
+}
 
 exports.getItemById = function getItemById(id) {
   return items.find(item => item.id === parseInt(id));
@@ -160,7 +222,7 @@ exports.getItemById = function getItemById(id) {
 
 exports.updateItem = function updateItem(request) {
   
-  const { id, description, location } = request;
+  const { id, description, dateAlert, quantityAlert, location } = request;
 
   const item = items.find(item => item.id === parseInt(id));
 
@@ -168,6 +230,8 @@ exports.updateItem = function updateItem(request) {
     return { error: 'Not Found', status: 404 }; // http status code not_found
 
   item.description = description;
+  item.dateAlert = dateAlert;
+  item.quantityAlert = quantityAlert;
   item.location = location;
   return { data: item, status: 200 }; // http status code 200 OK
 }
@@ -192,7 +256,7 @@ exports.updateDetailItem = function updateDetailItem(request) {
 
 exports.searchItem = function searchItem(q) {
   // search item data which match the keyword: q
-  return items.filter(item => (item.description.includes(q) || item.location.includes(q)));
+  return items.filter(item => (item.description.includes(q) || item.location.includes(q) || item.dateAlert.includes(q) || item.quantityAlert.includes(q)));
 }
 
 exports.createNewItem = function createNewItem({description, expireDate, quantity, location}) {

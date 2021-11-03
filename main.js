@@ -21,6 +21,6 @@ app.whenReady().then(() => {
 
 app.on('all-window-closed', () => {
   // if all the app's windows are closed, quit the app
-  if (process.platform === 'darwin')
+  if (process.platform !== 'darwin')
     app.quit();
 });

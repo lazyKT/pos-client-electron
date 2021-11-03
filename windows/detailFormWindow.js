@@ -9,7 +9,12 @@
  const {
    updateItem,
    getAllItems,
+   getItemById,
+   getDetailItemById,
+   getSubItemDetailById
  } = require("../models/item.js");
+
+ const {createSubItemEditForm} = require("../views/inventory/edit_detail_item.js");
  
  
  let win
@@ -39,44 +44,43 @@
  
  
    win.once("ready-to-show", () => win.show());
-   console.log(contents);
  
    win.on("close", () => { if(win) win = null;})
  
    win.webContents.on("did-finish-load", () => {
+       const q = getDetailItemById(contents);
+       //console.log("contents11", q);
+ 
+    win.webContents.send("response-item-detail-data", q);
 
-    /**
-    # GET ALL INVENTORY ITEMS
-    **/
-    win.webContents.send("reload-data", getAllItems());
 
-    //response all items to renderer process
-    ipcMain.handle('get-all-detail-items', (e, _) => {
 
-     const result = getAllItems();
-     return result;
-    });
+    //response all detail subdescription items to renderer process
+    // ipcMain.handle('get-all-detail-items', (e, contents) => {
+    //  const result = getDetailItemById(contents);
+    //  return result;
+    // });
  
      /**
      IPC Messages
      **/
 
-     ipcMain.on('item-detail-data', (e, req) => {
-      const { id, method } = req;
-      const item = getItemById(id);
-
-      if (item) {
-        createEditFormWindow(win, method, item)
-      }
+    ipcMain.handle('item-details-edit', (e, req) => {
+        const { productId, method} = req;
+        console.log("checking123", productId);
+        const item = getSubItemDetailById(productId);
+        console.log("check item form", item);
+        return item;
     });
  
      /* Dimiss Window */
-     ipcMain.on('dismiss-form-window', () => {
+    ipcMain.on('dismiss-form-window', () => {
+      ipcMain.removeHandler("item-details-edit"); // remove existing handler
       if(win) win.close();
       /**
       *** upon the window close, remove all the existing handlers to prevent second handler registration error in the future
       **/
-      ipcMain.removeHandler("item-detail-data");  // <======
+    
     });
  
    });

@@ -12,19 +12,23 @@ const {
     /** write your allowed channels herer */
     "item-details",
     "dismiss-form-window",
-    "item-detail-data"
+    "item-detail-data",
+    "get-all-detail-items",
+    "item-details-edit"
   ];
   
   const ALLOWED_INVOKED_CHANNELS = [
     /** write your allowed channels herer */
-    "get-all-detail-items"
+    "get-all-detail-items",
+    "item-details-edit"
   ];
   
   
   const ALLOWED_RECEIVED_CHANNELS = [
     /** write your allowed channels herer */
     "reload-data",
-    "response-item-details-data"
+    "response-item-detail-data",
+    "response-subItem-detail-data"
   ];
   
   
@@ -41,7 +45,7 @@ const {
       if (ALLOWED_SEND_CHANNELS.includes(channel)) {
         ipcRenderer.send(channel, data);
       }
-      else throw new Error("Unknown IPC Channels Detected in inventoryPreload.send");
+      else throw new Error("Unknown IPC Channels Detected in inventoryDetailPreload.send");
     },
     /**
     # Renderer will use this as ipcRenderer.on
@@ -52,9 +56,10 @@ const {
         otherwise, throw an error
         */
       if (ALLOWED_RECEIVED_CHANNELS.includes(channel)) {
+        console.log("receive 123123");
         ipcRenderer.on(channel, (event, ...args) => callback(...args));
       }
-      else throw new Error("Unknown IPC Channels Detected in inventoryPreload.recieve");
+      else throw new Error("Unknown IPC Channels Detected in inventoryDetailPreload.recieve");
     },
     /**
     # Renderer will use this as ipcRenderer.on
@@ -63,13 +68,13 @@ const {
       if (ALLOWED_INVOKED_CHANNELS.includes(channel)) {
         try {
           const response = await ipcRenderer.invoke(channel, data);
-  
+          console.log("invoke 123123");
           return response;
         }
         catch (error) {
           console.log(error);
         }
       }
-      else throw new Error("Unknown IPC Channels Detected in inventoryPreload.invoke");
+      else throw new Error("Unknown IPC Channels Detected in inventoryDetailPreload.invoke");
     }
   });

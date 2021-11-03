@@ -238,25 +238,29 @@ const showEmptyMessage = () => {
 /**
 # Display the invetory items in the table
 **/
-const populateItemTable = ({id, description, location}, idx=1) => {
+const populateItemTable = ({id, description, location, dateAlert, quantityAlert}, idx=1) => {
 
   const itemTable = document.getElementById("item-table");
-  
+
   const row = itemTable.insertRow(idx);
   const firstColumn = row.insertCell(0);
   const secondColumn = row.insertCell(1);
   const thirdColumn = row.insertCell(2);
   const fourthColumn = row.insertCell(3);
+  const fifthColumn = row.insertCell(4);
+  const sixthColumn = row.insertCell(5);
   
   firstColumn.innerHTML = id;
   secondColumn.innerHTML = description;
-  thirdColumn.innerHTML = location;
+  thirdColumn.innerHTML = dateAlert;
+  fourthColumn.innerHTML = quantityAlert;
+  fifthColumn.innerHTML = location;
   /* edit button */
   const editBtn = document.createElement('button');
   editBtn.setAttribute('class', 'btn mx-1 btn-primary');
   editBtn.setAttribute('data-id', id);
   editBtn.innerHTML = 'EDIT';
-  fourthColumn.appendChild(editBtn);
+  sixthColumn.appendChild(editBtn);
 
   editBtn.addEventListener('click', e => {
     window.inventoryAPI.send('item-data', {id, method: 'PUT'});
@@ -266,7 +270,7 @@ const populateItemTable = ({id, description, location}, idx=1) => {
   viewBtn.setAttribute('class', 'btn mx-1 btn-info');
   viewBtn.setAttribute('data-id', id);
   viewBtn.innerHTML = 'View More Details';
-  fourthColumn.appendChild(viewBtn);
+  sixthColumn.appendChild(viewBtn);
 
   viewBtn.addEventListener('click', e => {
     window.inventoryAPI.send('item-details', {id, method: 'GET'});

@@ -65,6 +65,8 @@ exports.createInventoryWindow = function createInventoryWindow () {
     ipcMain.on("logout", () => {
       if (win)
         win.close();
+        ipcMain.removeHandler("get-all-items");
+        ipcMain.removeHandler("edit-item");
     });
 
 
@@ -94,7 +96,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
       const item = getItemById(id);
 
       if(item) {
-        ipcMain.removeHandler("get-all-items");
+        //ipcMain.removeHandler("get-all-items");
         createDetailFormWindow(win, method, item)
         
       }
