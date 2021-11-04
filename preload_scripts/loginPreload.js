@@ -9,6 +9,7 @@ const {
 
 const ALLOWED_SEND_CHANNELS = [
   "dismiss-login-window",
+  "login-request"
 ];
 
 
@@ -19,6 +20,7 @@ const ALLOWED_INVOKED_CHANNELS = [
 
 contextBridge.exposeInMainWorld ( "loginAPI", {
   send: (channel, data) => {
+    console.log(channel, data);
     if (ALLOWED_SEND_CHANNELS.includes(channel)) {
       ipcRenderer.send(channel, data);
     }

@@ -51,12 +51,31 @@ loginButton.addEventListener('click', async (e) => {
 
     toggleModalButtons(false);
 
-    const response = await window.loginAPI.invoke('login-request', {
+    const data = {
       username: username.value,
       password : password.value
+    };
+
+    const response = await fetch("http://127.0.0.1:8080/api/employees/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept" : "application/json"
+      },
+      body: JSON.stringify(data)
     });
 
     console.log(response);
+
+    if (response.ok) {
+      console.log("response ok")
+      window.loginAPI.send("login-request", { username: username.value, status: "success"});
+    }
+    // const response = await window.loginAPI.invoke('login-request', {
+    //   username: username.value,
+    //   password : password.value
+    // });
+
     if (response.status !== 200) {
       showErrorMessage(response.message);
     }

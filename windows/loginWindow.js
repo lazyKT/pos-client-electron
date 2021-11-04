@@ -35,7 +35,7 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
   pageName = from
 
   win.loadFile(path.join(__dirname, "../views/login.html"));
-  // win.openDevTools(); ## For Debug
+  // win.openDevTools(); // ## For Debug
 
   win.once("ready-to-show", () => win.show());
 
@@ -66,31 +66,17 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
 
 
     /** user login request */
-    ipcMain.handle("login-request", (event, args) => {
+    ipcMain.on("login-request", (event, args) => {
       try {
-        const { username, password } = args;
+        const { username, status } = args;
 
-        const loginResponse = loginUser({username, password});
-
-        if (loginResponse.status === 200) {
-          /**
-          *** Remove this handler, aware that at this point, we are not in the stage of completing the full handler process,
-          *** The login request is success, and now we don't want anything to return back to the renderer, so we cancel the handler.
-          *** if we don't cancel the handler, the handler result is pending and somehow, considered not completed,
-          *** then we we want to create another "login-request" handler, we will get an error of creating existing handler.
-          **/
-          ipcMain.removeHandler("login-request");
+        if (status === "success") {
 
           /* login success, redirect to requested page */
           if (win) win.close();
 
-          redirectPage(parentWindow);
+          redirectPage(parentWindow, username);
         }
-
-        // console.log("after ipcMain.removeHandler(login-request)")
-
-        // if (loginReponse.status)
-        return loginResponse;
       }
       catch (error) {
         console.log(error);
@@ -112,7 +98,8 @@ function redirectPage (parent) {
       createCashierWindow();
       break;
     case "user":
-      parent.webContents.send("redirect-page", "user");
+      // parent.webContents.send("redirect-page", "user");
+      parent.loadFile(path.join(__dirname, "../views/user/user.html"));
       break;
     case "inventory":
       createInventoryWindow();
