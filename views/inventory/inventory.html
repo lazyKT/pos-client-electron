@@ -30,26 +30,8 @@
 <div class="container">
 <div class="top-header">
    <h4>My Inventory</h4>
-   <div class= "">
-    <!--
-   <button class="btn btn-primary mx-1" type="button" name="button" id="create-item" onclick="itemRenderer.createItem()">
-    Create
-  </button>
-  -->
-   <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="exportCSV()">
-    Export CSV
-  </button>
-  </div>
-</div>
-<div class="card my-2 box">
-  <div class="card-body search-div">
-    <input class="w-75" id='search-input' type="text" name="" value="" placeholder="Search Items" onkeyup= "onKeyUp(event)">
-    <div class="w-25">
-      <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
-      <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
-    </div>
-  </div>
-</div>
+</div> 
+
   <div class="card my-2 box" width = 'auto'>
     <div class="card-body">
       <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -65,6 +47,44 @@
       </ul>
       <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="inventory" role="tabpanel" aria-labelledby="inventory-tab">
+          <div class= "container">
+          <div class="row mt-3">
+            <div class="col-md">
+              <input class="input" id='search-input' type="text" name="" value="" placeholder="Search Items" onkeyup= "onKeyUp(event)">
+              
+                <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
+                <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
+            </div>
+          <div class="col-md">
+            <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="exportCSV()">
+              Export CSV
+            </button>
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                  Items per page
+                </a>
+              
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                  <li><a class="dropdown-item" href="#">5</a></li>
+                  <li><a class="dropdown-item" href="#">10</a></li>
+                  <li><a class="dropdown-item" href="#">15</a></li>
+                  <li><a class="dropdown-item" href="#">All</a></li>
+                </ul>
+
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                  Sort
+                </a>
+              
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                  <li><a class="dropdown-item" href="#">Id</a></li>
+                  <li><a class="dropdown-item" href="#">Category</a></li>
+                  <li><a class="dropdown-item" href="#">Expire Alert</a></li>
+                  <li><a class="dropdown-item" href="#">Quantity Alert</a></li>
+                  <li><a class="dropdown-item" href="#">Location</a></li>
+                </ul>
+    
+          </div>
+          </div>
+          </div>
           <div class="card my-2 box" width = 'auto'>
             <div class="card-body" id="data-container">  
     <table class="table" id="item-table">
