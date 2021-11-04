@@ -14,7 +14,8 @@ const ALLOWED_SEND_CHANNELS = [
   'user-data',
   'item-data',
   'form-data-finish',
-  'export-csv'
+  'export-csv',
+  'user-logout'
 ];
 
 const ALLOWED_RECEIVED_CHANNELS = [
@@ -40,7 +41,7 @@ contextBridge.exposeInMainWorld("api", {
         otherwise, no action
         */
       if (ALLOWED_SEND_CHANNELS.includes(channel)) {
-        
+
         ipcRenderer.send(channel, data);
       }
     },

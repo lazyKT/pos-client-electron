@@ -11,6 +11,7 @@ const {
 
 const ALLOWED_SEND_CHANNELS = [
   "dismiss-form-window",
+  "form-data-finish"
 ];
 
 

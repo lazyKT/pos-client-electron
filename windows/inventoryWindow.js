@@ -28,10 +28,10 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
   if (!win || win === null) {
     win = new BrowserWindow({
-      width: 1000,
-      height: 800,
+      width: 1200,
+      height: 900,
       show: false,
-      fullscreen: true,
+      fullscreen: false,
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true, // protect against prototype pollution
@@ -42,7 +42,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
 
   win.loadFile(path.join(__dirname, "../views/inventory/inventory.html"));
-  //win.openDevTools();
+  win.openDevTools();
 
 
   win.once("ready-to-show", () => {
@@ -75,14 +75,14 @@ exports.createInventoryWindow = function createInventoryWindow () {
     /**
     # GET ALL INVENTORY ITEMS
     **/
-    win.webContents.send("reload-data", getAllItems());
+    // win.webContents.send("reload-data", getAllItems());
 
     //response all items to renderer process
-    ipcMain.handle('get-all-items', (e, _) => {
-
-     const result = getAllItems();
-     return result;
-    });
+    // ipcMain.handle('get-all-items', (e, _) => {
+    //
+    //  const result = getAllItems();
+    //  return result;
+    // });
 
     ipcMain.on('item-data', (e, req) => {
       const { id, method } = req;
@@ -98,14 +98,8 @@ exports.createInventoryWindow = function createInventoryWindow () {
       const item = getItemById(id);
 
       if(item) {
-<<<<<<< HEAD
-        // ipcMain.removeHandler("get-all-items");
-        createDetailFormWindow(win, method, item);
-=======
         //ipcMain.removeHandler("get-all-items");
-        createDetailFormWindow(win, method, item)
-        
->>>>>>> 7cb88df272b4ef24e8c0c6c5ec9a09820c2720e9
+        createDetailFormWindow(win, method, item);
       }
     });
 

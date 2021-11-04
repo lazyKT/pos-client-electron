@@ -1,4 +1,3 @@
-console.log('Main Script Running...');
 /*
  Scripts for main.html
  */
