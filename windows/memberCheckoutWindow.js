@@ -42,6 +42,7 @@ exports.createMemberCheckoutWindow = function (parent) {
   win.once("ready-to-show", () => win.show());
 
   win.on("close", () => {
+    ipcMain.removeHandler("search-members");
     win = null;
   });
 

@@ -6,29 +6,29 @@ const {
     ipcRenderer,
     contextBridge
   } = require("electron");
-  
-  
+
+
   const ALLOWED_SEND_CHANNELS = [
     /** write your allowed channels herer */
     "item-details",
-    "dismiss-form-window",
+    "dismiss-detailed-form-window",
     "item-detail-data"
   ];
-  
+
   const ALLOWED_INVOKED_CHANNELS = [
     /** write your allowed channels herer */
     "get-all-detail-items"
   ];
-  
-  
+
+
   const ALLOWED_RECEIVED_CHANNELS = [
     /** write your allowed channels herer */
     "reload-data",
     "response-item-details-data"
   ];
-  
-  
-  
+
+
+
   contextBridge.exposeInMainWorld ("detailInventoryAPI", {
     /**
     # Renderer will use this as ipcRenderer.send
@@ -63,7 +63,7 @@ const {
       if (ALLOWED_INVOKED_CHANNELS.includes(channel)) {
         try {
           const response = await ipcRenderer.invoke(channel, data);
-  
+
           return response;
         }
         catch (error) {

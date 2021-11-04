@@ -10,13 +10,13 @@
    updateItem,
    getAllItems,
  } = require("../models/item.js");
- 
- 
+
+
  let win
- 
- 
+
+
  exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, type, contents) {
- 
+
    if (!win || win === null) {
      win = new BrowserWindow ({
        width: 1000,
@@ -31,18 +31,18 @@
          preload: path.join(__dirname, "../preload_scripts/invDetailPreload.js")
        }
      });
-     
+
    }
 
    win.loadFile(path.join(__dirname, "../views/inventory/item_detail.html"));
-   win.openDevTools();
- 
- 
+   // win.openDevTools();
+
+
    win.once("ready-to-show", () => win.show());
    console.log(contents);
- 
+
    win.on("close", () => { if(win) win = null;})
- 
+
    win.webContents.on("did-finish-load", () => {
 
     /**
@@ -56,7 +56,7 @@
      const result = getAllItems();
      return result;
     });
- 
+
      /**
      IPC Messages
      **/
@@ -69,17 +69,17 @@
         createEditFormWindow(win, method, item)
       }
     });
- 
+
      /* Dimiss Window */
-     ipcMain.on('dismiss-form-window', () => {
+     ipcMain.on('dismiss-detailed-form-window', () => {
       if(win) win.close();
       /**
       *** upon the window close, remove all the existing handlers to prevent second handler registration error in the future
       **/
       ipcMain.removeHandler("item-detail-data");  // <======
     });
- 
+
    });
- 
- 
+
+
  }
