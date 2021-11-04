@@ -14,13 +14,6 @@
    getSubItemDetailById
  } = require("../models/item.js");
 
-<<<<<<< HEAD
-
-=======
- const {createSubItemEditForm} = require("../views/inventory/edit_detail_item.js");
- 
- 
->>>>>>> 7cb88df272b4ef24e8c0c6c5ec9a09820c2720e9
  let win
 
 
@@ -48,12 +41,8 @@
 
 
    win.once("ready-to-show", () => win.show());
-<<<<<<< HEAD
    console.log(contents);
 
-=======
- 
->>>>>>> 7cb88df272b4ef24e8c0c6c5ec9a09820c2720e9
    win.on("close", () => { if(win) win = null;})
 
    win.webContents.on("did-finish-load", () => {
@@ -64,19 +53,10 @@
 
 
 
-<<<<<<< HEAD
      const result = getAllItems();
      return result;
     });
 
-=======
-    //response all detail subdescription items to renderer process
-    // ipcMain.handle('get-all-detail-items', (e, contents) => {
-    //  const result = getDetailItemById(contents);
-    //  return result;
-    // });
- 
->>>>>>> 7cb88df272b4ef24e8c0c6c5ec9a09820c2720e9
      /**
      IPC Messages
      **/
@@ -90,12 +70,7 @@
     });
 
      /* Dimiss Window */
-<<<<<<< HEAD
      ipcMain.on('dismiss-detailed-form-window', () => {
-=======
-    ipcMain.on('dismiss-form-window', () => {
-      ipcMain.removeHandler("item-details-edit"); // remove existing handler
->>>>>>> 7cb88df272b4ef24e8c0c6c5ec9a09820c2720e9
       if(win) win.close();
       /**
       *** upon the window close, remove all the existing handlers to prevent second handler registration error in the future
@@ -103,7 +78,6 @@
     
     });
 
-   });
 
 
  }

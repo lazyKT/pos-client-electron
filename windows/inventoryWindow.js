@@ -98,14 +98,9 @@ exports.createInventoryWindow = function createInventoryWindow () {
       const item = getItemById(id);
 
       if(item) {
-<<<<<<< HEAD
-        // ipcMain.removeHandler("get-all-items");
-        createDetailFormWindow(win, method, item);
-=======
         //ipcMain.removeHandler("get-all-items");
         createDetailFormWindow(win, method, item)
         
->>>>>>> 7cb88df272b4ef24e8c0c6c5ec9a09820c2720e9
       }
     });
 
