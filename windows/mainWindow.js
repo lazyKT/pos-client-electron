@@ -25,7 +25,7 @@ let win
 
 
 exports.createMainWindow = function createMainWindow () {
-  console.log("Main Window Created")
+
   win = new BrowserWindow({
     width: 1000,
     height: 800,
@@ -39,7 +39,7 @@ exports.createMainWindow = function createMainWindow () {
 
 
   win.loadFile(path.join(__dirname, "../views/main.html"));
-  win.openDevTools();
+  // win.openDevTools();
 
   win.once("ready-to-show", () => win.show() );
 

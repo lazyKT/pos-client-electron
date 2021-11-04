@@ -3,7 +3,7 @@ let status = "ready";
 let limit = 10;
 let page = 1;
 
-let medTags;
+let medTags, totalTags, numPages;
 
 // DOM Nodes
 const loadingSpinner = document.getElementById("loading-spinner");
@@ -23,6 +23,7 @@ const loadingSpinner = document.getElementById("loading-spinner");
 
     if (response.ok) {
       const tags = await response.json();
+      await createPaginationButtons();
       (document.getElementById("loading-spinner")).style.display = "none";
       medTags = tags;
       addMedTagsToMedicineForm();
@@ -209,7 +210,39 @@ function logout() {
 
 
 /***********************************************************************
-################## CREATE NEW TAGS AND MEDICINES TAB #######################
+############################ PAGINATION ################################
+***********************************************************************/
+async function createPaginationButtons () {
+  try {
+
+    const response = await getTagsCount();
+
+    if (response.ok) {
+      const count = await response.json();
+      totalTags = parseInt(count.message);
+      numPages = totalTags%limit === 0 ? totalTags/limit : (totalTags/limit) + 1;
+
+
+    }
+    else {
+      const json = await response.json();
+      alert(`Error Getting Tags Count: ${json.message}`);
+    }
+  }
+  catch (error) {
+    alert(`Error Creating Pagination Buttons: Get Tag Count`);
+  }
+}
+
+
+function displayPagination () {
+  // populate pagination elements here
+}
+
+
+
+/***********************************************************************
+################## CREATE NEW TAGS AND MEDICINES TAB ###################
 ***********************************************************************/
 function addMedTagsToMedicineForm () {
   const tagSelect = document.getElementById("inputTag");
@@ -331,6 +364,24 @@ async function addMedicine (event) {
 /***********************************************************************
 ####################### Network Requests ###############################
 ***********************************************************************/
+async function getTagsCount () {
+  try {
+    const response = await fetch("http://127.0.0.1:8080/api/tags/count", {
+      method: "GET",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    alert(`Error Creating Pagination Buttons: Get Tag Count`);
+  }
+}
+
+
 async function createTagRequest (tag) {
   try {
     const response = await fetch("http://127.0.0.1:8080/api/tags", {
