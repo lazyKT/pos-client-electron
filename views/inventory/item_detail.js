@@ -1,5 +1,6 @@
 window.onload = function () {
     let status = "ready";
+<<<<<<< HEAD
 
     window.detailInventoryAPI.receive('reload-data', async data => {
 
@@ -56,6 +57,25 @@ window.onload = function () {
 
         const itemTable = document.getElementById("item-details-table");
 
+=======
+    let _data = null;
+     
+    window.detailInventoryAPI.receive('response-item-detail-data', data => {
+        
+        if (status === 'ready') {
+            status = 'reloading';
+            data.forEach( item => populateDetailItemTable(item));
+            //reloadData(data);
+        }
+    });          
+      
+    
+    const populateDetailItemTable = ({productId, description, expireDate, quantity, doctorApproval, ingredients}, idx=1) => {
+    
+        const itemTable = document.getElementById("item-details-table");
+        const detailItemsDisplay = document.getElementById("all-detail-item-contents");
+      
+>>>>>>> 7cb88df272b4ef24e8c0c6c5ec9a09820c2720e9
         const row = itemTable.insertRow(idx);
         const firstColumn = row.insertCell(0);
         const secondColumn = row.insertCell(1);
@@ -63,6 +83,7 @@ window.onload = function () {
         const fourthColumn = row.insertCell(3);
         const fifthColumn = row.insertCell(4);
         const sixthColumn = row.insertCell(5);
+<<<<<<< HEAD
         const seventhColumn = row.insertCell(6);
         const eigthColumn = row.insertCell(7);
 
@@ -82,13 +103,44 @@ window.onload = function () {
 
         editBtn.addEventListener('click', e => {
           // window.detailInventoryAPI.send('item-details', {id, method: 'PUT'});
+=======
+
+
+        
+        firstColumn.innerHTML = productId;
+        secondColumn.innerHTML = description;
+        thirdColumn.innerHTML = expireDate;
+        fourthColumn.innerHTML = quantity;
+        fifthColumn.innerHTML = doctorApproval;
+        sixthColumn.innerHTML = ingredients;
+
+        row.addEventListener("click", async e => {
+            console.log("row clk", description);
+            detailItemsDisplay.style.display = 'none';
+            if(detailItemsDisplay.style.display === "none"){
+            const detailSubItemDisplay = document.getElementById("subItem-edit-box");
+            detailSubItemDisplay.style.display = 'block';
+            }
+            const closeEdit = document.getElementById("sub-item-dismiss-window");
+            closeEdit;
+            //console.log("checkId", productId);
+            const response = await window.detailInventoryAPI.invoke('item-details-edit', {productId, method: 'GET'});
+            
+>>>>>>> 7cb88df272b4ef24e8c0c6c5ec9a09820c2720e9
         });
+
+
       };
+<<<<<<< HEAD
 
 
+=======
+    const cancelButton = document.getElementById("dismiss-window");
+>>>>>>> 7cb88df272b4ef24e8c0c6c5ec9a09820c2720e9
 
     // if(cancelButton){
     cancelButton.addEventListener('click', () => {
         window.detailInventoryAPI.send('dismiss-detailed-form-window', '');
       })
+    
 }

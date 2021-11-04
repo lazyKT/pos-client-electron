@@ -36,7 +36,7 @@
  
  
    win.loadFile(path.join(__dirname, "../views/inventory/edit_show_item.html"));
-   //win.openDevTools();
+   win.openDevTools();
  
  
    win.once("ready-to-show", () => win.show());
@@ -45,7 +45,7 @@
  
    win.webContents.on("did-finish-load", () => {
  
-     win.webContents.send("response-item-data", {item: contents, method: type});
+     win.webContents.send("response-edit-item-data", {item: contents, method: type});
  
  
      /**
@@ -53,9 +53,9 @@
      **/
  
      /* Dimiss Window */
-     ipcMain.on("dismiss-form-window", (event, args) => {
-       if(win) win.close();
+     ipcMain.on("dismiss-edit-item-form-window", (event, args) => {
        ipcMain.removeHandler("edit-item"); // remove existing handler
+       if(win) win.close();
      })
  
  
@@ -66,8 +66,8 @@
  
      /* close form when the renderer process informs that the edit process is finished */
      ipcMain.on("item-form-data-finish", (event, args) => {
-       if(win) win.close();
        ipcMain.removeHandler("edit-item"); // remove existing handler
+       if(win) win.close();
        parentWindow.webContents.send("reload-data", getAllItems());
      });
  
