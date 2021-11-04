@@ -12,7 +12,7 @@ const {
   getItemById
 } = require("../models/item.js");
 
-const { 
+const {
   createEditFormWindow
  } = require("./itemEditFormWindow.js");
 
@@ -51,6 +51,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
 
   win.on("close", () => {
+    ipcMain.removeHandler("get-all-items");
     if (win) win = null;
   });
 
@@ -63,6 +64,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
     /** LogOut **/
     ipcMain.on("logout", () => {
+      ipcMain.removeHandler("get-all-items");
       if (win)
         win.close();
         ipcMain.removeHandler("get-all-items");
@@ -96,9 +98,14 @@ exports.createInventoryWindow = function createInventoryWindow () {
       const item = getItemById(id);
 
       if(item) {
+<<<<<<< HEAD
+        // ipcMain.removeHandler("get-all-items");
+        createDetailFormWindow(win, method, item);
+=======
         //ipcMain.removeHandler("get-all-items");
         createDetailFormWindow(win, method, item)
         
+>>>>>>> 7cb88df272b4ef24e8c0c6c5ec9a09820c2720e9
       }
     });
 
@@ -108,7 +115,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
 
 exports.closeInventoryWindow = function closeInventoryWindow() {
-  if(win){ 
+  if(win){
   win.close();
   ipcMain.removeHandler("get-all-items");
   }

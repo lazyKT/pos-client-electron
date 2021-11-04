@@ -1,7 +1,6 @@
 /*
  * Create New User
  **/
-console.log('user_regis.js running...');
 
 // DOM Nodes
 const cancelBtn = document.getElementById('dismiss-window');
@@ -28,11 +27,10 @@ createBtn.addEventListener('click', async (e) => {
     if (!username && username === '' && !email && email === '' && !password && password === '') {
       throw new Error ("Missing Required Inputs");
     }
-    
+
     // make create new user request to main process
     const response = await window.formAPI.invoke ("create-new-user", {username, email, password});
 
-    console.log(response);
     if (response === 201) {
       // inform the main process that new data creation is done
       // console.log('response', response);
