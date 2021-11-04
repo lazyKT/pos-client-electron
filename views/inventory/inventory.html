@@ -1,181 +1,232 @@
 <!-- inventory layout -->
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-    <head>
-        <meta charset="utf-8">
-        <title>My Pharmacy POS</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
-        <link
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-          rel="stylesheet"
-          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-          crossorigin="anonymous">
-        <link rel="stylesheet" href="inventory.css">
-        <script src="inventory.js" data-name="item">
+  <head>
+      <meta charset="utf-8">
+      <title>My Pharmacy POS</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
+      <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+        crossorigin="anonymous">
+      <link rel="stylesheet" href="inventory.css">
+      <script src="inventory.js" data-name="item">
 
-        </script>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <!-- JavaScript Bundle with Popper -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+      </script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      <!-- JavaScript Bundle with Popper -->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
 
-    </head>
-<body>
-  <div id="contents">
-    <header>
-      <h4 id='content-title'>Pharmacy</h4>
-      <button class="btn btn-primary" id="logout" onclick="logout()">
-        Logout<i class="fas fa-sign-out-alt"></i>
-      </button>
-    </header>
-<div class="container">
-<div class="top-header">
-   <h4>My Inventory</h4>
-   <div class= "">
-    <!--
-   <button class="btn btn-primary mx-1" type="button" name="button" id="create-item" onclick="itemRenderer.createItem()">
-    Create
-  </button>
-  -->
-   <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="exportCSV()">
-    Export CSV
-  </button>
+  </head>
+  <body>
+    <div id="contents">
+      <header>
+        <h4 id='content-title'>Pharmacy</h4>
+        <button class="btn btn-primary" id="logout" onclick="logout()">
+          Logout<i class="fas fa-sign-out-alt"></i>
+        </button>
+      </header>
+  <div class="container">
+  <div class="top-header">
+     <h4>My Inventory</h4>
+     <div class= "">
+      <!--
+     <button class="btn btn-primary mx-1" type="button" name="button" id="create-item" onclick="itemRenderer.createItem()">
+      Create
+    </button>
+    -->
+        <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="exportCSV()">
+          Export CSV
+        </button>
+      </div>
   </div>
-</div>
-<div class="card my-2 box">
-  <div class="card-body search-div">
-    <input class="w-75" id='search-input' type="text" name="" value="" placeholder="Search Items" onkeyup= "onKeyUp(event)">
-    <div class="w-25">
-      <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
-      <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
+
+
+  <!-- <div class="card my-2 box">
+    <div class="card-body search-div">
+      <input class="w-75" id='search-input' type="text" name="" value="" placeholder="Search Items" onkeyup= "onKeyUp(event)">
+      <div class="w-25">
+        <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
+        <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
+      </div>
     </div>
-  </div>
-</div>
-  <div class="card my-2 box" width = 'auto'>
-    <div class="card-body">
-      <ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory" type="button" role="tab" aria-controls="inventory" aria-selected="true">Inventory</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="alerts-tab" data-bs-toggle="tab" data-bs-target="#alerts" type="button" role="tab" aria-controls="alerts" aria-selected="false">Alerts<span class="badge badge-light" id="alertNumber"></span></button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="delete-tab" data-bs-toggle="tab" data-bs-target="#delete" type="button" role="tab" aria-controls="delete" aria-selected="false">Inventory Adjustment</button>
-        </li>
-      </ul>
-      <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active" id="inventory" role="tabpanel" aria-labelledby="inventory-tab">
-          <div class="card my-2 box" width = 'auto'>
-            <div class="card-body" id="data-container">  
-    <table class="table" id="item-table">
-        <thead>
-        <tr>
-          <th scope="col">Id</th>
-          <th scope="col">Category</th>
-          <th scope="col">Expiry Alert</th>
-          <th scope="col">Quantity Alert</th>
-          <th scope="col">Location</th>
-          <th scope="col">Action</th>
-        </tr>
-        </thead>
-        <tbody>
+  </div> -->
 
-        </tbody>
-        
-      </table>
-      
-      </div>
-      </div>
-      </div>
-      <div class="tab-pane fade" id="alerts" role="tabpanel" aria-labelledby="alerts-tab">
-        <div class="card my-2 box" width = 'auto'>
-          <div class="card-body">
-        <div class="alert alert-warning" role="alert">
-          A simple warning alert—check it out!
-        </div>
-        </div>
-        </div>
-      </div>
-        <div class="tab-pane fade" id="delete" role="tabpanel" aria-labelledby="delete-tab">
-          <div class="card my-2 box">
-            <div class="card-body">
-              <p><b>Create Category</b></p>
+    <!-- contents -->
+    <div class="card my-2 box" width = 'auto'>
+      <div class="card-body">
+
+        <!-- top nav bar -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active"
+              id="inventory-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#inventory"
+              type="button"
+              role="tab"
+              aria-controls="inventory"
+              aria-selected="true">
+              Inventory
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="alerts-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#alerts"
+              type="button" role="tab"
+              aria-controls="alerts"
+              aria-selected="false">
+              Alerts<span class="badge badge-light" id="alertNumber"></span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="delete-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#delete"
+              type="button" role="tab"
+              aria-controls="delete"
+              aria-selected="false">
+              Inventory Adjustment
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+          <div class="tab-pane fade show active" id="inventory" role="tabpanel" aria-labelledby="inventory-tab">
+            <div class="card my-2 box" width = 'auto'>
+              <div class="card-body" id="data-container">
+                <table class="table" id="item-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Id</th>
+                      <th scope="col">Category</th>
+                      <th scope="col">Expiry Alert</th>
+                      <th scope="col">Quantity Alert</th>
+                      <th scope="col">Location</th>
+                      <th scope="col">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                  </tbody>
+
+                </table>
+                <!-- loading spinner -->
+                <div class="m-auto p-2 w-25 text-center" id="loading-spinner">
+                  <div class="spinner-border text-primary text-center" role="status">
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="alerts" role="tabpanel" aria-labelledby="alerts-tab">
+            <div class="card my-2 box" width = 'auto'>
+              <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                  A simple warning alert—check it out!
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="delete" role="tabpanel" aria-labelledby="delete-tab">
+            <div class="card my-2 box">
+              <div class="card-body">
+                <p><b>Create Category</b></p>
+              <form>
+                <div class="row">
+                <div class="form-group col-md-3">
+                  <label for="inputAlertQuantity">Category Name</label>
+                  <input type="text" class="form-control" id="inputCreateType" required>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="inputAlertQuantity">Alert Quantity</label>
+                  <input type="text" class="form-control" id="inputAlertQuantity" required>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="inputAlertExpiryDate">Alert Day</label>
+                  <input type="text" class="form-control" id="inputAlertExpiryDate" required>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="inputLocation">Location</label>
+                  <input type="text" class="form-control" id="inputLocation" required>
+                </div>
+                </div>
+
+                <button
+                  style="margin-top:15px" type="submit"
+                  class="btn btn-primary" id="createType"
+                  onclick="createTag(event)">
+                  Create
+                </button>
+
+                </form>
+                </div>
+                </div>
+
+            <div class="card my-2 box" width = 'auto'>
+              <div class="card-body">
+                <p><b>Create Item</b></p>
             <form>
               <div class="row">
-              <div class="form-group col-md-3">
-                <label for="inputAlertQuantity">Category Name</label>
-                <input type="text" class="form-control" id="inputCreateType" required>
-              </div>
-              <div class="form-group col-md-3">
-                <label for="inputAlertQuantity">Alert Quantity</label>
-                <input type="text" class="form-control" id="inputAlertQuantity" required>
-              </div>
-              <div class="form-group col-md-3">
-                <label for="inputAlertExpiryDate">Alert Day</label>
-                <input type="text" class="form-control" id="inputAlertExpiryDate" required>
-              </div>
-              <div class="form-group col-md-3">
-                <label for="inputLocation">Location</label>
-                <input type="text" class="form-control" id="inputLocation" required>
-              </div>
-              </div>
-  
-              <button style="margin-top:15px" type="submit" class="btn btn-primary" id="createType">Create</button>
-            
-              </form>
-              </div>
-              </div>
-    
-          <div class="card my-2 box" width = 'auto'>
-            <div class="card-body">
-              <p><b>Create Item</b></p>
-          <form>
-            <div class="row">
-              <div class="form-group col-md-3">
-                <label for="inputDescription">Description</label>
-                <input type="text" class="form-control" id="inputDescription" required>
-              </div>
-              <div class="form-group col-md-3">
-                <label for="inputProductId">Product ID</label>
-                <input type="text" class="form-control" id="inputProductId" required>
-              </div>
-              <div class="form-group col-md-3">
-                <label for="inputType">Type</label>
-                <select id="inputType" class="form-control" required>
-                  <option selected></option>
-                </select>
-              </div>
-            <div class="form-group col-md-3">
-              <label for="inputQuantity">Quantity</label>
-              <input type="text" class="form-control" id="inputQuantity" required>
+                <div class="form-group col-md-3">
+                  <label for="inputDescription">Description</label>
+                  <input type="text" class="form-control" id="inputDescription" required>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="inputProductId">Product ID</label>
+                  <input type="text" class="form-control" id="inputProductId" required>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="inputTag">Type</label>
+                  <select id="inputTag" class="form-control" required>
+                    <option selected></option>
+                  </select>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="inputQuantity">Quantity</label>
+                  <input type="text" class="form-control" id="inputQuantity" required>
+                </div>
+                </div>
+                <div class="row">
+                  <div class="form-group col-md-3">
+                    <label for="inputExpiryDate">Price</label>
+                    <input type="text" class="form-control" id="inputPrice" required>
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label for="inputExpiryDate">Expiry Date</label>
+                    <input type="date" class="form-control" id="inputExpiryDate" required>
+                  </div>
+                  <div class="form-group col-md-2">
+                    <label for="inputApproved">Approved</label>
+                    <select id="inputApproved" class="form-control" required>
+                      <option selected></option>
+                      <option>No</option>
+                      <option>Yes</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-md-5">
+                    <label for="inputIngredients">Ingredients</label>
+                    <input type="text" class="form-control" id="inputIngredients" required>
+                  </div>
+                </div>
+                <a style="margin-top:15px" type="submit" class="btn btn-primary" id="createItem" onclick="addMedicine(event)">Add Med</a>
+
+            </form>
             </div>
             </div>
-            <div class="row">         
-            <div class="form-group col-md-3">
-              <label for="inputExpiryDate">Expiry Date</label>
-              <input type="date" class="form-control" id="inputExpiryDate" required>
-            </div>
-            <div class="form-group col-md-2">
-              <label for="inputApproved">Approved</label>
-              <select id="inputApproved" class="form-control" required>
-                <option selected></option>
-                <option>No</option>
-                <option>Yes</option>
-              </select>
-            </div>
-            <div class="form-group col-md-5">
-              <label for="inputIngredients">Ingredients</label>
-              <input type="text" class="form-control" id="inputIngredients" required>
-            </div>
-            </div>
-            <button style="margin-top:15px" type="submit" class="btn btn-primary" id="createItem">Create</button>
-            
-          </form>
-          </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>
