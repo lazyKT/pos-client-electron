@@ -13,13 +13,7 @@ const loadingSpinner = document.getElementById("loading-spinner");
 **/
 (async function () {
   try {
-    const response = await fetch(`http://127.0.0.1:8080/api/tags?page=${page}&limit=${limit}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept" : "application.json"
-      }
-    });
+    const response = await fetchTags();
 
     if (response.ok) {
       const tags = await response.json();
@@ -98,12 +92,23 @@ const reloadData = async newData => {
     oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
 
     // reload the data by fetching data based on the data type, and populate the table again
-    const items = await requestAllItems();
+    const response = await fetchTags();
 
-    items.forEach( item => populateItemTable(item));
+    if (response.ok) {
+      const items = await response.json();
 
-    if (method === 'CREATE' || method === 'UPDATE')
-      showNotification(newData);
+      items.forEach( item => populateItemTable(item));
+
+      if (method === 'CREATE' || method === 'UPDATE')
+        showNotification(newData);
+    }
+    else {
+      const { message } = await response.json();
+      if (message)
+        alert (`Error Reloading: ${message}`);
+      else
+        alert (`Error Reloading Meds Categories: Server Error`);
+    }
 
     status = 'ready';
   }
@@ -112,21 +117,6 @@ const reloadData = async newData => {
   }
 };
 
-
-/**
-# Request all the inventory items from the main process
-**/
-const requestAllItems = async () => {
-
-  try {
-    const response = await window.inventoryAPI.invoke('get-all-items');
-
-    return response;
-  }
-  catch (error) {
-    console.log('Error fetching all items', error);
-  }
-};
 
 const displayFilteredResults = (results) => {
   // get table rows from the current data table
@@ -160,9 +150,8 @@ const showEmptyMessage = () => {
 **/
 const populateItemTable = (tags, idx=1) => {
 
-  const { _id, name, lowQtyAlert, expiryDateAlert } = tags;
+  const { _id, name, lowQtyAlert, expiryDateAlert, location } = tags;
   //.log(tags);
-  const location = "tbh";
 
   const itemTable = document.getElementById("item-table");
 
@@ -178,7 +167,7 @@ const populateItemTable = (tags, idx=1) => {
   secondColumn.innerHTML = name;
   thirdColumn.innerHTML = `${expiryDateAlert} Day(s)`;
   fourthColumn.innerHTML = lowQtyAlert;
-  fifthColumn.innerHTML = location;
+  fifthColumn.innerHTML = location ? location : "tbh";
   /* edit button */
   const editBtn = document.createElement('button');
   editBtn.setAttribute('class', 'btn mx-1 btn-primary');
@@ -216,13 +205,15 @@ async function createPaginationButtons () {
   try {
 
     const response = await getTagsCount();
-
+    console.log(response);
     if (response.ok) {
       const count = await response.json();
-      totalTags = parseInt(count.message);
-      numPages = totalTags%limit === 0 ? totalTags/limit : (totalTags/limit) + 1;
+      console.log(count);
+      totalTags = parseInt(count.count);
+      console.log(totalTags);
+      numPages = totalTags%limit === 0 ? totalTags/limit : Math.floor(totalTags/limit) + 1;
 
-
+      displayPagination();
     }
     else {
       const json = await response.json();
@@ -237,8 +228,112 @@ async function createPaginationButtons () {
 
 function displayPagination () {
   // populate pagination elements here
+  const pagination = document.getElementById("pagination");
+  console.log("numPages", numPages);
+  for (let i = 0; i < numPages; i++) {
+    const li = document.createElement("li");
+    li.setAttribute("class", "page-item");
+    li.setAttribute("id", `page-num-${i+1}`);
+    li.innerHTML = `<a class="page-link" href="#">${i + 1}</a>`;
+    if (i === 0)
+      li.classList.add("active");
+    pagination.insertBefore(li, pagination.children[pagination.childElementCount - 1]);
+
+    /** on click event on pagination elements */
+    li.addEventListener("click", async (event) => {
+      try {
+        page = i+1;
+        await reloadData({});
+        (pagination.querySelectorAll("li")).forEach(
+          p => p.classList.remove("active")
+        );
+        li.classList.add("active");
+
+        togglePaginationButtons();
+      }
+      catch (error) {
+        console.log(error);
+        alert("Error Performing Click on Pagination Items");
+      }
+    });
+
+  }
+
+  togglePaginationButtons();
 }
 
+
+/** handle pagination next button click events */
+async function nextPaginationClick (event) {
+  try {
+    console.log(page, numPages);
+    if (page && page < numPages) {
+      page += 1;
+      await reloadData({});
+      (pagination.querySelectorAll("li")).forEach(
+        p => p.classList.remove("active")
+      );
+      (document.getElementById(`page-num-${page}`)).classList.add("active");
+
+      togglePaginationButtons();
+    }
+  }
+  catch (error) {
+    alert("Error Performing Click on Pagination Next Button");
+  }
+}
+
+/** handle pagination previous button click events */
+async function prevPaginationClick (event) {
+  try {
+    if (page && page > 1) {
+      page -= 1;
+      await reloadData({});
+      (pagination.querySelectorAll("li")).forEach(
+        p => p.classList.remove("active")
+      );
+      (document.getElementById(`page-num-${page}`)).classList.add("active");
+
+      togglePaginationButtons();
+    }
+    else {
+      event.target.setAttribute("aria-disabled", true);
+      event.target.parentNode.classList.add("disabled");
+    }
+  }
+  catch (error) {
+    alert("Error Performing Click on Pagination Next Button");
+  }
+}
+
+
+/** Toggle Pagination Buttons State **/
+function togglePaginationButtons () {
+  /**
+  # disable/enable next/prev pagination buttons
+  **/
+  if (page === 1) {
+    // disable prev buttons, enable next buttons
+    (document.getElementById("previous")).classList.add("disabled");
+    (document.getElementById("previous")).children[0].setAttribute("aria-disabled", true);
+    (document.getElementById("next")).classList.remove("disabled");
+    (document.getElementById("next")).children[0].removeAttribute("aria-disabled");
+  }
+  else if (page === numPages) {
+    // disable next buttons, enable prev buttons
+    (document.getElementById("next")).classList.add("disabled");
+    (document.getElementById("next")).children[0].setAttribute("aria-disabled", true);
+    (document.getElementById("previous")).classList.remove("disabled");
+    (document.getElementById("previous")).children[0].removeAttribute("aria-disabled");
+  }
+  else {
+    // enable both next/prev buttons
+    (document.getElementById("previous")).classList.remove("disabled");
+    (document.getElementById("previous")).children[0].removeAttribute("aria-disabled");
+    (document.getElementById("next")).classList.remove("disabled");
+    (document.getElementById("next")).children[0].removeAttribute("aria-disabled");
+  }
+}
 
 
 /***********************************************************************
@@ -257,7 +352,9 @@ function addMedTagsToMedicineForm () {
   );
 }
 
-
+/**
+# Create New Medicine Tags
+**/
 async function createTag (event) {
   try {
     event.preventDefault();
@@ -300,6 +397,9 @@ async function createTag (event) {
 }
 
 
+/**
+# Create or Add Medicines
+**/
 async function addMedicine (event) {
   try {
     event.preventDefault();
@@ -361,9 +461,28 @@ async function addMedicine (event) {
   }
 }
 
+
 /***********************************************************************
 ####################### Network Requests ###############################
 ***********************************************************************/
+async function fetchTags () {
+  try {
+    const response = await fetch(`http://127.0.0.1:8080/api/tags?page=${page}&limit=${limit}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept" : "application.json"
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    alert(`Error Fetching Med Categories!`)
+  }
+}
+
+
 async function getTagsCount () {
   try {
     const response = await fetch("http://127.0.0.1:8080/api/tags/count", {

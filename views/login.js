@@ -71,13 +71,9 @@ loginButton.addEventListener('click', async (e) => {
       console.log("response ok")
       window.loginAPI.send("login-request", { username: username.value, status: "success"});
     }
-    // const response = await window.loginAPI.invoke('login-request', {
-    //   username: username.value,
-    //   password : password.value
-    // });
-
-    if (response.status !== 200) {
-      showErrorMessage(response.message);
+    else {
+      const json = await response.json();
+      showErrorMessage(json.message);
     }
 
     toggleModalButtons(true);
