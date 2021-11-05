@@ -19,20 +19,30 @@
 
     </head>
     <body>
+
+        <!-- header -->
+        <div class="d-flex p-2 justify-content-between align-items-center w-100 bg-light">
+          <h5 class="text-muted" id="heading"></h5>
+          <button class="btn btn-primary" id="dismiss-window">Close</button>
+        </div>
+
         <div class="py-2 px-4" id="all-detail-item-contents">
-            <!-- search -->
-            <div class="card my-2 box">
-                <div class="card-body search-div">
-                  <input class="w-75" id='search-input' type="text" name="" value="" placeholder="Search Items" onkeyup= "onKeyUp(event)">
-                  <div class="w-25">
-                    <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
-                    <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
-                  </div>
+
+          <!-- search -->
+          <!--- add searh here -->
+          <div class="card my-2 box">
+              <div class="card-body search-div">
+                <input class="w-75" id='search-input' type="text" name="" value="" placeholder="Search Items">
+                <div class="w-25">
+                  <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
+                  <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
                 </div>
               </div>
+            </div>
+            <!-- end of search -->
 
             <!-- contents -->
-            <div class="card my-2 box">
+            <div class="card my-2 box" id="med-contents">
                 <table class="table" id="item-details-table">
                     <thead>
                     <tr>
@@ -49,9 +59,9 @@
                     <tbody>
                         <!-- contents -->
                     </tbody>
-                    
+
                 </table>
-             <a id="dismiss-window" class="btn btn-outline-secondary w-25 my-1">Cancel</a>
+             <!-- <a id="dismiss-window" class="btn btn-outline-secondary w-25 my-1">Cancel</a> -->
         </div>
         </div>
         <div class="container mt-3" id="subItem-edit-box" style='display:none'>
@@ -59,7 +69,7 @@
               <p><b>Edit Item</b></p>
             </div>
             <div id="error">
-      
+
             </div>
             <div class="card mx-1">
               <div class="card-body">
@@ -98,5 +108,61 @@
               </div>
             </div>
           </div>
+
+        <!-- medicine details -->
+        <div class="container m-2" id="med-details">
+          <div class="card mt-4">
+            <h5 class="text-muted">Medicine Information</h5>
+            <div class="card-body">
+              <form class="" action="index.html" method="post">
+                <div class="row my-2">
+                  <div class="col">
+                    <label class="form-label">Medicine Number</label>
+                    <input type="text" class="form-control" id="medNumber" readonly>
+                  </div>
+                  <div class="col">
+                    <label class="form-label">Product Expiry</label>
+                    <input type="text" class="form-control" id="medExp" readonly>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Medicine Description</label>
+                  <input type="text" class="form-control" id="medDesc" readonly>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Medicine Ingredients </label>
+                  <input type="text" class="form-control" id="medIngredients" readonly>
+                </div>
+                <div class="row my-2">
+                  <div class="col">
+                    <label class="form-label">Product Price</label>
+                    <input type="text" class="form-control" id="medPrice" readonly>
+                  </div>
+                  <div class="col">
+                    <label class="form-label">Product Quantity</label>
+                    <input type="text" class="form-control" id="medQty" readonly>
+                  </div>
+                </div>
+                <div class="row my-2">
+                  <div class="col">
+                    <label class="form-label">Approved By Doctor</label>
+                    <input type="select" class="form-control" id="medApprove" readonly>
+                  </div>
+                  <div class="col">
+                    <label class="form-label">Medicine Category</label>
+                    <input type="text" class="form-control" id="medTag" readonly>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-start m-1">
+                  <button class="btn btn-primary mx-1" id="edit-medicine">Edit</button>
+                  <button class="btn btn-success mx-1" id="save-edit">Save</button>
+                  <a class="btn btn-light mx-1" href="#" id="back">Back</a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
     </body>
     </html>

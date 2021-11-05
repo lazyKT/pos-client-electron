@@ -31,7 +31,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
       width: 1200,
       height: 900,
       show: false,
-      fullscreen: false,
+      // fullscreen: true,
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true, // protect against prototype pollution
@@ -42,7 +42,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
 
   win.loadFile(path.join(__dirname, "../views/inventory/inventory.html"));
-  win.openDevTools();
+  // win.openDevTools();
 
 
   win.once("ready-to-show", () => {
@@ -78,22 +78,19 @@ exports.createInventoryWindow = function createInventoryWindow () {
     // win.webContents.send("reload-data", getAllItems());
 
     ipcMain.on('item-data', (e, req) => {
-      const { id, method } = req;
-      const item = getItemById(id);
-
-      if (item) {
-        createEditFormWindow(win, method, item)
-      }
+      createEditFormWindow(win, req.type, req.data);
     });
 
     ipcMain.on('item-details', (e, req) => {
-      const {id, method} = req;
-      const item = getItemById(id);
-
-      if(item) {
-        //ipcMain.removeHandler("get-all-items");
-        createDetailFormWindow(win, method, item);
-      }
+      console.log(req);
+      createDetailFormWindow(win, req);
+      // const {id, method} = req;
+      // const item = getItemById(id);
+      //
+      // if(item) {
+      //   //ipcMain.removeHandler("get-all-items");
+      //   createDetailFormWindow(win, method, item);
+      // }
     });
 
 
