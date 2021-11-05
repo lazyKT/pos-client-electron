@@ -81,17 +81,16 @@
 
             <!-- pagination tab -->
             <div class= "container">
-              <div class="row mt-3">
-                <div class="col-md">
-                  <input class="input" id='search-input' type="text" name="" value="" placeholder="Search Items" onkeyup= "onKeyUp(event)">
-                  
+              <div class="row mt-2 justify-content-between">
+                <div class="col-5">
+                  <div class="input-group">
+                    <input class="form-control rounded col-xs-2" id='search-input' type="text" name="" value="" placeholder="Search Items" onkeyup= "onKeyUp(event)">
                     <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
                     <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
+                  </div>
                 </div>
-                <div class="col-md">
-                  <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="exportCSV()">
-                    Export CSV
-                  </button>
+                <div class="col-5">
+                  
                   <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                     Items per page
                   </a>
@@ -114,6 +113,10 @@
                     <li><a class="dropdown-item" href="#">Quantity Alert</a></li>
                     <li><a class="dropdown-item" href="#">Location</a></li>
                   </ul>
+
+                  <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="exportCSV()">
+                    Export CSV
+                  </button>
         
                 </div>
               </div>
