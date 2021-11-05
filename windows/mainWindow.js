@@ -44,7 +44,16 @@ exports.createMainWindow = function createMainWindow () {
   win.once("ready-to-show", () => win.show() );
 
   // upon close the window, set win to null and release the win object
-  win.on("close", () => win = null);
+  win.on("close", () => {
+    if (win) {
+      /**
+      # Always clean up the listeners and event emitters
+      **/
+      removeListeners(["user-logout", "create-modal", "user-data", "user-logout", "logout"]);
+      unregisterEmitters();
+      win = null;
+    }
+  });
 
 
   win.webContents.on("did-finish-load", () => {
@@ -124,8 +133,35 @@ exports.createMainWindow = function createMainWindow () {
 }
 
 
-
-
 exports.closeMainWindow = function closeMainWindow() {
   if (win)  win.close();
+}
+
+
+function removeListeners (listeners) {
+  try {
+    listeners.forEach (
+      listener => {
+        const func = ipcMain.listeners(listener)[0];
+        if (func) {
+          ipcMain.removeListener(listener, func);
+        }
+      }
+    );
+  }
+  catch (error) {
+    console.error("Error removing listeners from ItemEditWindow", error);
+  }
+}
+
+
+function unregisterEmitters () {
+  try {
+    if (win) {
+        win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
+    }
+  }
+  catch (error) {
+    console.error("Error removing Emitters", error);
+  }
 }
