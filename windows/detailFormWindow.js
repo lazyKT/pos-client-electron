@@ -14,48 +14,43 @@
    getSubItemDetailById
  } = require("../models/item.js");
 
- let win
+const {createSubItemEditForm} = require("../views/inventory/edit_detail_item.js");
+
+let win
 
 
- exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, type, contents) {
+exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, type, contents) {
 
-   if (!win || win === null) {
-     win = new BrowserWindow ({
-       width: 1000,
-       height: 800,
-       parent: parentWindow,
-       modal: true,
-       show: false,
-       backgroundColor: '#ffffff',
-       webPreferences: {
-         contextIsolation: true,
-         nodeIntegration: false,
-         preload: path.join(__dirname, "../preload_scripts/invDetailPreload.js")
-       }
-     });
+  if (!win || win === null) {
+   win = new BrowserWindow ({
+     width: 1000,
+     height: 800,
+     parent: parentWindow,
+     modal: true,
+     show: false,
+     backgroundColor: '#ffffff',
+     webPreferences: {
+       contextIsolation: true,
+       nodeIntegration: false,
+       preload: path.join(__dirname, "../preload_scripts/invDetailPreload.js")
+     }
+   });
 
-   }
+  }
 
-   win.loadFile(path.join(__dirname, "../views/inventory/item_detail.html"));
-   // win.openDevTools();
+  win.loadFile(path.join(__dirname, "../views/inventory/item_detail.html"));
+  // win.openDevTools();
 
 
-   win.once("ready-to-show", () => win.show());
-   console.log(contents);
+  win.once("ready-to-show", () => win.show());
 
-   win.on("close", () => { if(win) win = null;})
+  win.on("close", () => { if(win) win = null;})
 
-   win.webContents.on("did-finish-load", () => {
-       const q = getDetailItemById(contents);
+  win.webContents.on("did-finish-load", () => {
+      const q = getDetailItemById(contents);
        //console.log("contents11", q);
- 
-    win.webContents.send("response-item-detail-data", q);
 
-
-
-     const result = getAllItems();
-     return result;
-    });
+      win.webContents.send("response-item-detail-data", q);
 
      /**
      IPC Messages
@@ -69,15 +64,15 @@
         return item;
     });
 
-     /* Dimiss Window */
-     ipcMain.on('dismiss-detailed-form-window', () => {
-      if(win) win.close();
+    ipcMain.on('dismiss-form-window', () => {
       /**
       *** upon the window close, remove all the existing handlers to prevent second handler registration error in the future
       **/
-    
+      ipcMain.removeHandler("item-details-edit"); // remove existing handler\
+      if(win) win.close();
     });
 
+  });
 
+};
 
- }

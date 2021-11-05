@@ -1,5 +1,7 @@
 console.log('User Scripts Running..');
 
+const loadingSpinner = document.getElementById("loading-spinner");
+
 /*
   create userRenderer property and assign to the global window object
  */
@@ -11,12 +13,26 @@ userRenderer = {
   loadUserData: async () => {
 
     try {
-      const response = await window.api.invoke('get-all-users');
+      const response = await fetch("http://127.0.0.1:8080/api/employees", {
+        method: "GET",
+        headers: {
+          "Content-Type" : "application/json",
+          "Accept" : "application/json"
+        }
+      });
 
-      return response;
+      if (response.ok) {
+        const json = await response.json();
+        // console.log(json);
+        return json;
+      }
+      else {
+        const json = await response.json();
+        console.log(json);
+      }
     }
     catch (error) {
-      console.log('Error fetching all users', error);
+      console.error("Error Fetching Employees:", error);
     }
   },
   /* create new user */
@@ -35,9 +51,20 @@ userRenderer = {
       return;
 
     try {
-        const results = await window.api.invoke('search-data', {data: 'user', q});
+        const response = await fetch(`http://127.0.0.1:8080/api/employees/search?q=${q}`, {
+          method: "GET",
+          headers: {
+            "Content-Type" : "application/json",
+            "Accept" : "application/json"
+          }
+        });
 
-        window.userRenderer.displayFilteredResults(results);
+
+        if (response.ok) {
+          const results = await response.json();
+          window.userRenderer.displayFilteredResults(results);
+        }
+
     }
     catch (error) {
         console.log('Error filtering user data', error);
@@ -63,7 +90,7 @@ userRenderer = {
       const { type, data, method } = newData;
 
       // get table rows from the current data table
-      const oldData = newNode.querySelectorAll('tr');
+      const oldData = document.querySelectorAll('tr');
 
       // excpet the table header, remove all the data
       oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
@@ -100,36 +127,41 @@ userRenderer = {
       window.userRenderer.showEmptyMessage();
   },
   /* display the user data in the table */
-  populateUserTable: ({id, username, email}, idx=1) => {
+  populateUserTable: (empData, idx=1) => {
+
+    const { _id, username, mobile, level } = empData;
     const userTable = document.getElementById('user-table');
 
     const row = userTable.insertRow(idx);
     const firstColumn = row.insertCell(0);
     const secondColumn = row.insertCell(1);
     const thirdColumn = row.insertCell(2);
-    const fourthColumn = row.insertCell(3);
-    firstColumn.innerHTML = id;
+    const forthColumn = row.insertCell(3);
+    const fifthColumn = row.insertCell(4);
+
+    firstColumn.innerHTML = _id;
     secondColumn.innerHTML = username;
-    thirdColumn.innerHTML = email;
+    thirdColumn.innerHTML = mobile;
+    forthColumn.innerHTML = level;
     /* edit button */
     const editBtn = document.createElement('button');
     editBtn.setAttribute('class', 'btn mx-1 btn-primary');
-    editBtn.setAttribute('data-id', id);
+    editBtn.setAttribute('data-id', _id);
     editBtn.innerHTML = 'EDIT';
-    fourthColumn.appendChild(editBtn);
-
+    fifthColumn.appendChild(editBtn);
+    //
     editBtn.addEventListener('click', e => {
-      window.api.send('user-data', {id, method: 'PUT'});
+      window.api.send('user-data', {_id, method: 'PUT'});
     });
     /* View Details button */
     const viewBtn = document.createElement('button');
     viewBtn.setAttribute('class', 'btn mx-1 btn-info');
-    viewBtn.setAttribute('data-id', id);
+    viewBtn.setAttribute('data-id', _id);
     viewBtn.innerHTML = 'View More Details';
-    fourthColumn.appendChild(viewBtn);
+    fifthColumn.appendChild(viewBtn);
 
     viewBtn.addEventListener('click', e => {
-      window.api.send('user-data', {id, method: 'GET'});
+      window.api.send('user-data', {_id, method: 'GET'});
     })
   },
   showEmptyMessage: () => {
@@ -145,22 +177,37 @@ userRenderer = {
   exportCSV: () => {
 
     window.api.send('export-csv', 'user');
+  },
+  logout: () => {
+    console.log("logout click");
+    window.api.send("user-logout", "");
   }
 };
 
 
 /* this IIFE will run whenever the user page contents are loaded */
 (async function(window) {
-  const users = await window.userRenderer.loadUserData();
+  const response = await fetch("http://127.0.0.1:8080/api/employees", {
+    method: "GET",
+    headers: {
+      "Content-Type" : "application/json",
+      "Accept" : "application/json"
+    }
+  });
 
-  users.forEach( user => window.userRenderer.populateUserTable(user));
+  if (response.ok) {
+      const employees = await response.json();
+      loadingSpinner.style.display = "none";
+      employees.forEach( employee => window.userRenderer.populateUserTable(employee));
+  }
+
 })(window);
 
 
-window.api.receive('reload-data', async data => {
+window.api.receive('reload-data', async (data) => {
 
   if (window.userRenderer.status === 'ready') {
       window.userRenderer.status = 'reloading';
       await window.userRenderer.reloadData(data);
   }
-})
+});

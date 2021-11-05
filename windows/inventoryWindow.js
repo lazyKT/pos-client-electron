@@ -28,10 +28,10 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
   if (!win || win === null) {
     win = new BrowserWindow({
-      width: 1000,
-      height: 800,
+      width: 1200,
+      height: 900,
       show: false,
-      fullscreen: true,
+      fullscreen: false,
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true, // protect against prototype pollution
@@ -75,14 +75,14 @@ exports.createInventoryWindow = function createInventoryWindow () {
     /**
     # GET ALL INVENTORY ITEMS
     **/
-    win.webContents.send("reload-data", getAllItems());
+    // win.webContents.send("reload-data", getAllItems());
 
     //response all items to renderer process
-    ipcMain.handle('get-all-items', (e, _) => {
-
-     const result = getAllItems();
-     return result;
-    });
+    // ipcMain.handle('get-all-items', (e, _) => {
+    //
+    //  const result = getAllItems();
+    //  return result;
+    // });
 
     ipcMain.on('item-data', (e, req) => {
       const { id, method } = req;
@@ -99,8 +99,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
       if(item) {
         //ipcMain.removeHandler("get-all-items");
-        createDetailFormWindow(win, method, item)
-        
+        createDetailFormWindow(win, method, item);
       }
     });
 

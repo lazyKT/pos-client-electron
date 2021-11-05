@@ -27,175 +27,242 @@
         Logout<i class="fas fa-sign-out-alt"></i>
       </button>
     </header>
-<div class="container">
-<div class="top-header">
-   <h4>My Inventory</h4>
-</div> 
+    <div class="container">
 
-  <div class="card my-2 box" width = 'auto'>
-    <div class="card-body">
-      <ul class="nav nav-tabs" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventory" type="button" role="tab" aria-controls="inventory" aria-selected="true">Inventory</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="alerts-tab" data-bs-toggle="tab" data-bs-target="#alerts" type="button" role="tab" aria-controls="alerts" aria-selected="false">Alerts<span class="badge badge-light" id="alertNumber"></span></button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" id="delete-tab" data-bs-toggle="tab" data-bs-target="#delete" type="button" role="tab" aria-controls="delete" aria-selected="false">Inventory Adjustment</button>
-        </li>
-      </ul>
-      <div class="tab-content" id="myTabContent">
-        <div class="tab-pane fade show active" id="inventory" role="tabpanel" aria-labelledby="inventory-tab">
-          <div class= "container">
-          <div class="row mt-3">
-            <div class="col-md">
-              <input class="input" id='search-input' type="text" name="" value="" placeholder="Search Items" onkeyup= "onKeyUp(event)">
-              
-                <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
-                <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
-            </div>
-          <div class="col-md">
-            <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="exportCSV()">
-              Export CSV
+    <!-- contents -->
+    <div class="card my-2 box" width = 'auto'>
+      <div class="card-body">
+
+        <!-- top nav bar -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active"
+              id="inventory-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#inventory"
+              type="button"
+              role="tab"
+              aria-controls="inventory"
+              aria-selected="true">
+              Inventory
             </button>
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                  Items per page
-                </a>
-              
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                  <li><a class="dropdown-item" href="#">5</a></li>
-                  <li><a class="dropdown-item" href="#">10</a></li>
-                  <li><a class="dropdown-item" href="#">15</a></li>
-                  <li><a class="dropdown-item" href="#">All</a></li>
-                </ul>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="alerts-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#alerts"
+              type="button" role="tab"
+              aria-controls="alerts"
+              aria-selected="false">
+              Alerts<span class="badge badge-light" id="alertNumber"></span>
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="delete-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#delete"
+              type="button" role="tab"
+              aria-controls="delete"
+              aria-selected="false">
+              Inventory Adjustment
+            </button>
+          </li>
+        </ul>
 
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                  Sort
-                </a>
-              
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                  <li><a class="dropdown-item" href="#">Id</a></li>
-                  <li><a class="dropdown-item" href="#">Category</a></li>
-                  <li><a class="dropdown-item" href="#">Expire Alert</a></li>
-                  <li><a class="dropdown-item" href="#">Quantity Alert</a></li>
-                  <li><a class="dropdown-item" href="#">Location</a></li>
-                </ul>
+        <div class="tab-content" id="myTabContent">
+
+          <!-- inventory tab -->
+          <div class="tab-pane fade show active" id="inventory" role="tabpanel" aria-labelledby="inventory-tab">
+
+            <!-- pagination tab -->
+            <div class= "container">
+              <div class="row mt-3">
+                <div class="col-md">
+                  <input class="input" id='search-input' type="text" name="" value="" placeholder="Search Items" onkeyup= "onKeyUp(event)">
+                  
+                    <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
+                    <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
+                </div>
+                <div class="col-md">
+                  <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="exportCSV()">
+                    Export CSV
+                  </button>
+                  <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                    Items per page
+                  </a>
+                  
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <li><a class="dropdown-item" href="#">5</a></li>
+                    <li><a class="dropdown-item" href="#">10</a></li>
+                    <li><a class="dropdown-item" href="#">15</a></li>
+                    <li><a class="dropdown-item" href="#">All</a></li>
+                  </ul>
     
-          </div>
-          </div>
-          </div>
-          <div class="card my-2 box" width = 'auto'>
-            <div class="card-body" id="data-container">  
-    <table class="table" id="item-table">
-        <thead>
-        <tr>
-          <th scope="col">Id</th>
-          <th scope="col">Category</th>
-          <th scope="col">Expiry Alert</th>
-          <th scope="col">Quantity Alert</th>
-          <th scope="col">Location</th>
-          <th scope="col">Action</th>
-        </tr>
-        </thead>
-        <tbody>
-
-        </tbody>
+                  <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                    Sort
+                  </a>
+                  
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <li><a class="dropdown-item" href="#">Id</a></li>
+                    <li><a class="dropdown-item" href="#">Category</a></li>
+                    <li><a class="dropdown-item" href="#">Expire Alert</a></li>
+                    <li><a class="dropdown-item" href="#">Quantity Alert</a></li>
+                    <li><a class="dropdown-item" href="#">Location</a></li>
+                  </ul>
         
-      </table>
-      
-      </div>
-      </div>
-      </div>
-      <div class="tab-pane fade" id="alerts" role="tabpanel" aria-labelledby="alerts-tab">
-        <div class="card my-2 box" width = 'auto'>
-          <div class="card-body">
-        <div class="alert alert-warning" role="alert">
-          A simple warning alert—check it out!
-        </div>
-        </div>
-        </div>
-      </div>
-        <div class="tab-pane fade" id="delete" role="tabpanel" aria-labelledby="delete-tab">
-          <div class="card my-2 box">
-            <div class="card-body">
-              <p><b>Create Category</b></p>
+                </div>
+              </div>
+            </div>
+            <!-- end of pagination -->
+
+            <div class="card my-2 box" width = 'auto'>
+              <div class="card-body" id="data-container">
+                <table class="table" id="item-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Id</th>
+                      <th scope="col">Category</th>
+                      <th scope="col">Expiry Alert</th>
+                      <th scope="col">Quantity Alert</th>
+                      <th scope="col">Location</th>
+                      <th scope="col">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+
+                  </tbody>
+                </table>
+                <!-- loading spinner -->
+                <div class="m-auto p-2 w-25 text-center" id="loading-spinner">
+                  <div class="spinner-border text-primary text-center" role="status">
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                </div>
+
+                <!-- pagination -->
+                <nav>
+                  <ul class="pagination">
+                    <li class="page-item disabled">
+                      <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item active" aria-current="page">
+                      <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                      <a class="page-link" href="#">Next</a>
+                    </li>
+                  </ul>
+                </nav>
+
+
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="alerts" role="tabpanel" aria-labelledby="alerts-tab">
+            <div class="card my-2 box" width = 'auto'>
+              <div class="card-body">
+                <div class="alert alert-warning" role="alert">
+                  A simple warning alert—check it out!
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="delete" role="tabpanel" aria-labelledby="delete-tab">
+            <div class="card my-2 box">
+              <div class="card-body">
+                <p><b>Create Category</b></p>
+              <form>
+                <div class="row">
+                <div class="form-group col-md-3">
+                  <label for="inputAlertQuantity">Category Name</label>
+                  <input type="text" class="form-control" id="inputCreateType" required>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="inputAlertQuantity">Alert Quantity</label>
+                  <input type="text" class="form-control" id="inputAlertQuantity" required>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="inputAlertExpiryDate">Alert Day</label>
+                  <input type="text" class="form-control" id="inputAlertExpiryDate" required>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="inputLocation">Location</label>
+                  <input type="text" class="form-control" id="inputLocation" required>
+                </div>
+                </div>
+
+                <button
+                  style="margin-top:15px" type="submit"
+                  class="btn btn-primary" id="createType"
+                  onclick="createTag(event)">
+                  Create
+                </button>
+
+                </form>
+                </div>
+                </div>
+
+            <div class="card my-2 box" width = 'auto'>
+              <div class="card-body">
+                <p><b>Create Item</b></p>
             <form>
               <div class="row">
-              <div class="form-group col-md-3">
-                <label for="inputAlertQuantity">Category Name</label>
-                <input type="text" class="form-control" id="inputCreateType" required>
-              </div>
-              <div class="form-group col-md-3">
-                <label for="inputAlertQuantity">Alert Quantity</label>
-                <input type="text" class="form-control" id="inputAlertQuantity" required>
-              </div>
-              <div class="form-group col-md-3">
-                <label for="inputAlertExpiryDate">Alert Day</label>
-                <input type="text" class="form-control" id="inputAlertExpiryDate" required>
-              </div>
-              <div class="form-group col-md-3">
-                <label for="inputLocation">Location</label>
-                <input type="text" class="form-control" id="inputLocation" required>
-              </div>
-              </div>
-  
-              <button style="margin-top:15px" type="submit" class="btn btn-primary" id="createType">Create</button>
-            
-              </form>
-              </div>
-              </div>
-    
-          <div class="card my-2 box" width = 'auto'>
-            <div class="card-body">
-              <p><b>Create Item</b></p>
-          <form>
-            <div class="row">
-              <div class="form-group col-md-3">
-                <label for="inputDescription">Description</label>
-                <input type="text" class="form-control" id="inputDescription" required>
-              </div>
-              <div class="form-group col-md-3">
-                <label for="inputProductId">Product ID</label>
-                <input type="text" class="form-control" id="inputProductId" required>
-              </div>
-              <div class="form-group col-md-3">
-                <label for="inputType">Type</label>
-                <select id="inputType" class="form-control" required>
-                  <option selected></option>
-                </select>
-              </div>
-            <div class="form-group col-md-3">
-              <label for="inputQuantity">Quantity</label>
-              <input type="text" class="form-control" id="inputQuantity" required>
+                <div class="form-group col-md-3">
+                  <label for="inputDescription">Description</label>
+                  <input type="text" class="form-control" id="inputDescription" required>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="inputProductId">Product ID</label>
+                  <input type="text" class="form-control" id="inputProductId" required>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="inputTag">Type</label>
+                  <select id="inputTag" class="form-control" required>
+                    <option selected></option>
+                  </select>
+                </div>
+                <div class="form-group col-md-3">
+                  <label for="inputQuantity">Quantity</label>
+                  <input type="text" class="form-control" id="inputQuantity" required>
+                </div>
+                </div>
+                <div class="row">
+                  <div class="form-group col-md-3">
+                    <label for="inputExpiryDate">Price</label>
+                    <input type="text" class="form-control" id="inputPrice" required>
+                  </div>
+                  <div class="form-group col-md-3">
+                    <label for="inputExpiryDate">Expiry Date</label>
+                    <input type="date" class="form-control" id="inputExpiryDate" required>
+                  </div>
+                  <div class="form-group col-md-2">
+                    <label for="inputApproved">Approved</label>
+                    <select id="inputApproved" class="form-control" required>
+                      <option selected></option>
+                      <option>No</option>
+                      <option>Yes</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-md-5">
+                    <label for="inputIngredients">Ingredients</label>
+                    <input type="text" class="form-control" id="inputIngredients" required>
+                  </div>
+                </div>
+                <a style="margin-top:15px" type="submit" class="btn btn-primary" id="createItem" onclick="addMedicine(event)">Add Med</a>
+
+            </form>
             </div>
             </div>
-            <div class="row">         
-            <div class="form-group col-md-3">
-              <label for="inputExpiryDate">Expiry Date</label>
-              <input type="date" class="form-control" id="inputExpiryDate" required>
-            </div>
-            <div class="form-group col-md-2">
-              <label for="inputApproved">Approved</label>
-              <select id="inputApproved" class="form-control" required>
-                <option selected></option>
-                <option>No</option>
-                <option>Yes</option>
-              </select>
-            </div>
-            <div class="form-group col-md-5">
-              <label for="inputIngredients">Ingredients</label>
-              <input type="text" class="form-control" id="inputIngredients" required>
-            </div>
-            </div>
-            <button style="margin-top:15px" type="submit" class="btn btn-primary" id="createItem">Create</button>
-            
-          </form>
-          </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-</body>
+  </body>
 </html>

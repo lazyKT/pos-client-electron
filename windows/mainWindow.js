@@ -25,7 +25,7 @@ let win
 
 
 exports.createMainWindow = function createMainWindow () {
-  console.log("Main Window Created")
+
   win = new BrowserWindow({
     width: 1000,
     height: 800,
@@ -39,7 +39,7 @@ exports.createMainWindow = function createMainWindow () {
 
 
   win.loadFile(path.join(__dirname, "../views/main.html"));
-  //win.openDevTools();
+  // win.openDevTools();
 
   win.once("ready-to-show", () => win.show() );
 
@@ -61,16 +61,14 @@ exports.createMainWindow = function createMainWindow () {
     // logout request from Renderer
     ipcMain.on('logout', (e, response) => {
       e.sender.send('logout-response', 200);
-    })
+    });
 
     /**
     ##### USER IPC CHANNELS #####
     **/
 
-    // reponse all users to renderer process
-    ipcMain.handle('get-all-users', (e, _) => {
-     const result = getAllUsers();
-     return result;
+    ipcMain.on('user-logout', (e, response) => {
+      win.loadFile(path.join(__dirname, "../views/main.html"));
     });
 
 
@@ -86,20 +84,6 @@ exports.createMainWindow = function createMainWindow () {
 
       if (user) {
         createEditFormWindow(win, method, user)
-      }
-    });
-
-    // search data
-    ipcMain.handle('search-data', (e, req) => {
-      const { data, q } = req;
-
-      if (data === 'user') {
-        // search user
-        return searchUser(q);
-      }
-      else if (data === 'item') {
-        // search inventory here
-        return searchItem(q);
       }
     });
 
