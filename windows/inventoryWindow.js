@@ -77,13 +77,6 @@ exports.createInventoryWindow = function createInventoryWindow () {
     **/
     // win.webContents.send("reload-data", getAllItems());
 
-    //response all items to renderer process
-    // ipcMain.handle('get-all-items', (e, _) => {
-    //
-    //  const result = getAllItems();
-    //  return result;
-    // });
-
     ipcMain.on('item-data', (e, req) => {
       const { id, method } = req;
       const item = getItemById(id);
