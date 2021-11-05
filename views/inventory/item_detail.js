@@ -108,10 +108,10 @@ window.onload = function () {
         e.preventDefault();
         const data = {
           name: medDesc.value,
-          price: medPrice.value,
-          qty: medQty.value,
+          price: parseInt(medPrice.value),
+          qty: parseInt(medQty.value),
           expiry: medExp.value,
-          medApprove: medApprove.value,
+          medApprove: medApprove.value === "YES" ? true : false,
           tag: medTag.value,
           productNumber: medNumber.value
         };
@@ -228,11 +228,20 @@ async function showMedicineDetails (id) {
 function displayMedInfo (med) {
   medNumber.value = med.productNumber ? med.productNumber : "";
   medDesc.value = med.name;
-  medExp.value = (new Date(med.expiry)).toLocaleDateString();
-  medQty.value = med.qty;
-  medPrice.value = med.price;
-  medApprove.value = med.approve ? "YES" : "NO";
+  
+  const dateFormat = new Date(med.expiry).toISOString();
+  medExp.value = dateFormat.split("T")[0];
+  medQty.value = parseInt(med.qty);
+  medPrice.value = parseInt(med.price);
   medTag.value = (med.tag).join(", ");
+  if (med.approve) {
+    (document.getElementById("approve-yes")).setAttribute("selected", true);
+    (document.getElementById("approve-no")).removeAttribute("selected");
+  }
+  else {
+    (document.getElementById("approve-no")).setAttribute("selected", true);
+    (document.getElementById("approve-yes")).removeAttribute("selected");
+  }
 }
 
 
@@ -261,6 +270,10 @@ function editMedicine () {
       }
     }
   );
+  if (editing)
+    medApprove.removeAttribute("disabled");
+  else
+    medApprove.setAttribute("disabled", true);
 }
 
 /***********************************************************************
@@ -308,6 +321,7 @@ async function getMedById (id) {
 /** Edit Medicine **/
 async function editMed (id, med) {
   try {
+    console.log(med);
     const response = await fetch(`http://127.0.0.1:8080/api/meds/${id}`, {
       method: "PUT",
       headers: {
