@@ -4,6 +4,7 @@ let limit = 10;
 let page = 1;
 
 let medTags, totalTags, numPages;
+let serverURL;
 
 // DOM Nodes
 const loadingSpinner = document.getElementById("loading-spinner");
@@ -12,27 +13,34 @@ const loadingSpinner = document.getElementById("loading-spinner");
 # IIFE to fetch medicine tags data once the page loads
 **/
 (async function () {
+
+})()
+
+
+window.inventoryAPI.receive("server-url", async url => {
   try {
+
+    serverURL = url;
     const response = await fetchTags();
 
-    if (response.ok) {
+    if (response && response.ok) {
       const tags = await response.json();
-      await createPaginationButtons();
-      (document.getElementById("loading-spinner")).style.display = "none";
-      medTags = tags;
-      addMedTagsToMedicineForm();
-      tags.forEach(
-        tag => populateItemTable(tag)
-      )
+      displayData(tags);
     }
     else {
       // show error
+      const { message } = await response.json();
+      const errMessage = message ? `Error Fetching Category: ${message}` : "Error Fetching Category. code : 500";
+      alert(errMessage);
+      showErrorMessage(errMessage);
     }
   }
   catch (error) {
-    alert(`Error Fetching Tags: ${error}`);
+    alert(`Error Fetching Tags: code: null`);
+    showErrorMessage(`Error Fetching Tags: code: null`);
   }
-})()
+});
+
 
 window.inventoryAPI.receive('reload-data', async data => {
 
@@ -46,6 +54,27 @@ const onKeyUp = function onKeyUp(event) {
   if (event.key === 'Enter')
     filterItems();
 };
+
+
+/**
+# Display Fetched Data
+**/
+async function displayData (tags) {
+  try {
+
+    (document.getElementById("loading-spinner")).style.display = "none";
+    (document.getElementById("pagination")).style.display = "flex";
+    await createPaginationButtons();
+    medTags = tags;
+    addMedTagsToMedicineForm();
+    tags.forEach(
+      tag => populateItemTable(tag)
+    )
+  }
+  catch (error) {
+
+  }
+}
 
 
 /* filter user data */
@@ -194,7 +223,13 @@ function populateItemTable (tags, idx=1) {
   fifthColumn.appendChild(editBtn);
 
   editBtn.addEventListener('click', e => {
-    window.inventoryAPI.send('item-data', {type: "edit", data: _id});
+    window.inventoryAPI.send('item-data', {
+      type: "edit",
+      data: {
+        id: _id,
+        url: serverURL
+      }
+    });
   });
 
   /** See Medicine **/
@@ -204,8 +239,14 @@ function populateItemTable (tags, idx=1) {
   seeMedicineButton.innerHTML = "See Medicines";
   fifthColumn.appendChild(seeMedicineButton);
 
+  // seeMedicineButton.addEventListener("click", e => {
+  //   window.inventoryAPI.send("item-details", data: {name, url: serverURL})
+  // });
   seeMedicineButton.addEventListener("click", e => {
-    window.inventoryAPI.send("item-details", name);
+    window.inventoryAPI.send("item-details", {
+      name: name,
+      url: serverURL
+    })
   });
 
   /* View Details button */
@@ -217,9 +258,45 @@ function populateItemTable (tags, idx=1) {
 
   viewBtn.addEventListener('click', e => {
     console.log("View Clk");
-    window.inventoryAPI.send('item-data', {type: "view", data: _id});
+    window.inventoryAPI.send('item-data', {
+      type: "view",
+      data: {
+        id: _id,
+        url: serverURL
+      }
+    });
   })
 };
+
+
+/**
+# Error Message Box
+**/
+function showErrorMessage (msg) {
+  const div = document.createElement("div");
+  div.setAttribute("class", "alert alert-danger");
+  div.setAttribute("role", "alert");
+  div.setAttribute("id", "tag-error-box");
+  div.innerHTML = msg;
+  const dataContainer = document.getElementById('data-container');
+  dataContainer.appendChild(div);
+
+  (document.getElementById("loading-spinner")).style.display = "none";
+  (document.getElementById("pagination")).style.display = "none";
+}
+
+
+/**
+# Remove Error/Empty MessageBoxes
+**/
+function removeMessageBoxes () {
+  // get rid of the empty-message-box if avaialble
+  const emptyMessageBox = document.getElementById('empty-message-box');
+  if (emptyMessageBox) emptyMessageBox.remove();
+
+  const errorMessageBox = document.getElementById("tag-error-box");
+  if (errorMessageBox) errorMessageBox.remove();
+}
 
 
 
@@ -496,7 +573,7 @@ async function addMedicine (event) {
 ***********************************************************************/
 async function fetchTags () {
   try {
-    const response = await fetch(`http://127.0.0.1:8080/api/tags?page=${page}&limit=${limit}`, {
+    const response = await fetch(`${serverURL}/api/tags?page=${page}&limit=${limit}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -514,7 +591,7 @@ async function fetchTags () {
 
 async function getTagsCount () {
   try {
-    const response = await fetch("http://127.0.0.1:8080/api/tags/count", {
+    const response = await fetch(`${serverURL}/api/tags/count`, {
       method: "GET",
       headers: {
         "Content-Type" : "application/json",
@@ -532,7 +609,7 @@ async function getTagsCount () {
 
 async function createTagRequest (tag) {
   try {
-    const response = await fetch("http://127.0.0.1:8080/api/tags", {
+    const response = await fetch(`${serverURL}/api/tags`, {
       method: "POST",
       headers: {
         "Content-Type" : "application/json",
@@ -552,7 +629,7 @@ async function createTagRequest (tag) {
 async function addMedicineRequest (med) {
   try {
 
-    const response = await fetch("http://127.0.0.1:8080/api/meds", {
+    const response = await fetch(`${serverURL}/api/meds`, {
       method: "POST",
       headers: {
         "Content-Type" : "application/json",
@@ -572,7 +649,7 @@ async function addMedicineRequest (med) {
 /** Search Meds Tags by Keyword **/
 async function searchTags (q) {
   try {
-    const response = await fetch(`http://127.0.0.1:8080/api/meds/search?q=${q}`, {
+    const response = await fetch(`${serverURL}/api/meds/search?q=${q}`, {
       method: "GET",
       headers: {
         "Content-Type" : "application/json",

@@ -19,13 +19,14 @@ const ALLOWED_SEND_CHANNELS = [
 const ALLOWED_INVOKED_CHANNELS = [
   /** write your allowed channels herer */
   "get-all-items",
-  "search-data"
+  "search-data",
 ];
 
 
 const ALLOWED_RECEIVED_CHANNELS = [
   /** write your allowed channels herer */
   "reload-data",
+  "server-url"
 ];
 
 
