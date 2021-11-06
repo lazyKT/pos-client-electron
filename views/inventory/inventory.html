@@ -63,6 +63,18 @@
           <li class="nav-item" role="presentation">
             <button
               class="nav-link"
+              id="search-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#search"
+              type="button" role="tab"
+              aria-controls="search"
+              aria-selected="false">
+              Search
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
               id="delete-tab"
               data-bs-toggle="tab"
               data-bs-target="#delete"
@@ -85,39 +97,40 @@
                 <div class="col-5">
                   <div class="input-group">
                     <input class="form-control search-input" id='search-input' type="text" name="" value="" placeholder="Search Items" onkeyup= "onKeyUp(event)">
-                    <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
+                    <button onclick="filterTags()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
                     <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button" style='display:none'>Cancel</button>
                   </div>
                 </div>
                 <div class="col-5">
-                  
-                  <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+
+                  <a class="btn btn-secondary dropdown-toggle"
+                    href="#" role="button"
+                    id="numPersPageDropDown" data-bs-toggle="dropdown" aria-expanded="false">
                     Items per page
                   </a>
-                  
+
                   <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                    <li><a class="dropdown-item" href="#">5</a></li>
-                    <li><a class="dropdown-item" href="#">10</a></li>
-                    <li><a class="dropdown-item" href="#">15</a></li>
-                    <li><a class="dropdown-item" href="#">All</a></li>
+                    <li onclick="changeNumPerPage(5)"><a class="dropdown-item" href="#">5</a></li>
+                    <li onclick="changeNumPerPage(10)"><a class="dropdown-item" href="#">10</a></li>
+                    <li onclick="changeNumPerPage(15)"><a class="dropdown-item" href="#">15</a></li>
+                    <li onclick="changeNumPerPage(0)"><a class="dropdown-item" href="#">All</a></li>
                   </ul>
-    
+
                   <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
                     Sort
                   </a>
-                  
+
                   <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                    <li><a class="dropdown-item" href="#">Id</a></li>
-                    <li><a class="dropdown-item" href="#">Category</a></li>
-                    <li><a class="dropdown-item" href="#">Expire Alert</a></li>
-                    <li><a class="dropdown-item" href="#">Quantity Alert</a></li>
-                    <li><a class="dropdown-item" href="#">Location</a></li>
+                    <li onclick="changeSort('name')"><a class="dropdown-item" href="#">Category</a></li>
+                    <li onclick="changeSort('expiryDateAlert')"><a class="dropdown-item" href="#">Expire Alert</a></li>
+                    <li onclick="changeSort('lowQtyAlert')"><a class="dropdown-item" href="#">Quantity Alert</a></li>
+                    <li onclick="changeSort('location')"><a class="dropdown-item" href="#">Location</a></li>
                   </ul>
 
                   <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="exportCSV()">
                     Export CSV
                   </button>
-        
+
                 </div>
               </div>
             </div>
@@ -181,6 +194,38 @@
             </div>
           </div>
           <!-- end of alert tab -->
+
+
+          <!-- search all medicine tab -->
+          <div class="tab-pane fade" id="search" role="tabpanel" aria-labelledby="search-tab">
+
+            <!-- search row -->
+            <div class="d-flex p-2 justify-content-start align-items-center">
+              <input
+                class="form-control w-25"
+                type="text" placeholder="Search Medicines"
+                id="search-all-meds" onkeyup= "searchAllMedsOnKey(event)"/>
+
+              <span class="text-muted mx-2">Search Area:</span>
+
+              <select id="search-area" class="form-control mx-1 w-25">
+                <option value="tag">Category</option>
+                <option value="name" selected>Description</option>
+                <option value="description">Ingredients</option>
+              </select>
+
+              <button class="btn btn-primary mx-2" onclick="searchAllMedicines()">
+                Search
+              </button>
+            </div>
+
+            <!-- search results -->
+            <h6 class="text-muted mt-2">Search Results:</h6>
+            <div class="p-2" id="search-all-meds-result">
+              <!-- search results come here -->
+            </div>
+          </div>
+          <!-- end of search all meds -->
 
           <!-- create tab -->
           <div class="tab-pane fade" id="delete" role="tabpanel" aria-labelledby="delete-tab">
