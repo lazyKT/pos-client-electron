@@ -1,6 +1,7 @@
 <!-- inventory layout -->
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
+<<<<<<< HEAD
     <head>
         <meta charset="utf-8">
         <title>My Pharmacy POS</title>
@@ -28,6 +29,47 @@
       </button>
     </header>
     <div class="container">
+=======
+  <head>
+      <meta charset="utf-8">
+      <title>My Pharmacy POS</title>
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
+      <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+        crossorigin="anonymous">
+      <link rel="stylesheet" href="inventory.css">
+      <script src="inventory.js" data-name="item">
+
+      </script>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      <!-- JavaScript Bundle with Popper -->
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+
+  </head>
+  <body>
+    <div id="contents">
+      <header>
+        <h4 id='content-title'>Pharmacy</h4>
+        <button class="btn btn-primary" id="logout" onclick="logout()">
+          Logout<i class="fas fa-sign-out-alt"></i>
+        </button>
+      </header>
+
+      <!-- start of container -->
+      <div class="container">
+        <div class="top-header">
+           <h4>My Inventory</h4>
+           <div class= "">
+              <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="exportCSV()">
+                Export CSV
+              </button>
+            </div>
+        </div>
+>>>>>>> 5afbdc484e2f30af32641ea69dace5bb5440834a
 
     <!-- contents -->
     <div class="card my-2 box" width = 'auto'>
@@ -149,25 +191,29 @@
 
                 <!-- pagination -->
                 <nav>
-                  <ul class="pagination">
-                    <li class="page-item disabled">
-                      <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                  <ul class="pagination justify-content-center mt-2" id="pagination">
+                    <li class="page-item disabled" id="previous">
+                      <a class="page-link" onclick="prevPaginationClick(event)" href="#" tabindex="-1" aria-disabled="true">Previous</a>
                     </li>
-                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <!-- <li class="page-item"><a class="page-link" href="#">1</a></li>
                     <li class="page-item active" aria-current="page">
                       <a class="page-link" href="#">2 <span class="sr-only">(current)</span></a>
                     </li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item">
-                      <a class="page-link" href="#">Next</a>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li> -->
+                    <li class="page-item" id="next">
+                      <a class="page-link" onclick="nextPaginationClick(event)" href="#">Next</a>
                     </li>
                   </ul>
                 </nav>
+                <!-- end of pagination -->
 
 
               </div>
             </div>
           </div>
+          <!-- end of inventory tab -->
+
+          <!-- alert tab -->
           <div class="tab-pane fade" id="alerts" role="tabpanel" aria-labelledby="alerts-tab">
             <div class="card my-2 box" width = 'auto'>
               <div class="card-body">
@@ -177,7 +223,12 @@
               </div>
             </div>
           </div>
+          <!-- end of alert tab -->
+
+          <!-- create tab -->
           <div class="tab-pane fade" id="delete" role="tabpanel" aria-labelledby="delete-tab">
+
+            <!-- create tag -->
             <div class="card my-2 box">
               <div class="card-body">
                 <p><b>Create Category</b></p>
@@ -209,61 +260,65 @@
                 </button>
 
                 </form>
-                </div>
-                </div>
+              </div>
+            </div>
 
+
+            <!-- create/add meds -->
             <div class="card my-2 box" width = 'auto'>
               <div class="card-body">
                 <p><b>Create Item</b></p>
-            <form>
-              <div class="row">
-                <div class="form-group col-md-3">
-                  <label for="inputDescription">Description</label>
-                  <input type="text" class="form-control" id="inputDescription" required>
-                </div>
-                <div class="form-group col-md-3">
-                  <label for="inputProductId">Product ID</label>
-                  <input type="text" class="form-control" id="inputProductId" required>
-                </div>
-                <div class="form-group col-md-3">
-                  <label for="inputTag">Type</label>
-                  <select id="inputTag" class="form-control" required>
-                    <option selected></option>
-                  </select>
-                </div>
-                <div class="form-group col-md-3">
-                  <label for="inputQuantity">Quantity</label>
-                  <input type="text" class="form-control" id="inputQuantity" required>
-                </div>
-                </div>
-                <div class="row">
-                  <div class="form-group col-md-3">
-                    <label for="inputExpiryDate">Price</label>
-                    <input type="text" class="form-control" id="inputPrice" required>
-                  </div>
-                  <div class="form-group col-md-3">
-                    <label for="inputExpiryDate">Expiry Date</label>
-                    <input type="date" class="form-control" id="inputExpiryDate" required>
-                  </div>
-                  <div class="form-group col-md-2">
-                    <label for="inputApproved">Approved</label>
-                    <select id="inputApproved" class="form-control" required>
-                      <option selected></option>
-                      <option>No</option>
-                      <option>Yes</option>
-                    </select>
-                  </div>
-                  <div class="form-group col-md-5">
-                    <label for="inputIngredients">Ingredients</label>
-                    <input type="text" class="form-control" id="inputIngredients" required>
-                  </div>
-                </div>
-                <a style="margin-top:15px" type="submit" class="btn btn-primary" id="createItem" onclick="addMedicine(event)">Add Med</a>
+                <form>
+                  <div class="row">
+                    <div class="form-group col-md-3">
+                      <label for="inputDescription">Description</label>
+                      <input type="text" class="form-control" id="inputDescription" required>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="inputProductId">Product ID</label>
+                      <input type="text" class="form-control" id="inputProductId" required>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="inputTag">Type</label>
+                      <select id="inputTag" class="form-control" required>
+                        <option selected></option>
+                      </select>
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label for="inputQuantity">Quantity</label>
+                      <input type="text" class="form-control" id="inputQuantity" required>
+                    </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-md-3">
+                        <label for="inputExpiryDate">Price</label>
+                        <input type="text" class="form-control" id="inputPrice" required>
+                      </div>
+                      <div class="form-group col-md-3">
+                        <label for="inputExpiryDate">Expiry Date</label>
+                        <input type="date" class="form-control" id="inputExpiryDate" required>
+                      </div>
+                      <div class="form-group col-md-2">
+                        <label for="inputApproved">Approved</label>
+                        <select id="inputApproved" class="form-control" required>
+                          <option selected></option>
+                          <option>No</option>
+                          <option>Yes</option>
+                        </select>
+                      </div>
+                      <div class="form-group col-md-5">
+                        <label for="inputIngredients">Ingredients</label>
+                        <input type="text" class="form-control" id="inputIngredients" required>
+                      </div>
+                    </div>
+                    <a style="margin-top:15px" type="submit" class="btn btn-primary" id="createItem" onclick="addMedicine(event)">Add Med</a>
 
-            </form>
-            </div>
+                </form>
+              </div>
             </div>
           </div>
+          <!-- end of creat tab -->
+
         </div>
       </div>
     </div>

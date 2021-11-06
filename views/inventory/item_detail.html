@@ -40,6 +40,7 @@
                       <th scope="col">Description</th>
                       <th scope='col'>Expiry Date</th>
                       <th scope='col'>Quantity</th>
+                      <th scope='col'>Unit Price</th>
                       <th scope='col'>Approved</th>
                       <th scope='col'>Ingredients</th>
                     </tr>
@@ -55,12 +56,12 @@
         </div>
         </div>
         <div class="container mt-3" id="subItem-edit-box" style='display:none'>
-            <div class="d-flex justify-content-center">
-              <p><b>Edit Item</b></p>
-            </div>
-            <div id="error">
+          <div class="d-flex justify-content-center">
+            <p><b>Edit Item</b></p>
+          </div>
+          <div id="error">
       
-            </div>
+          </div>
             <div class="card mx-1">
               <div class="card-body">
                 <form>
@@ -81,6 +82,10 @@
                     <input type="text" class="form-control" id="sub-item-quantity" required>
                   </div>
                   <div class="mb-3">
+                    <label class="form-label">Unit Price</label>
+                    <input type="text" class="form-control" id="sub-item-unitPrice" required>
+                  </div>
+                  <div class="mb-3">
                     <label for="inputApproved">Approved</label>
                     <select id="inputApproved" class="form-control" required>
                         <option selected></option>
@@ -97,6 +102,6 @@
                 </form>
               </div>
             </div>
-          </div>
+        </div>
     </body>
     </html>

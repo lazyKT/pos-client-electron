@@ -73,7 +73,6 @@ loginButton.addEventListener('click', async (e) => {
     }
     else {
       const json = await response.json();
-      console.log(json);
       showErrorMessage(json.message);
     }
 
