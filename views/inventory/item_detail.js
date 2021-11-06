@@ -4,6 +4,8 @@ let editing = false;
 let editingID, medTagName;
 let serverURL;
 
+const serverURL = "http://192.168.1.114:8080";
+
 window.onload = function () {
     let status = "ready";
     const allDetails = document.getElementById("all-detail-item-contents");
@@ -85,6 +87,22 @@ window.onload = function () {
     });
 }
 
+const onKeyUp = function onKeyUp(event) {
+  const cancelButton = document.getElementById('cancel-med-search');
+  const inputValue = document.getElementById('search-input-med').value;
+  console.log(event);
+
+  if(inputValue !== null){
+    cancelButton.style.display = 'block';
+  }
+  if(inputValue === '' && (event.key === 'Backspace' || event.key === 'Delete')){
+    cancelButton.style.display = 'none';
+  }
+
+  // if (event.key === 'Enter')
+  //   filterItems();
+};
+
 
 /** display medicines **/
 function displayMedicines (med, idx=1) {
@@ -95,6 +113,7 @@ function displayMedicines (med, idx=1) {
     const itemTable = document.getElementById("item-details-table");
 
     const row = itemTable.insertRow(idx);
+    row.setAttribute('class','cursor-pointer');
 
     const firstColumn = row.insertCell(0);
     const secondColumn = row.insertCell(1);

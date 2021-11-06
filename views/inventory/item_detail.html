@@ -28,28 +28,58 @@
 
         <div class="py-2 px-4" id="all-detail-item-contents">
 
-          <!-- search -->
-          <!--- add searh here -->
-          <div class="card my-2 box">
-              <div class="card-body search-div">
-                <input class="w-75" id='search-input' type="text" name="" value="" placeholder="Search Items">
-                <div class="w-25">
-                  <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
-                  <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
-                </div>
-              </div>
-            </div>
-            <!-- end of search -->
-
-            <!-- contents -->
+            <!-- pagination -->
             <div class="card my-2 box" id="med-contents">
-                <table class="table" id="item-details-table">
+                <div class="row mt-2 justify-content-between">
+                  <div class="col-5">
+                    <div class="input-group">
+                      <input class="form-control search-input-med" id='search-input-med' type="text" name="" value="" placeholder="Search Items" onkeyup= "onKeyUp(event)">
+                      <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-med-btn" type="button" name="button">Search</button>
+                      <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-med-search" type="button" name="button" style='display:none'>Cancel</button>
+                    </div>
+                  </div>
+                  <div class="col-5">
+                    
+                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                      Items per page
+                    </a>
+                    
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                      <li><a class="dropdown-item" href="#">5</a></li>
+                      <li><a class="dropdown-item" href="#">10</a></li>
+                      <li><a class="dropdown-item" href="#">15</a></li>
+                      <li><a class="dropdown-item" href="#">All</a></li>
+                    </ul>
+      
+                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                      Sort
+                    </a>
+                    
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                      <li><a class="dropdown-item" href="#">Id</a></li>
+                      <li><a class="dropdown-item" href="#">Category</a></li>
+                      <li><a class="dropdown-item" href="#">Expire Alert</a></li>
+                      <li><a class="dropdown-item" href="#">Quantity Alert</a></li>
+                      <li><a class="dropdown-item" href="#">Location</a></li>
+                    </ul>
+  
+                    <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="exportCSV()">
+                      Export CSV
+                    </button>
+          
+                  </div>
+                </div>
+              <!-- end of pagination -->
+
+              <!-- contents -->
+                <table class="table table-hover" id="item-details-table">
                     <thead>
                     <tr>
                       <th scope="col">Product ID</th>
                       <th scope="col">Description</th>
                       <th scope='col'>Expiry Date</th>
                       <th scope='col'>Quantity</th>
+                      <th scope='col'>Unit Price</th>
                       <th scope='col'>Approved</th>
                       <th scope='col'>Ingredients</th>
                     </tr>
@@ -62,15 +92,15 @@
 
                 </table>
              <!-- <a id="dismiss-window" class="btn btn-outline-secondary w-25 my-1">Cancel</a> -->
-        </div>
+            </div>
         </div>
         <div class="container mt-3" id="subItem-edit-box" style='display:none'>
-            <div class="d-flex justify-content-center">
-              <p><b>Edit Item</b></p>
-            </div>
-            <div id="error">
-
-            </div>
+          <div class="d-flex justify-content-center">
+            <p><b>Edit Item</b></p>
+          </div>
+          <div id="error">
+      
+          </div>
             <div class="card mx-1">
               <div class="card-body">
                 <form>
@@ -89,6 +119,10 @@
                   <div class="mb-3">
                     <label class="form-label">Quantity</label>
                     <input type="text" class="form-control" id="sub-item-quantity" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Unit Price</label>
+                    <input type="text" class="form-control" id="sub-item-unitPrice" required>
                   </div>
                   <div class="mb-3">
                     <label for="inputApproved">Approved</label>

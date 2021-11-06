@@ -6,6 +6,8 @@ let page = 1;
 let medTags, totalTags, numPages;
 let serverURL;
 
+const serverURL = "http://192.168.1.114:8080";
+
 // DOM Nodes
 const loadingSpinner = document.getElementById("loading-spinner");
 
@@ -29,6 +31,7 @@ window.inventoryAPI.receive("server-url", async url => {
     }
     else {
       // show error
+      (document.getElementById("loading-spinner")).style.display = "none";
       const { message } = await response.json();
       const errMessage = message ? `Error Fetching Category: ${message}` : "Error Fetching Category. code : 500";
       alert(errMessage);
@@ -51,6 +54,17 @@ window.inventoryAPI.receive('reload-data', async data => {
 });
 
 const onKeyUp = function onKeyUp(event) {
+  const cancelButton = document.getElementById('cancel-search');
+  const inputValue = document.getElementById('search-input').value;
+  console.log(event);
+
+  if(inputValue !== null){
+    cancelButton.style.display = 'block';
+  }
+  if(inputValue === '' && (event.key === 'Backspace' || event.key === 'Delete')){
+    cancelButton.style.display = 'none';
+  }
+
   if (event.key === 'Enter')
     filterItems();
 };
