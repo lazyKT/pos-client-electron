@@ -2,21 +2,16 @@ let status = "ready";
 // for pagination
 let limit = 10;
 let page = 1;
+let order = 1;
+let sort = "name";
 
 let medTags, totalTags, numPages;
 let serverURL;
-
-const serverURL = "http://192.168.1.114:8080";
+let filtering = false;
 
 // DOM Nodes
 const loadingSpinner = document.getElementById("loading-spinner");
 
-/*
-# IIFE to fetch medicine tags data once the page loads
-**/
-(async function () {
-
-})()
 
 
 window.inventoryAPI.receive("server-url", async url => {
@@ -27,6 +22,8 @@ window.inventoryAPI.receive("server-url", async url => {
 
     if (response && response.ok) {
       const tags = await response.json();
+      await createPaginationButtons();
+      console.log(tags);
       displayData(tags);
     }
     else {
@@ -53,10 +50,47 @@ window.inventoryAPI.receive('reload-data', async data => {
   }
 });
 
-const onKeyUp = function onKeyUp(event) {
+
+/**
+# Change Number of Items to show in one page
+**/
+async function changeNumPerPage (num) {
+  try {
+    limit = parseInt(num);
+    console.log(limit);
+    await reloadData({});
+    await createPaginationButtons();
+  }
+  catch (error) {
+    console.log(error);
+    alert (`Error Changing Number Of Items Per Page. code null`);
+  }
+}
+
+
+/**
+# Change Sorting Field
+**/
+async function changeSort(field) {
+  try {
+    sort = field;
+    await reloadData({});
+    await createPaginationButtons();
+  }
+  catch (error) {
+    console.log(error);
+    alert (`Error Changing Sorting Field. code null`);
+  }
+}
+
+
+
+/***
+# Search Input OnChange Event
+***/
+async function onKeyUp(event) {
   const cancelButton = document.getElementById('cancel-search');
   const inputValue = document.getElementById('search-input').value;
-  console.log(event);
 
   if(inputValue !== null){
     cancelButton.style.display = 'block';
@@ -66,7 +100,7 @@ const onKeyUp = function onKeyUp(event) {
   }
 
   if (event.key === 'Enter')
-    filterItems();
+    await filterTags();
 };
 
 
@@ -78,11 +112,10 @@ async function displayData (tags) {
 
     (document.getElementById("loading-spinner")).style.display = "none";
     (document.getElementById("pagination")).style.display = "flex";
-    await createPaginationButtons();
     medTags = tags;
     addMedTagsToMedicineForm();
     tags.forEach(
-      tag => populateItemTable(tag)
+      (tag, idx) => populateItemTable(tag, idx + 1)
     )
   }
   catch (error) {
@@ -92,18 +125,31 @@ async function displayData (tags) {
 
 
 /* filter user data */
-async function filterItems () {
+async function filterTags () {
   const q = document.getElementById('search-input').value;
 
   if (!q || q === '')
      return;
 
+  console.log(q);
+
   try {
+    filtering = true;
     const response = await searchTags(q);
-    console.log(response);
+
     if (response.ok) {
-      const results = await response.json();
-      console.log(results);
+      const tags = await response.json();
+
+      if (tags.length === 0) {
+        // show empty message
+        showEmptyMessage(q);
+      }
+      else {
+        displayFilteredResults(tags);
+      }
+      totalTags = tags.length
+      numPages = Math.floor(totalTags/limit) + 1
+      await createPaginationButtons();
     }
     else {
       const { message } = await response.json();
@@ -121,24 +167,26 @@ async function filterItems () {
 
 
  /* reset filter */
-function resetFilter () {
-     const searchInput = document.getElementById('search-input');
-     searchInput.value = '';
+async function resetFilter () {
+  filtering = false;
+  const searchInput = document.getElementById('search-input');
+  searchInput.value = '';
 
-     /* remove the empty message box if the search results were found */
-     const emptyMessageBox = document.getElementById('empty-message-box');
-     if (emptyMessageBox)
-       emptyMessageBox.remove();
+  /* remove the empty message box if the search results were found */
+  const emptyMessageBox = document.getElementById('empty-message-box');
+  if (emptyMessageBox)
+   emptyMessageBox.remove();
 
-     // window.api.send('form-data-finish', {method: 'GET', type: 'user'});
-     reloadData({method: 'GET', type: 'item'});
-   };
+  // window.api.send('form-data-finish', {method: 'GET', type: 'user'});
+  reloadData({method: 'GET', type: 'item'});
+  await createPaginationButtons();
+};
 
 
 /**
  Reload the inventory data fetched from main process
 **/
-async function reloadData (newData) {
+async function reloadData (newData, q="") {
 
   try {
     const itemTable = document.getElementById("item-table");
@@ -151,12 +199,17 @@ async function reloadData (newData) {
     oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
 
     // reload the data by fetching data based on the data type, and populate the table again
-    const response = await fetchTags();
+    let response
+
+    if (q === "")
+       response = await fetchTags();
+    else
+      response = await searchTags(q);
 
     if (response.ok) {
-      const items = await response.json();
+      const tags = await response.json();
 
-      items.forEach( item => populateItemTable(item));
+      displayData(tags);
 
       if (method === 'CREATE' || method === 'UPDATE')
         showNotification(newData);
@@ -177,6 +230,9 @@ async function reloadData (newData) {
 };
 
 
+/**
+# Display Search Results
+**/
 function displayFilteredResults (results) {
   // get table rows from the current data table
   const oldData = document.querySelectorAll('tr');
@@ -328,13 +384,20 @@ async function createPaginationButtons () {
 
     const response = await getTagsCount();
     if (response.ok) {
-      const count = await response.json();
+      if (!filtering && limit !== 0) {
+        const count = await response.json();
 
-      totalTags = parseInt(count.count);
+        totalTags = parseInt(count.count);
 
-      numPages = totalTags%limit === 0 ? totalTags/limit : Math.floor(totalTags/limit) + 1;
+        numPages = totalTags%limit === 0 ? totalTags/limit : Math.floor(totalTags/limit) + 1;
+      }
 
-      displayPagination();
+      if (limit === 0) {
+        removePaginationItems();
+      }
+      else {
+        displayPagination();
+      }
     }
     else {
       const json = await response.json();
@@ -351,10 +414,13 @@ function displayPagination () {
   // populate pagination elements here
   const pagination = document.getElementById("pagination");
 
+  removePaginationItems();
+
   for (let i = 0; i < numPages; i++) {
     const li = document.createElement("li");
     li.setAttribute("class", "page-item");
     li.setAttribute("id", `page-num-${i+1}`);
+    li.setAttribute("data-type", "pagination");
     li.innerHTML = `<a class="page-link" href="#">${i + 1}</a>`;
     if (i === 0)
       li.classList.add("active");
@@ -381,6 +447,21 @@ function displayPagination () {
 
   togglePaginationButtons();
 }
+
+
+
+// Remove paginations when the page re-load
+function removePaginationItems () {
+  const items = document.querySelectorAll("li");
+  items.forEach(
+    li => {
+      // console.log(li.dataset.type);
+      if (li.dataset.type === "pagination")
+        li.remove();
+    }
+  )
+}
+
 
 
 /** handle pagination next button click events */
@@ -457,6 +538,189 @@ function togglePaginationButtons () {
 
 
 /***********************************************************************
+######################### Search All Medicines #########################
+***********************************************************************/
+
+/**
+# Search All Mes Input onChange Event
+**/
+async function searchAllMedsOnKey (e) {
+  try {
+    // console.log("onKey", e.key);
+    if (e.key === "Enter")
+      await searchAllMedicines();
+  }
+  catch (error) {
+    alert(`Error Searching Medicines. code: null.`);
+  }
+}
+
+
+/**
+# Search All medicines
+**/
+async function searchAllMedicines() {
+  try {
+    const searchAllMeds = document.getElementById("search-all-meds").value;
+    const searchArea = document.getElementById("search-area").value;
+
+    if (!searchAllMeds || searchAllMeds === "")
+      return;
+
+    showLoadingSearchAllMeds();
+    removeAllContoents();
+
+    const response = await searchAllMedsRequest(searchAllMeds, searchArea);
+
+    // removeErrorEmptyMessagesSearchAllMeds();
+
+    if (response.ok) {
+      const results = await response.json();
+      console.log(results);
+      if (results.length === 0) {
+        showEmptyMessageSearchAllMeds(searchAllMeds);
+      }
+      else {
+        results.forEach( r => displaySearchResultsAllMeds(r));
+      }
+    }
+    else {
+      const { message } = await response.json();
+
+      const errMessage = message ? `Error Searching Medicines. ${message}`
+                              : `Error Searching Medicines. code : 500`;
+
+      alert(errMessage);
+      showErrorMessageSearchAllMeds(errMessage);
+     }
+  }
+  catch (error) {
+    alert(`Error Searching Medicines. code: null.`);
+    showErrorMessageSearchAllMeds(error);
+  }
+}
+
+
+/**
+# Display Search Results
+**/
+function displaySearchResultsAllMeds (med) {
+
+  // clear the current contents
+
+  const parent = document.getElementById("search-all-meds-result");
+
+  // medicine name
+  medInfoRow(parent, "Medicine Description", med.name);
+  medInfoRow(parent, "Product Number", med.productNumber); // product number
+
+  // first row
+  const firstRow = document.createElement("div");
+  firstRow.setAttribute("class", "row p-2");
+  parent.appendChild(firstRow);
+  medInfoRow(firstRow, "Medicine Category", med.tag);
+  medInfoRow(firstRow, "Medicine Price", med.price);
+  medInfoRow(firstRow, "Medicine Quantity", med.qty);
+
+  // second row
+  const secondRow = document.createElement("div");
+  secondRow.setAttribute("class", "row p-2");
+  parent.appendChild(secondRow);
+  medInfoRow(secondRow, "Medicine Expiry", (new Date(med.expiry)).toLocaleDateString());
+  medInfoRow(secondRow, "Medicine Updated", (new Date(med.updated)).toLocaleDateString());
+  medInfoRow(secondRow, "Medicine Created", (new Date(med.updated)).toLocaleDateString());
+
+  // ingredients
+  medInfoRow(parent, "Medicine Ingredients", med.description);
+
+  (document.getElementById("search-all-meds-result")).appendChild(document.createElement("hr"));
+}
+
+
+function medInfoRow(parent, title, value) {
+  const div = document.createElement("div");
+  div.setAttribute("class", "col px-2");
+  const igTitle = document.createElement("p");
+  const igValue = document.createElement("label");
+  igTitle.setAttribute("class", "text-muted form-label");
+  igValue.setAttribute("class", "text-dark form-label");
+  igTitle.innerHTML = `<small>${title}</small>`;
+  igValue.innerHTML = value;
+
+  div.appendChild(igTitle);
+  div.appendChild(igValue);
+
+  parent.appendChild(div);
+}
+
+
+/**
+# Show Loading
+**/
+function showLoadingSearchAllMeds () {
+  const div = document.createElement("div");
+  div.setAttribute("class", "m-auto p-2 w-25 text-center");
+
+  const loadingDiv = document.createElement("div");
+  loadingDiv.setAttribute("class", "spinner-border text-primary text-center");
+  loadingDiv.setAttribute("role", "status");
+  loadingDiv.innerHTML = '<span class="sr-only">Loading...</span>';
+
+  div.appendChild(loadingDiv);
+}
+
+
+/**
+# display empty message when the results is none
+**/
+function showEmptyMessageSearchAllMeds (q) {
+  const div = document.createElement("div");
+  div.setAttribute("class", "alert alert-info");
+  div.setAttribute("role", "alert");
+  div.setAttribute("id", "empty-msg-search-all-meds");
+  div.innerHTML = `No result(s) found related to ${q}`;
+
+  (document.getElementById("search-all-meds-result")).appendChild(div);
+}
+
+
+/**
+# display error message for any error encountered
+**/
+function showErrorMessageSearchAllMeds (errMessage) {
+  const div = document.createElement("div");
+  div.setAttribute("class", "alert alert-info");
+  div.setAttribute("role", "alert");
+  div.setAttribute("id", "err-msg-search-all-meds");
+  div.innerHTML = errMessage;
+  (document.getElementById("search-all-meds-result")).appendChild(div);
+}
+
+
+/**
+# Remove all error and empty messages
+**/
+function removeErrorEmptyMessagesSearchAllMeds () {
+  const emptyMessageBox = document.getElementById("empty-msg-search-all-meds");
+  if (emptyMessageBox)
+    emptyMessageBox.remove();
+
+  const errorMessageBox = document.getElementById("err-msg-search-all-meds");
+  if (errorMessageBox)
+    errorMessageBox.remove();
+}
+
+/**
+# Remove all contents from search result container
+**/
+function removeAllContoents () {
+  const container = document.getElementById("search-all-meds-result");
+
+  while (container.lastChild)
+    container.removeChild(container.lastChild);
+}
+
+/***********************************************************************
 ################## CREATE NEW TAGS AND MEDICINES TAB ###################
 ***********************************************************************/
 function addMedTagsToMedicineForm () {
@@ -498,6 +762,8 @@ async function createTag (event) {
     if (response.ok) {
       const tag = await response.json();
       alert(`New Category Created : ${tag.name}`);
+      await reloadData({});
+      createPaginationButtons();
     }
     else {
       // show error
@@ -587,7 +853,13 @@ async function addMedicine (event) {
 ***********************************************************************/
 async function fetchTags () {
   try {
-    const response = await fetch(`${serverURL}/api/tags?page=${page}&limit=${limit}`, {
+    let url = `${serverURL}/api/tags?page=${page}&limit=${limit}&order=${order}&sort=${sort}`;
+    // let url = `${serverURL}/api/tags?page=${page}&limit=10&order=1&sort=name`
+
+    if (limit === 0)
+      url = `${serverURL}/api/tags?limit=0&order=${order}&sort=${sort}`;
+
+    const response = await fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -663,7 +935,7 @@ async function addMedicineRequest (med) {
 /** Search Meds Tags by Keyword **/
 async function searchTags (q) {
   try {
-    const response = await fetch(`${serverURL}/api/meds/search?q=${q}`, {
+    const response = await fetch(`${serverURL}/api/tags/search?q=${q}`, {
       method: "GET",
       headers: {
         "Content-Type" : "application/json",
@@ -675,5 +947,26 @@ async function searchTags (q) {
   }
   catch (error) {
     console.error(`Error Search Meds Categories: ${error}`);
+  }
+}
+
+
+/**
+# Searching All Medicines by Keyword
+**/
+async function searchAllMedsRequest (q, area) {
+  try {
+    const response = await fetch(`${serverURL}/api/meds/search?q=${q}&area=${area}`, {
+      method: "GET",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+
   }
 }

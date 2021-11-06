@@ -4,8 +4,6 @@ let editing = false;
 let editingID, medTagName;
 let serverURL;
 
-const serverURL = "http://192.168.1.114:8080";
-
 window.onload = function () {
     let status = "ready";
     const allDetails = document.getElementById("all-detail-item-contents");
@@ -105,7 +103,7 @@ const onKeyUp = function onKeyUp(event) {
 
 
 /** display medicines **/
-function displayMedicines (med, idx=1) {
+function displayMedicines (med, idx) {
   try {
 
     const { _id, name, productNumber, description, approve, expiry, qty, price } = med;
@@ -121,6 +119,7 @@ function displayMedicines (med, idx=1) {
     const forthColumn = row.insertCell(3);
     const fifthColumn = row.insertCell(4);
     const sixthColumn = row.insertCell(5);
+    const seventhColumn = row.insertCell(6);
 
     secondColumn.innerHTML = name;
     if (productNumber) {
@@ -131,8 +130,9 @@ function displayMedicines (med, idx=1) {
     }
     thirdColumn.innerHTML = (new Date(expiry)).toLocaleDateString();
     forthColumn.innerHTML = qty;
-    fifthColumn.innerHTML = approve ? "YES" : "NO";
-    sixthColumn.innerHTML = description ? description : "";
+    fifthColumn.innerHTML = price;
+    sixthColumn.innerHTML = approve ? "YES" : "NO";
+    seventhColumn.innerHTML = description ? description : "";
 
     row.addEventListener("click", event => {
       console.log("row click", _id);
@@ -201,7 +201,7 @@ async function reloadData(tagName) {
       }
       else {
         meds.forEach(
-          med => displayMedicines(med)
+          (med, idx) => displayMedicines(med, idx + 1)
         );
       }
     }
