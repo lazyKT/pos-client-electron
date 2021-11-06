@@ -1,5 +1,6 @@
-let medNumber, medDesc, medPrice, medQty, medExp, medApprove, medTag;
+let medNumber, medDesc, medPrice, medQty, medExp, medApprove, medTag, medIngredients;
 let editMedButton, saveButton, backButton;
+let filtering = false;
 let editing = false;
 let editingID, medTagName;
 let serverURL;
@@ -19,18 +20,20 @@ window.onload = function () {
     medTag = document.getElementById("medTag");
     medApprove = document.getElementById("medApprove");
     editMedButton = document.getElementById("edit-medicine");
+    medIngredients = document.getElementById("medIngredients");
     saveButton = document.getElementById("save-edit");
 
     medDetails.style.display = "none";
 
     window.detailInventoryAPI.receive('reload-data', async data => {
-      console.log(data);
+
       serverURL = data.url;
       medTagName = data.name;
       if (status === 'ready') {
           status = 'reloading';
           (document.getElementById("heading")).innerHTML = data.name;
           await reloadData(data.name);
+          filtering = false;
       }
     });
 
@@ -61,7 +64,8 @@ window.onload = function () {
           expiry: medExp.value,
           medApprove: medApprove.value === "YES" ? true : false,
           tag: medTag.value,
-          productNumber: medNumber.value
+          productNumber: medNumber.value,
+          description: medIngredients.value
         };
 
         const response = await editMed(editingID, data);
@@ -85,10 +89,10 @@ window.onload = function () {
     });
 }
 
-const onKeyUp = function onKeyUp(event) {
+
+function searchMedsKeyUp(event) {
   const cancelButton = document.getElementById('cancel-med-search');
   const inputValue = document.getElementById('search-input-med').value;
-  console.log(event);
 
   if(inputValue !== null){
     cancelButton.style.display = 'block';
@@ -97,9 +101,33 @@ const onKeyUp = function onKeyUp(event) {
     cancelButton.style.display = 'none';
   }
 
-  // if (event.key === 'Enter')
-  //   filterItems();
+  if (event.key === 'Enter')
+    filterMeds();
 };
+
+
+/** search medcines **/
+async function filterMeds() {
+  try {
+    filtering = true;
+    const q = document.getElementById("search-input-med").value;
+
+    if (!q || q === "")
+      return;
+
+    await reloadData(q);
+  }
+  catch (error) {
+    console.error(error);
+    alert("Error Searching Medcine. code : null");
+  }
+}
+
+
+async function resetFilter() {
+  filtering = false;
+  await reloadData(medTagName);
+}
 
 
 /** display medicines **/
@@ -111,7 +139,7 @@ function displayMedicines (med, idx) {
     const itemTable = document.getElementById("item-details-table");
 
     const row = itemTable.insertRow(idx);
-    row.setAttribute('class','cursor-pointer');
+    row.setAttribute('class','med-row');
 
     const firstColumn = row.insertCell(0);
     const secondColumn = row.insertCell(1);
@@ -138,6 +166,16 @@ function displayMedicines (med, idx) {
       console.log("row click", _id);
       editingID = _id;
       showMedicineDetails(_id);
+    });
+
+    row.addEventListener("mouseover", e => {
+      row.style.background = "cornflowerblue";
+      row.style.color = "white";
+    });
+
+    row.addEventListener("mouseleave", e => {
+      row.style.background = "white";
+      row.style.color = "black";
     });
   }
   catch (error) {
@@ -178,7 +216,7 @@ function showErrorMessage (message) {
 /***********************************************************************
 ####################### Medicine Details ###############################
 ***********************************************************************/
-async function reloadData(tagName) {
+async function reloadData(q) {
 
   try {
     const itemTable = document.getElementById("item-details-table");
@@ -191,13 +229,15 @@ async function reloadData(tagName) {
     oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
 
     // reload the data by fetching data based on the data type, and populate the table again
-    const response = await getMedsByTag(tagName);
+    if (!filtering)
+      response = await getMedsByTag(q);
+    else
+      response = await searchMedsRequest(q);
 
     if (response && response.ok) {
       const meds = await response.json();
-
       if (meds.length === 0) {
-        showEmptyBox(tagName);
+        showEmptyBox(q);
       }
       else {
         meds.forEach(
@@ -257,6 +297,7 @@ function displayMedInfo (med) {
   medDesc.value = med.name;
 
   const dateFormat = new Date(med.expiry).toISOString();
+  medIngredients.value = med.description ? med.description : "";
   medExp.value = dateFormat.split("T")[0];
   medQty.value = parseInt(med.qty);
   medPrice.value = parseInt(med.price);
@@ -333,7 +374,7 @@ async function getMedsByTag (tag) {
         "Accept" : "application/json"
       }
     });
-    console.log(response);
+
     return response;
   }
   catch (error) {
@@ -377,5 +418,29 @@ async function editMed (id, med) {
   }
   catch (error) {
     console.error("Error Editing Medicines", error);
+  }
+}
+
+
+/**
+# Searching All Medicines by Keyword
+**/
+async function searchMedsRequest (q) {
+  try {
+
+    let url = `${serverURL}/api/meds/by-tag?tag=${medTagName}&q=${q}`
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+
   }
 }

@@ -33,14 +33,19 @@
                 <div class="row mt-2 justify-content-between">
                   <div class="col-5">
                     <div class="input-group">
-                      <input class="form-control search-input-med" id='search-input-med' type="text" name="" value="" placeholder="Search Items" onkeyup= "onKeyUp(event)">
-                      <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-med-btn" type="button" name="button">Search</button>
-                      <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-med-search" type="button" name="button" style='display:none'>Cancel</button>
+                      <input class="form-control search-input-med" id='search-input-med'
+                        type="text" name="" value="" placeholder="Search Items" onkeyup= "searchMedsKeyUp(event)">
+                      <button onclick="filterMeds()" class="mx-1 btn btn-primary" 
+                        id="search-med-btn" type="button" name="button">Search</button>
+                      <button onclick="resetFilter()" class="mx-1 btn btn-light"
+                        id="cancel-med-search" type="button" name="button" style='display:none'>Cancel</button>
                     </div>
                   </div>
                   <div class="col-5">
 
-                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a
+                      class="btn btn-secondary dropdown-toggle" href="#" role="button"
+                      id="numMedsPerPage" data-bs-toggle="dropdown" aria-expanded="false">
                       Items per page
                     </a>
 

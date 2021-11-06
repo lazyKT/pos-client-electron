@@ -23,7 +23,7 @@ window.inventoryAPI.receive("server-url", async url => {
     if (response && response.ok) {
       const tags = await response.json();
       await createPaginationButtons();
-      console.log(tags);
+
       displayData(tags);
     }
     else {
@@ -113,13 +113,13 @@ async function displayData (tags) {
     (document.getElementById("loading-spinner")).style.display = "none";
     (document.getElementById("pagination")).style.display = "flex";
     medTags = tags;
-    addMedTagsToMedicineForm();
+    await addMedTagsToMedicineForm();
     tags.forEach(
       (tag, idx) => populateItemTable(tag, idx + 1)
     )
   }
   catch (error) {
-
+    alert ("Error Display Medicine Category. code null");
   }
 }
 
@@ -367,7 +367,6 @@ function removeMessageBoxes () {
   const errorMessageBox = document.getElementById("tag-error-box");
   if (errorMessageBox) errorMessageBox.remove();
 }
-
 
 
 function logout() {
@@ -723,18 +722,48 @@ function removeAllContoents () {
 /***********************************************************************
 ################## CREATE NEW TAGS AND MEDICINES TAB ###################
 ***********************************************************************/
-function addMedTagsToMedicineForm () {
-  const tagSelect = document.getElementById("inputTag");
+async function addMedTagsToMedicineForm () {
+  try {
+    const tagSelect = document.getElementById("inputTag");
 
-  medTags.forEach(
-    tag => {
-      const option = document.createElement("option");
-      option.setAttribute("vlaue", tag.name);
-      option.innerHTML = tag.name;
-      tagSelect.appendChild(option);
+    // remove the existing items first
+    while (tagSelect.lastChild)
+      tagSelect.removeChild(tagSelect.lastChild);
+
+    const response = await fetchTagsNoFilter();
+
+    if (response && response.ok) {
+      const optionTags = await response.json();
+      console.log(optionTags);
+      // add optons
+      optionTags.forEach(
+        tag => {
+          const option = document.createElement("option");
+          option.setAttribute("vlaue", tag.name);
+          option.setAttribute("id", "tags-med-create-form");
+          option.innerHTML = tag.name;
+          tagSelect.appendChild(option);
+        }
+      );
     }
-  );
+    else {
+      const { message } = await response.json();
+      const errMessage = message ? `Error fetching tags for create med form. ${message}`
+                                : "Error fetching tags for create medicine form. code 500";
+      alert(errMessage);
+    }
+  }
+  catch (error) {
+    console.log(error);
+    alert("Error fetching tags for create medicine form. code null");
+  }
 }
+
+
+function removeMedTagsFromMedicineFrom () {
+
+}
+
 
 /**
 # Create New Medicine Tags
@@ -851,10 +880,36 @@ async function addMedicine (event) {
 /***********************************************************************
 ####################### Network Requests ###############################
 ***********************************************************************/
+
+/**
+# Fetch Tags with no filters
+**/
+async function fetchTagsNoFilter () {
+  try {
+    let url = `${serverURL}/api/tags?limit=0&order=${order}&sort=${sort}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept" : "application.json"
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    alert(`Error Fetching Med Categories!`)
+  }
+}
+
+
+/**
+# Fetch Tags with Pagination Properties
+**/
 async function fetchTags () {
   try {
     let url = `${serverURL}/api/tags?page=${page}&limit=${limit}&order=${order}&sort=${sort}`;
-    // let url = `${serverURL}/api/tags?page=${page}&limit=10&order=1&sort=name`
 
     if (limit === 0)
       url = `${serverURL}/api/tags?limit=0&order=${order}&sort=${sort}`;

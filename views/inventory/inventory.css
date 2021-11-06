@@ -72,3 +72,7 @@ header {
 
 .input-group>input.search-input {flex: 0 1 180px;}
 .input-group>input.search-input-med {flex: 0 1 180px;}
+
+.med-row {
+  cursor: pointer;
+}
