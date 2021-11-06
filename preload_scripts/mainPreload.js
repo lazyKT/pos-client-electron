@@ -15,13 +15,16 @@ const ALLOWED_SEND_CHANNELS = [
   'item-data',
   'form-data-finish',
   'export-csv',
-  'user-logout'
+  'user-logout',
+  "set-ip",
+  "close-setting"
 ];
 
 const ALLOWED_RECEIVED_CHANNELS = [
   'fromMain',
   'redirect-page',
   'reload-data',
+  "load-setting"
 ];
 
 const ALLOWED_INVOKED_CHANNELS = [
@@ -46,7 +49,7 @@ contextBridge.exposeInMainWorld("api", {
       }
     },
     receive: (channel, cb) => {
-
+      console.log(channel);
       /*
         if the channel name received is listed in allowed received channels, execute callback
         otherwise, no action

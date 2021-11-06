@@ -9,7 +9,7 @@
 const logout = document.getElementById('logout');
 const contents = document.getElementById('contents');
 const mainPage = document.getElementById('main-container');
-
+console.log(window);
 let newNode = null;
 
 /* hide contents window on first load */

@@ -14,8 +14,6 @@
    getSubItemDetailById
  } = require("../models/item.js");
 
-const {createSubItemEditForm} = require("../views/inventory/edit_detail_item.js");
-
 let win
 
 
@@ -56,10 +54,6 @@ exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, c
     win.webContents.send("reload-data", contents);
 
     ipcMain.on('dismiss-form-window', () => {
-      /**
-      *** upon the window close, remove all the existing handlers to prevent second handler registration error in the future
-      **/
-      ipcMain.removeHandler("item-details-edit"); // remove existing handler\
       if(win) win.close();
     });
 

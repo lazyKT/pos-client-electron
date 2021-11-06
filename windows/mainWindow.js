@@ -159,6 +159,7 @@ function unregisterEmitters () {
   try {
     if (win) {
         win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
+        // win.webContents.removeListener()
     }
   }
   catch (error) {
