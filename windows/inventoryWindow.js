@@ -7,10 +7,6 @@ const {
   BrowserWindow,
   ipcMain
 } = require("electron");
-const {
-  getAllItems,
-  getItemById
-} = require("../models/item.js");
 
 const {
   createEditFormWindow
@@ -19,6 +15,8 @@ const {
 const {
   createDetailFormWindow
 } = require("./detailFormWindow.js");
+
+const AppConfig = require("../config.js");
 
 
 let win
@@ -61,6 +59,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
     /**
     IPC Messages
     **/
+    win.webContents.send("server-url", AppConfig.serverURL);
 
     /** LogOut **/
     ipcMain.on("logout", () => {
@@ -77,20 +76,18 @@ exports.createInventoryWindow = function createInventoryWindow () {
     **/
     // win.webContents.send("reload-data", getAllItems());
 
+    /**
+    # See Med Tag
+    **/
     ipcMain.on('item-data', (e, req) => {
       createEditFormWindow(win, req.type, req.data);
     });
 
+    /**
+    # See Medicines
+    **/
     ipcMain.on('item-details', (e, req) => {
-      console.log(req);
       createDetailFormWindow(win, req);
-      // const {id, method} = req;
-      // const item = getItemById(id);
-      //
-      // if(item) {
-      //   //ipcMain.removeHandler("get-all-items");
-      //   createDetailFormWindow(win, method, item);
-      // }
     });
 
 

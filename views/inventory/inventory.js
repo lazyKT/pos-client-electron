@@ -4,6 +4,7 @@ let limit = 10;
 let page = 1;
 
 let medTags, totalTags, numPages;
+let serverURL;
 
 const serverURL = "http://192.168.1.114:8080";
 
@@ -14,33 +15,35 @@ const loadingSpinner = document.getElementById("loading-spinner");
 # IIFE to fetch medicine tags data once the page loads
 **/
 (async function () {
+
+})()
+
+
+window.inventoryAPI.receive("server-url", async url => {
   try {
+
+    serverURL = url;
     const response = await fetchTags();
 
-    if (response.ok) {
+    if (response && response.ok) {
       const tags = await response.json();
-      await createPaginationButtons();
-      (document.getElementById("loading-spinner")).style.display = "none";
-      medTags = tags;
-      addMedTagsToMedicineForm();
-      tags.forEach(
-        tag => populateItemTable(tag)
-      )
+      displayData(tags);
     }
     else {
       // show error
       (document.getElementById("loading-spinner")).style.display = "none";
       const { message } = await response.json();
-      if (message) 
-        alert(`Failed to fetch categories: ${message}`);
-      else 
-        alert(`Failed to fetch categories. code: 500`);
+      const errMessage = message ? `Error Fetching Category: ${message}` : "Error Fetching Category. code : 500";
+      alert(errMessage);
+      showErrorMessage(errMessage);
     }
   }
   catch (error) {
-    alert(`Error Fetching Tags: ${error}`);
+    alert(`Error Fetching Tags: code: null`);
+    showErrorMessage(`Error Fetching Tags: code: null`);
   }
-})()
+});
+
 
 window.inventoryAPI.receive('reload-data', async data => {
 
@@ -65,6 +68,27 @@ const onKeyUp = function onKeyUp(event) {
   if (event.key === 'Enter')
     filterItems();
 };
+
+
+/**
+# Display Fetched Data
+**/
+async function displayData (tags) {
+  try {
+
+    (document.getElementById("loading-spinner")).style.display = "none";
+    (document.getElementById("pagination")).style.display = "flex";
+    await createPaginationButtons();
+    medTags = tags;
+    addMedTagsToMedicineForm();
+    tags.forEach(
+      tag => populateItemTable(tag)
+    )
+  }
+  catch (error) {
+
+  }
+}
 
 
 /* filter user data */
@@ -213,7 +237,13 @@ function populateItemTable (tags, idx=1) {
   fifthColumn.appendChild(editBtn);
 
   editBtn.addEventListener('click', e => {
-    window.inventoryAPI.send('item-data', {type: "edit", data: _id});
+    window.inventoryAPI.send('item-data', {
+      type: "edit",
+      data: {
+        id: _id,
+        url: serverURL
+      }
+    });
   });
 
   /** See Medicine **/
@@ -223,8 +253,14 @@ function populateItemTable (tags, idx=1) {
   seeMedicineButton.innerHTML = "See Medicines";
   fifthColumn.appendChild(seeMedicineButton);
 
+  // seeMedicineButton.addEventListener("click", e => {
+  //   window.inventoryAPI.send("item-details", data: {name, url: serverURL})
+  // });
   seeMedicineButton.addEventListener("click", e => {
-    window.inventoryAPI.send("item-details", name);
+    window.inventoryAPI.send("item-details", {
+      name: name,
+      url: serverURL
+    })
   });
 
   /* View Details button */
@@ -236,9 +272,45 @@ function populateItemTable (tags, idx=1) {
 
   viewBtn.addEventListener('click', e => {
     console.log("View Clk");
-    window.inventoryAPI.send('item-data', {type: "view", data: _id});
+    window.inventoryAPI.send('item-data', {
+      type: "view",
+      data: {
+        id: _id,
+        url: serverURL
+      }
+    });
   })
 };
+
+
+/**
+# Error Message Box
+**/
+function showErrorMessage (msg) {
+  const div = document.createElement("div");
+  div.setAttribute("class", "alert alert-danger");
+  div.setAttribute("role", "alert");
+  div.setAttribute("id", "tag-error-box");
+  div.innerHTML = msg;
+  const dataContainer = document.getElementById('data-container');
+  dataContainer.appendChild(div);
+
+  (document.getElementById("loading-spinner")).style.display = "none";
+  (document.getElementById("pagination")).style.display = "none";
+}
+
+
+/**
+# Remove Error/Empty MessageBoxes
+**/
+function removeMessageBoxes () {
+  // get rid of the empty-message-box if avaialble
+  const emptyMessageBox = document.getElementById('empty-message-box');
+  if (emptyMessageBox) emptyMessageBox.remove();
+
+  const errorMessageBox = document.getElementById("tag-error-box");
+  if (errorMessageBox) errorMessageBox.remove();
+}
 
 
 

@@ -1,11 +1,17 @@
+const { createSettingWindow } = require("./windows/settingWindow.js");
+
 module.exports = [
   {
     label: 'App'
   },
   {
-    label: 'Setting',
+    label: 'Options',
     submenu: [
-      { label: 'About App', click: () => {console.log('About App')}},
+      {
+        label: "Setting", click: () => {
+          createSettingWindow();
+        }
+      },
     ]
   }
 ];

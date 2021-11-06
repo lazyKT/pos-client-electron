@@ -1,7 +1,8 @@
 let medNumber, medDesc, medPrice, medQty, medExp, medApprove, medTag;
 let editMedButton, saveButton, backButton;
 let editing = false;
-let editingID;
+let editingID, medTagName;
+let serverURL;
 
 const serverURL = "http://192.168.1.114:8080";
 
@@ -22,15 +23,16 @@ window.onload = function () {
     editMedButton = document.getElementById("edit-medicine");
     saveButton = document.getElementById("save-edit");
 
-    saveButton.style.display = "none";
     medDetails.style.display = "none";
 
     window.detailInventoryAPI.receive('reload-data', async data => {
-
+      console.log(data);
+      serverURL = data.url;
+      medTagName = data.name;
       if (status === 'ready') {
           status = 'reloading';
-          (document.getElementById("heading")).innerHTML = data;
-          await reloadData(data);
+          (document.getElementById("heading")).innerHTML = data.name;
+          await reloadData(data.name);
       }
     });
 
@@ -38,61 +40,7 @@ window.onload = function () {
       e.preventDefault();
 
       hideMedicineDetails();
-    })
-
-    const reloadData = async tagName => {
-
-        try {
-          const itemTable = document.getElementById("item-details-table");
-          // const { type, data, method } = newData;
-
-          // get table rows from the current data table
-          const oldData = itemTable.querySelectorAll('tr');
-
-          // excpet the table header, remove all the data
-          oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
-
-          // reload the data by fetching data based on the data type, and populate the table again
-          const response = await getMedsByTag(tagName);
-
-          if (response.ok) {
-            const meds = await response.json();
-
-            if (meds.length === 0) {
-              showEmptyBox(tagName);
-            }
-            else {
-              meds.forEach(
-                med => displayMedicines(med)
-              );
-            }
-          }
-          else {
-            const { message } = await response.json();
-            if (message)
-              alert(`Error Fetching Medicines: ${message}`);
-            else
-              alert("Error Fetching Medicines. code: 500");
-          }
-
-          status = 'ready';
-        }
-        catch (error) {
-          alert("Error Fetching Medicines. code: null");
-        }
-      };
-
-    const requestAllItems = async () => {
-
-        try {
-          const response = await window.detailInventoryAPI.invoke('get-all-detail-items');
-
-          return response;
-        }
-        catch (error) {
-          console.log('Error fetching all items', error);
-        }
-      };
+    });
 
     cancelButton.addEventListener("click", () => {
       window.detailInventoryAPI.send('dismiss-form-window', '');
@@ -102,7 +50,7 @@ window.onload = function () {
       e.preventDefault();
       e.target.innerHTML = e.target.innerHTML === "Cancel" ? "Edit" : "Cancel";
       editing = !editing;
-      editMedicine();
+      toggleInputs();
     });
 
     saveButton.addEventListener("click", async e => {
@@ -122,7 +70,8 @@ window.onload = function () {
 
         if (response.ok) {
           const updatedMed = await response.json();
-          console.log(updatedMed);
+          alert(`Editted Success. ${medDesc.value}`);
+          hideMedicineDetails();
         }
         else {
           const { message } = await response.json();
@@ -211,9 +160,68 @@ function showEmptyBox (tag) {
   }
 }
 
+
+function showErrorMessage (message) {
+  try {
+    const div = document.createElement("div");
+    div.setAttribute("class", "alert alert-danger m-2 w-100 text-center");
+    div.setAttribute("role", "alert");
+    div.innerHTML = message;
+
+    (document.getElementById("med-contents")).appendChild(div);
+  }
+  catch (error) {
+    alert ("Error Showing Empty Box");
+  }
+}
+
 /***********************************************************************
 ####################### Medicine Details ###############################
 ***********************************************************************/
+async function reloadData(tagName) {
+
+  try {
+    const itemTable = document.getElementById("item-details-table");
+    // const { type, data, method } = newData;
+
+    // get table rows from the current data table
+    const oldData = itemTable.querySelectorAll('tr');
+
+    // excpet the table header, remove all the data
+    oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
+
+    // reload the data by fetching data based on the data type, and populate the table again
+    const response = await getMedsByTag(tagName);
+
+    if (response && response.ok) {
+      const meds = await response.json();
+
+      if (meds.length === 0) {
+        showEmptyBox(tagName);
+      }
+      else {
+        meds.forEach(
+          med => displayMedicines(med)
+        );
+      }
+    }
+    else {
+      const { message } = await response.json();
+      const errMessage = message ?
+                      `Error Fetching Medicines: ${message}` :
+                      "Error Fetching Medicines. code: 500";
+
+      alert(errMessage);
+      showErrorMessage(errMessage);
+    }
+
+    status = 'ready';
+  }
+  catch (error) {
+    alert("Error Fetching Medicines. code: null");
+  }
+};
+
 async function showMedicineDetails (id) {
   try {
     const allDetails = document.getElementById("all-detail-item-contents");
@@ -247,7 +255,7 @@ async function showMedicineDetails (id) {
 function displayMedInfo (med) {
   medNumber.value = med.productNumber ? med.productNumber : "";
   medDesc.value = med.name;
-  
+
   const dateFormat = new Date(med.expiry).toISOString();
   medExp.value = dateFormat.split("T")[0];
   medQty.value = parseInt(med.qty);
@@ -261,20 +269,31 @@ function displayMedInfo (med) {
     (document.getElementById("approve-no")).setAttribute("selected", true);
     (document.getElementById("approve-yes")).removeAttribute("selected");
   }
+  saveButton.style.display = "none";
+  editMedButton.innerHTML = "Edit";
 }
 
 
-function hideMedicineDetails () {
-  const allDetails = document.getElementById("all-detail-item-contents");
-  const medDetails = document.getElementById("med-details");
+async function hideMedicineDetails () {
+  try {
+    const allDetails = document.getElementById("all-detail-item-contents");
+    const medDetails = document.getElementById("med-details");
 
-  allDetails.style.display = "block";
-  medDetails.style.display = "none";
+    allDetails.style.display = "block";
+    medDetails.style.display = "none";
+    editing = false;
+    toggleInputs();
+    await reloadData(medTagName);
+  }
+  catch (error) {
+    console.log(error);
+    alert("Error Reloading Medicines. code : null");
+  }
 }
 
 
 /** enable editable input and let user edit **/
-function editMedicine () {
+function toggleInputs () {
   const medDetails = document.getElementById("med-details");
   const inputs = medDetails.querySelectorAll("input");
   inputs.forEach(
@@ -295,6 +314,11 @@ function editMedicine () {
     medApprove.setAttribute("disabled", true);
 }
 
+
+// function toggleInputs (editing) {
+//
+// }
+
 /***********************************************************************
 ####################### Network Requests ###############################
 ***********************************************************************/
@@ -302,7 +326,6 @@ function editMedicine () {
 /* Get Medicine By Tag Name */
 async function getMedsByTag (tag) {
   try {
-    console.log(tag);
     const response = await fetch(`${serverURL}/api/meds/by-tag?tag=${tag}`, {
       method: "GET",
       headers: {
@@ -310,7 +333,7 @@ async function getMedsByTag (tag) {
         "Accept" : "application/json"
       }
     });
-
+    console.log(response);
     return response;
   }
   catch (error) {

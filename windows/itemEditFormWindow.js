@@ -51,7 +51,7 @@
 
    win.webContents.on("did-finish-load", () => {
 
-     win.webContents.send("response-edit-item-data", {_id: contents, method: type});
+     win.webContents.send("response-edit-item-data", {data: contents, method: type});
 
      // /* Edit user */
      // ipcMain.handle("edit-item", (event, args) => {

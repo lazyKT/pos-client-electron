@@ -3,14 +3,17 @@ console.log('Edit Or Show Item Scripts');
 const cancelButton = document.getElementById('dismiss-window');
 const editButton = document.getElementById('edit-item');
 const errorDiv = document.getElementById('error');
-const detailButton = document.getElementById('')
+// const detailButton = document.getElementById('')
+let serverURL
 
 if (editButton) editButton.style.display = 'none'; // hide the edit button on the first load
 
 window.editContentAPI.receive('response-edit-item-data', async data => {
 
-  const { _id, method } = data;
-  console.log(_id, method);
+  // console.log("data", data);
+  const { method } = data;
+  serverURL = data.data.url;
+  console.log(data.data, method);
   const itemId = document.getElementById('item-id');
   const description = document.getElementById('description');
   const dateAlert = document.getElementById('dateAlert');
@@ -18,7 +21,7 @@ window.editContentAPI.receive('response-edit-item-data', async data => {
   const location = document.getElementById('location');
 
   try {
-    const response = await getTagById(_id);
+    const response = await getTagById(data.data.id);
 
     if (response.ok) {
       const item = await response.json();
@@ -134,7 +137,7 @@ function showErrorMessage(message) {
 ***********************************************************************/
 async function getTagById (id) {
   try {
-    const response = await fetch(`http://127.0.0.1:8080/api/tags/${id}`, {
+    const response = await fetch(`${serverURL}/api/tags/${id}`, {
       method: "GET",
       headers: {
         "Content-Type" : "application/json",
@@ -153,7 +156,7 @@ async function getTagById (id) {
 /** Edit/Update Tag **/
 async function editTagById (id, data) {
   try {
-    const response = await fetch(`http://127.0.0.1:8080/api/tags/${id}`, {
+    const response = await fetch(`${serverURL}/api/tags/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type" : "application/json",
