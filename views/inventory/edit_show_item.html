@@ -23,23 +23,23 @@
           <form>
             <div class="mb-3">
               <label class="form-label">ID</label>
-              <input type="text" class="form-control" id="item-id" required>
+              <input type="text" class="form-control" id="item-id" readonly>
             </div>
             <div class="mb-3">
               <label class="form-label">Category</label>
               <input type="text" class="form-control" id="description" required>
             </div>
             <div class="mb-3">
+              <label class="form-label">Location</label>
+              <input type="text" class="form-control" id="location" required>
+            </div>
+            <div class="mb-3">
               <label class="form-label">Expiry Alert</label>
-              <input type="text" class="form-control" id="dateAlert" required>
+              <input type="number" min="30" class="form-control" id="dateAlert" required>
             </div>
             <div class="mb-3">
               <label class="form-label">Quantity Alert</label>
-              <input type="text" class="form-control" id="quantityAlert" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Location</label>
-              <input type="text" class="form-control" id="location" required>
+              <input type="number" min="5" class="form-control" id="quantityAlert" required>
             </div>
             <button type="submit" id="edit-item" class="btn btn-primary w-100 my-1">Edit</button>
             <a id="dismiss-window" class="btn btn-outline-secondary w-100 my-1">Cancel</a>

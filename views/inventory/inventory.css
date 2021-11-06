@@ -69,3 +69,6 @@ header {
   border-radius: 5px;
   padding: 10px;
 }
+
+.input-group>input.search-input {flex: 0 1 180px;}
+.input-group>input.search-input-med {flex: 0 1 180px;}

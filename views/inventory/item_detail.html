@@ -19,21 +19,60 @@
 
     </head>
     <body>
+
+        <!-- header -->
+        <div class="d-flex p-2 justify-content-between align-items-center w-100 bg-light">
+          <h5 class="text-muted" id="heading"></h5>
+          <button class="btn btn-primary" id="dismiss-window">Close</button>
+        </div>
+
         <div class="py-2 px-4" id="all-detail-item-contents">
-            <!-- search -->
-            <div class="card my-2 box">
-                <div class="card-body search-div">
-                  <input class="w-75" id='search-input' type="text" name="" value="" placeholder="Search Items" onkeyup= "onKeyUp(event)">
-                  <div class="w-25">
-                    <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
-                    <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
+
+            <!-- pagination -->
+            <div class="card my-2 box" id="med-contents">
+                <div class="row mt-2 justify-content-between">
+                  <div class="col-5">
+                    <div class="input-group">
+                      <input class="form-control search-input-med" id='search-input-med' type="text" name="" value="" placeholder="Search Items" onkeyup= "onKeyUp(event)">
+                      <button onclick="filterItems()" class="mx-1 btn btn-primary" id="search-med-btn" type="button" name="button">Search</button>
+                      <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-med-search" type="button" name="button" style='display:none'>Cancel</button>
+                    </div>
+                  </div>
+                  <div class="col-5">
+                    
+                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                      Items per page
+                    </a>
+                    
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                      <li><a class="dropdown-item" href="#">5</a></li>
+                      <li><a class="dropdown-item" href="#">10</a></li>
+                      <li><a class="dropdown-item" href="#">15</a></li>
+                      <li><a class="dropdown-item" href="#">All</a></li>
+                    </ul>
+      
+                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                      Sort
+                    </a>
+                    
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                      <li><a class="dropdown-item" href="#">Id</a></li>
+                      <li><a class="dropdown-item" href="#">Category</a></li>
+                      <li><a class="dropdown-item" href="#">Expire Alert</a></li>
+                      <li><a class="dropdown-item" href="#">Quantity Alert</a></li>
+                      <li><a class="dropdown-item" href="#">Location</a></li>
+                    </ul>
+  
+                    <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="exportCSV()">
+                      Export CSV
+                    </button>
+          
                   </div>
                 </div>
-              </div>
+              <!-- end of pagination -->
 
-            <!-- contents -->
-            <div class="card my-2 box">
-                <table class="table" id="item-details-table">
+              <!-- contents -->
+                <table class="table table-hover" id="item-details-table">
                     <thead>
                     <tr>
                       <th scope="col">Product ID</th>
@@ -50,10 +89,10 @@
                     <tbody>
                         <!-- contents -->
                     </tbody>
-                    
+
                 </table>
-             <a id="dismiss-window" class="btn btn-outline-secondary w-25 my-1">Cancel</a>
-        </div>
+             <!-- <a id="dismiss-window" class="btn btn-outline-secondary w-25 my-1">Cancel</a> -->
+            </div>
         </div>
         <div class="container mt-3" id="subItem-edit-box" style='display:none'>
           <div class="d-flex justify-content-center">
@@ -102,6 +141,66 @@
                 </form>
               </div>
             </div>
+          </div>
+
+        <!-- medicine details -->
+        <div class="container m-2" id="med-details">
+          <div class="card mt-4">
+            <h5 class="text-muted">Medicine Information</h5>
+            <div class="card-body">
+              <form class="" action="index.html" method="post">
+                <div class="row my-2">
+                  <div class="col">
+                    <label class="form-label">Medicine Number</label>
+                    <input type="text" class="form-control" id="medNumber" readonly>
+                  </div>
+                  <div class="col">
+                    <label class="form-label">Product Expiry</label>
+                    <input type="date" class="form-control" id="medExp" readonly>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Medicine Description</label>
+                  <input type="text" class="form-control" id="medDesc" readonly>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Medicine Ingredients </label>
+                  <input type="text" class="form-control" id="medIngredients" readonly>
+                </div>
+                <div class="row my-2">
+                  <div class="col">
+                    <label class="form-label">Product Price</label>
+                    <input type="text" class="form-control" id="medPrice" readonly>
+                  </div>
+                  <div class="col">
+                    <label class="form-label">Product Quantity</label>
+                    <input type="text" class="form-control" id="medQty" readonly>
+                  </div>
+                </div>
+                <div class="row my-2">
+                  <div class="col">
+                    <label class="form-label">Approved By Doctor</label>
+                    <select class="form-select" disabled id="medApprove">
+                      <option selected>Open this select menu</option>
+                      <option value="1" id="approve-yes">Yes</option>
+                      <option value="2" id="approve-no">No</option>
+                    </select>
+                  </div>
+                  <div class="col">
+                    <label class="form-label">Medicine Category</label>
+                    <input type="text" class="form-control" id="medTag" readonly>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-start m-1">
+                  <button class="btn btn-primary mx-1" id="edit-medicine">Edit</button>
+                  <button class="btn btn-success mx-1" id="save-edit">Save</button>
+                  <a class="btn btn-light mx-1" href="#" id="back">Back</a>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
     </body>
     </html>

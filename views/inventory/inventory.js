@@ -5,6 +5,8 @@ let page = 1;
 
 let medTags, totalTags, numPages;
 
+const serverURL = "http://192.168.1.114:8080";
+
 // DOM Nodes
 const loadingSpinner = document.getElementById("loading-spinner");
 
@@ -27,6 +29,12 @@ const loadingSpinner = document.getElementById("loading-spinner");
     }
     else {
       // show error
+      (document.getElementById("loading-spinner")).style.display = "none";
+      const { message } = await response.json();
+      if (message) 
+        alert(`Failed to fetch categories: ${message}`);
+      else 
+        alert(`Failed to fetch categories. code: 500`);
     }
   }
   catch (error) {
@@ -38,33 +46,58 @@ window.inventoryAPI.receive('reload-data', async data => {
 
   if (status === 'ready') {
       status = 'reloading';
-      await reloadData(data);
+      await reloadData({data});
   }
 });
 
 const onKeyUp = function onKeyUp(event) {
+  const cancelButton = document.getElementById('cancel-search');
+  const inputValue = document.getElementById('search-input').value;
+  console.log(event);
+
+  if(inputValue !== null){
+    cancelButton.style.display = 'block';
+  }
+  if(inputValue === '' && (event.key === 'Backspace' || event.key === 'Delete')){
+    cancelButton.style.display = 'none';
+  }
+
   if (event.key === 'Enter')
     filterItems();
 };
 
+
 /* filter user data */
-const filterItems = async () => {
+async function filterItems () {
   const q = document.getElementById('search-input').value;
 
   if (!q || q === '')
      return;
 
   try {
-         const results = await window.inventoryAPI.invoke('search-data', {data: 'item', q});
+    const response = await searchTags(q);
+    console.log(response);
+    if (response.ok) {
+      const results = await response.json();
+      console.log(results);
+    }
+    else {
+      const { message } = await response.json();
+      if (message)
+        alert(`Error Searching Med Categories: ${message}`);
+      else
+        alert("Error Searching Med Categories. Code : 500");
+    }
+    // displayFilteredResults(results);
+  }
+  catch (error) {
+    console.log('Error filtering inventory data', error);
+  }
+ };
 
-         displayFilteredResults(results);
-     }
-     catch (error) {
-         console.log('Error filtering inventory data', error);
-     }
-   };
-   /* reset filter */
-const resetFilter = () => {
+
+ /* reset filter */
+function resetFilter () {
      const searchInput = document.getElementById('search-input');
      searchInput.value = '';
 
@@ -76,10 +109,12 @@ const resetFilter = () => {
      // window.api.send('form-data-finish', {method: 'GET', type: 'user'});
      reloadData({method: 'GET', type: 'item'});
    };
+
+
 /**
  Reload the inventory data fetched from main process
 **/
-const reloadData = async newData => {
+async function reloadData (newData) {
 
   try {
     const itemTable = document.getElementById("item-table");
@@ -118,7 +153,7 @@ const reloadData = async newData => {
 };
 
 
-const displayFilteredResults = (results) => {
+function displayFilteredResults (results) {
   // get table rows from the current data table
   const oldData = document.querySelectorAll('tr');
 
@@ -134,21 +169,24 @@ const displayFilteredResults = (results) => {
   else
     showEmptyMessage();
 };
-const showEmptyMessage = () => {
-       const searchInput = document.getElementById('search-input');
-       const dataContainer = document.getElementById('data-container');
-       const div = document.createElement('div');
-       div.setAttribute('id', 'empty-message-box');
-       div.setAttribute('class', 'alert alert-info');
-       div.setAttribute('role', 'alert');
-       div.innerHTML = `No result found related to ${searchInput.value}`;
-       dataContainer.appendChild(div);
-     };
+
+
+/** show this message box when the contents are empty **/
+function showEmptyMessage () {
+   const searchInput = document.getElementById('search-input');
+   const dataContainer = document.getElementById('data-container');
+   const div = document.createElement('div');
+   div.setAttribute('id', 'empty-message-box');
+   div.setAttribute('class', 'alert alert-info');
+   div.setAttribute('role', 'alert');
+   div.innerHTML = `No result found related to ${searchInput.value}`;
+   dataContainer.appendChild(div);
+ };
 
 /**
 # Display the invetory items in the table
 **/
-const populateItemTable = (tags, idx=1) => {
+function populateItemTable (tags, idx=1) {
 
   const { _id, name, lowQtyAlert, expiryDateAlert, location } = tags;
   //.log(tags);
@@ -161,32 +199,44 @@ const populateItemTable = (tags, idx=1) => {
   const thirdColumn = row.insertCell(2);
   const fourthColumn = row.insertCell(3);
   const fifthColumn = row.insertCell(4);
-  const sixthColumn = row.insertCell(5);
 
-  firstColumn.innerHTML = _id;
-  secondColumn.innerHTML = name;
+  firstColumn.innerHTML = name;
   thirdColumn.innerHTML = `${expiryDateAlert} Day(s)`;
   fourthColumn.innerHTML = lowQtyAlert;
-  fifthColumn.innerHTML = location ? location : "tbh";
+  // fourthColumn.innerHTML = lowQtyAlert;
+  secondColumn.innerHTML = location ? location : "tbh";
   /* edit button */
   const editBtn = document.createElement('button');
   editBtn.setAttribute('class', 'btn mx-1 btn-primary');
   editBtn.setAttribute('data-id', _id);
   editBtn.innerHTML = 'EDIT';
-  sixthColumn.appendChild(editBtn);
+  fifthColumn.appendChild(editBtn);
 
   editBtn.addEventListener('click', e => {
-    window.inventoryAPI.send('item-data', {_id, method: 'PUT'});
+    window.inventoryAPI.send('item-data', {type: "edit", data: _id});
   });
+
+  /** See Medicine **/
+  const seeMedicineButton = document.createElement("button");
+  seeMedicineButton.setAttribute("class", "btn mx-1 btn-success");
+  seeMedicineButton.setAttribute("data-id", _id);
+  seeMedicineButton.innerHTML = "See Medicines";
+  fifthColumn.appendChild(seeMedicineButton);
+
+  seeMedicineButton.addEventListener("click", e => {
+    window.inventoryAPI.send("item-details", name);
+  });
+
   /* View Details button */
   const viewBtn = document.createElement('button');
   viewBtn.setAttribute('class', 'btn mx-1 btn-info');
   viewBtn.setAttribute('data-id', _id);
-  viewBtn.innerHTML = 'View More Details';
-  sixthColumn.appendChild(viewBtn);
+  viewBtn.innerHTML = 'See More Details';
+  fifthColumn.appendChild(viewBtn);
 
   viewBtn.addEventListener('click', e => {
-    window.inventoryAPI.send('item-details', {_id, method: 'GET'});
+    console.log("View Clk");
+    window.inventoryAPI.send('item-data', {type: "view", data: _id});
   })
 };
 
@@ -205,12 +255,11 @@ async function createPaginationButtons () {
   try {
 
     const response = await getTagsCount();
-    console.log(response);
     if (response.ok) {
       const count = await response.json();
-      console.log(count);
+
       totalTags = parseInt(count.count);
-      console.log(totalTags);
+
       numPages = totalTags%limit === 0 ? totalTags/limit : Math.floor(totalTags/limit) + 1;
 
       displayPagination();
@@ -229,7 +278,7 @@ async function createPaginationButtons () {
 function displayPagination () {
   // populate pagination elements here
   const pagination = document.getElementById("pagination");
-  console.log("numPages", numPages);
+
   for (let i = 0; i < numPages; i++) {
     const li = document.createElement("li");
     li.setAttribute("class", "page-item");
@@ -252,7 +301,6 @@ function displayPagination () {
         togglePaginationButtons();
       }
       catch (error) {
-        console.log(error);
         alert("Error Performing Click on Pagination Items");
       }
     });
@@ -467,7 +515,7 @@ async function addMedicine (event) {
 ***********************************************************************/
 async function fetchTags () {
   try {
-    const response = await fetch(`http://127.0.0.1:8080/api/tags?page=${page}&limit=${limit}`, {
+    const response = await fetch(`${serverURL}/api/tags?page=${page}&limit=${limit}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -485,7 +533,7 @@ async function fetchTags () {
 
 async function getTagsCount () {
   try {
-    const response = await fetch("http://127.0.0.1:8080/api/tags/count", {
+    const response = await fetch(`${serverURL}/api/tags/count`, {
       method: "GET",
       headers: {
         "Content-Type" : "application/json",
@@ -503,7 +551,7 @@ async function getTagsCount () {
 
 async function createTagRequest (tag) {
   try {
-    const response = await fetch("http://127.0.0.1:8080/api/tags", {
+    const response = await fetch(`${serverURL}/api/tags`, {
       method: "POST",
       headers: {
         "Content-Type" : "application/json",
@@ -522,8 +570,8 @@ async function createTagRequest (tag) {
 
 async function addMedicineRequest (med) {
   try {
-    console.log(med);
-    const response = await fetch("http://127.0.0.1:8080/api/meds", {
+
+    const response = await fetch(`${serverURL}/api/meds`, {
       method: "POST",
       headers: {
         "Content-Type" : "application/json",
@@ -536,5 +584,24 @@ async function addMedicineRequest (med) {
   }
   catch (error) {
     console.error(`Error Adding Medicine ${med}`);
+  }
+}
+
+
+/** Search Meds Tags by Keyword **/
+async function searchTags (q) {
+  try {
+    const response = await fetch(`${serverURL}/api/meds/search?q=${q}`, {
+      method: "GET",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(`Error Search Meds Categories: ${error}`);
   }
 }

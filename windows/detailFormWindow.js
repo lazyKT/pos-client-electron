@@ -19,7 +19,7 @@ const {createSubItemEditForm} = require("../views/inventory/edit_detail_item.js"
 let win
 
 
-exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, type, contents) {
+exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, contents) {
 
   if (!win || win === null) {
    win = new BrowserWindow ({
@@ -39,30 +39,21 @@ exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, t
   }
 
   win.loadFile(path.join(__dirname, "../views/inventory/item_detail.html"));
-  // win.openDevTools();
+  win.openDevTools();
 
 
   win.once("ready-to-show", () => win.show());
 
-  win.on("close", () => { if(win) win = null;})
+  win.on("close", () => {
+    if(win) {
+      removeListeners(["dismiss-form-window", "open-details"]);
+      unregisterEmitters();
+      win = null;
+    }
+  });
 
   win.webContents.on("did-finish-load", () => {
-      const q = getDetailItemById(contents);
-       //console.log("contents11", q);
-
-      win.webContents.send("response-item-detail-data", q);
-
-     /**
-     IPC Messages
-     **/
-
-    ipcMain.handle('item-details-edit', (e, req) => {
-        const { productId, method} = req;
-        console.log("checking123", productId);
-        const item = getSubItemDetailById(productId);
-        console.log("check item form", item);
-        return item;
-    });
+    win.webContents.send("reload-data", contents);
 
     ipcMain.on('dismiss-form-window', () => {
       /**
@@ -72,7 +63,43 @@ exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, t
       if(win) win.close();
     });
 
-  });
+    // ipcMain.on("open-details", (event, args) => {
+    //   console.log(args);
+    //   win.loadFile(path.join(__dirname, "../views/inventory/med_details.html"));
+    //   win.webContents.send("reload-data", args);
+    // });
 
-};
+    // ipcMain.handle("request-med-id", (event, args) => {
+    //   return "1234";
+    // })
 
+   });
+ }
+
+ function removeListeners (listeners) {
+   try {
+     listeners.forEach (
+       listener => {
+         const func = ipcMain.listeners(listener)[0];
+         if (func) {
+           ipcMain.removeListener(listener, func);
+         }
+       }
+     );
+   }
+   catch (error) {
+     console.error("Error removing listeners from ItemEditWindow", error);
+   }
+ }
+
+
+ function unregisterEmitters () {
+   try {
+     if (win) {
+         win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
+     }
+   }
+   catch (error) {
+     console.error("Error removing Emitters", error);
+   }
+ }
