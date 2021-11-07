@@ -10,7 +10,7 @@ const ALLOWED_RECEIVE_CHANNELS = [
 ];
 
 const ALLOWED_SEND_CHANNELS = [
-  "export-data"
+  "export-data-after-preview"
 ]
 
 
@@ -24,8 +24,10 @@ contextBridge.exposeInMainWorld("previewAPI", {
       throw new Error ("Unknown IPC Channel at previewAPI.recieve");
   },
   send: (channel, data) => {
+
     if (ALLOWED_SEND_CHANNELS.includes(channel)) {
-      ipcRenderer.send("export-data", data);
+      console.log(channel);
+      ipcRenderer.send(channel, data);
     }
     else
       throw new Error ("Unknown IPC Channel at previewAPI.send");

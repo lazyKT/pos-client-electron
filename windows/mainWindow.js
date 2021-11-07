@@ -12,13 +12,7 @@ const {
 const { createLoginWindow } = require("./loginWindow.js");
 const { createFormWindow } = require("./formWindow.js");
 const { createEditFormWindow } = require("./editFormWindow.js");
-const {
-  getAllUsers,
-  getUserById,
-  searchUser,
-  exportUserCSV
-} = require("../models/user.js");
-const { searchItem } = require('../models/item.js');
+
 const applicationMenu = Menu.buildFromTemplate(require('../applicationMenu.js'));
 const AppConfig = require("../config");
 
@@ -27,20 +21,21 @@ let win
 
 exports.createMainWindow = function createMainWindow () {
 
-  win = new BrowserWindow({
-    width: 1000,
-    height: 800,
-    show: false,
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true, // protect against prototype pollution
-      preload: path.join(__dirname, "../preload_scripts/mainPreload.js") // use a preload scrip
-    }
-  });
+  if (!win) {
+    win = new BrowserWindow({
+      width: 1000,
+      height: 800,
+      show: false,
+      webPreferences: {
+        nodeIntegration: false,
+        contextIsolation: true, // protect against prototype pollution
+        preload: path.join(__dirname, "../preload_scripts/mainPreload.js") // use a preload scrip
+      }
+    });
+  }
 
 
   win.loadFile(path.join(__dirname, "../views/main.html"));
-  // win.openDevTools();
 
   win.once("ready-to-show", () => win.show() );
 
@@ -94,15 +89,15 @@ exports.createMainWindow = function createMainWindow () {
       createFormWindow(win, windowType);
     });
 
-    // receive ipc message to response single user data by id
-    ipcMain.on('user-data', (e, req) => {
-      const { id, method } = req;
-      const user = getUserById(id);
-
-      if (user) {
-        createEditFormWindow(win, method, user)
-      }
-    });
+    // // receive ipc message to response single user data by id
+    // ipcMain.on('user-data', (e, req) => {
+    //   const { id, method } = req;
+    //   const user = getUserById(id);
+    //
+    //   if (user) {
+    //     createEditFormWindow(win, method, user)
+    //   }
+    // });
 
 
   });
