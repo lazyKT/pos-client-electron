@@ -20,6 +20,7 @@ const {
 } = require("../models/user.js");
 const { searchItem } = require('../models/item.js');
 const applicationMenu = Menu.buildFromTemplate(require('../applicationMenu.js'));
+const AppConfig = require("../config");
 
 let win
 
@@ -49,7 +50,7 @@ exports.createMainWindow = function createMainWindow () {
       /**
       # Always clean up the listeners and event emitters
       **/
-      removeListeners(["user-logout", "create-modal", "user-data", "user-logout", "logout"]);
+      removeListeners(["user-logout", "create-modal", "user-data", "user-logout", "logout", "request-ip"]);
       unregisterEmitters();
       win = null;
     }
@@ -59,8 +60,10 @@ exports.createMainWindow = function createMainWindow () {
   win.webContents.on("did-finish-load", () => {
 
     /**
-     IPC Messages
-     */
+      IPC Messages
+    */
+    // win.webContents.send("server-addr", AppConfig.serverURL);
+
     ipcMain.on("login", (e, from) => {
 
      createLoginWindow(win, from);
@@ -71,6 +74,11 @@ exports.createMainWindow = function createMainWindow () {
     ipcMain.on('logout', (e, response) => {
       e.sender.send('logout-response', 200);
     });
+
+    // ipcMain.on("request-ip", e => {
+    //   console.log("request-ip", AppConfig.serverURL);
+    //   e.sender.send(AppConfig.serverURL);
+    // });
 
     /**
     ##### USER IPC CHANNELS #####
@@ -131,7 +139,7 @@ function unregisterEmitters () {
   try {
     if (win) {
         win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
-        // win.webContents.removeListener()
+        ipcMain.removeHandler("request-ip");
     }
   }
   catch (error) {

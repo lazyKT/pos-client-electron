@@ -13,6 +13,11 @@ const ALLOWED_SEND_CHANNELS = [
 ];
 
 
+const ALLOWED_RECEIVED_CHANNELS = [
+  "server-addr"
+]
+
+
 const ALLOWED_INVOKED_CHANNELS = [
   "login-request"
 ]
@@ -24,6 +29,13 @@ contextBridge.exposeInMainWorld ( "loginAPI", {
     if (ALLOWED_SEND_CHANNELS.includes(channel)) {
       ipcRenderer.send(channel, data);
     }
+  },
+  receive: (channel, callback) => {
+    if (ALLOWED_RECEIVED_CHANNELS.includes(channel)) {
+      ipcRenderer.on(channel, (event, ...args) => callback(...args));
+    }
+    else
+      throw new error ("Unknown IPC Channel detected at loginAPI.receive");
   },
   invoke: async (channel, data) => {
     try {
