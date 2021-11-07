@@ -97,34 +97,6 @@ exports.createMainWindow = function createMainWindow () {
     });
 
 
-    // Export CSV FIle
-    ipcMain.on('export-csv', async (e, args) => {
-      try {
-        const dest = await dialog.showSaveDialog({
-          filters: [
-            { name: 'CSV files', extensions: ['csv']}
-          ]
-        });
-
-        if (dest.canceled) return;
-
-        if (args === 'user') {
-          exportUserCSV(dest.filePath)
-            .then(() => {
-              // show info dialog after successful export
-              dialog.showMessageBox ({
-                title: 'CSV File Exported',
-                message: `File saved in ${dest.filePath}`
-              });
-            })
-            .catch(erorr => console.log('Error Exporting', args, 'csv file ->', error));
-        }
-      }
-      catch(error) {
-        console.log('Error Exporting', args, 'csv file ->', error);
-      }
-    });
-
   });
 
 

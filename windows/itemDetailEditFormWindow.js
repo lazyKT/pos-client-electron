@@ -36,7 +36,6 @@
 
 
    win.loadFile(path.join(__dirname, "../views/inventory/edit_detail_item.html"));
-   win.openDevTools();
 
 
    win.once("ready-to-show", () => win.show());

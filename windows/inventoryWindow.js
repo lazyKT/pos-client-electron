@@ -16,6 +16,10 @@ const {
   createDetailFormWindow
 } = require("./detailFormWindow.js");
 
+const {
+  createInventoryExportWindow
+} = require("./inventoryExportWindow.js");
+
 const AppConfig = require("../config.js");
 
 
@@ -40,7 +44,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
 
   win.loadFile(path.join(__dirname, "../views/inventory/inventory.html"));
-  win.openDevTools();
+  // win.openDevTools();
 
 
   win.once("ready-to-show", () => {
@@ -49,7 +53,8 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
 
   win.on("close", () => {
-    ipcMain.removeHandler("get-all-items");
+    removeListeners(["logout", "item-data", "item-details", "export-data"]);
+    unregisterEmitters();
     if (win) win = null;
   });
 
@@ -71,10 +76,6 @@ exports.createInventoryWindow = function createInventoryWindow () {
     });
 
 
-    /**
-    # GET ALL INVENTORY ITEMS
-    **/
-    // win.webContents.send("reload-data", getAllItems());
 
     /**
     # See Med Tag
@@ -91,13 +92,45 @@ exports.createInventoryWindow = function createInventoryWindow () {
     });
 
 
+    /**
+    # Open Export Options Window
+    **/
+    ipcMain.on("export-data", (e, args) => {
+      createInventoryExportWindow (win);
+    });
+
+
   });
 }
 
 
-exports.closeInventoryWindow = function closeInventoryWindow() {
-  if(win){
-  win.close();
-  ipcMain.removeHandler("get-all-items");
+/**
+# Remove Listeners from ipcMain
+**/
+function removeListeners (listeners) {
+  try {
+    listeners.forEach (
+      listener => {
+        let func = ipcMain.listeners(listener)[0];
+        if (func)
+          ipcMain.removeListener(listener, func);
+      }
+    )
+  }
+  catch (error) {
+    console.error("Error Removing Listeners from inventoryExportWindow");
+  }
+}
+
+
+function unregisterEmitters () {
+  try {
+    if (win) {
+        win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
+        // win.webContents.removeListener()
+    }
+  }
+  catch (error) {
+    console.error("Error removing Emitters", error);
   }
 }
