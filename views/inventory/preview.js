@@ -6,11 +6,13 @@ loading.style.display = "none";
 window.previewAPI.receive("preview-data", data => {
 
   const table = document.getElementById("preview-table");
+  removeRows();
   exportData = data;
   reformatData();
   data.forEach(
     (item, idx) => {
       const row = table.insertRow(idx + 1);
+      row.setAttribute("id", "table-row-preview");
       const firstColumn = row.insertCell(0); // product number
       const secondColumn = row.insertCell(1); // name
       const thirdColumn = row.insertCell(2); // expiry
@@ -55,4 +57,12 @@ function reformatData () {
     data.created = (new Date(data.created)).toLocaleDateString();
     data.updated = (new Date(data.updated)).toLocaleDateString();
   });
+}
+
+
+function removeRows () {
+  const rows = document.querySelectorAll("table-row-preview");
+  rows.forEach(
+    r => r.remove()
+  );
 }

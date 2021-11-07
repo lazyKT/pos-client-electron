@@ -793,7 +793,7 @@ async function createTag (event) {
       location
     });
 
-    if (response.ok) {
+    if (response && response.ok) {
       const tag = await response.json();
       alert(`New Category Created : ${tag.name}`);
       await reloadData({});
@@ -801,9 +801,11 @@ async function createTag (event) {
     }
     else {
       // show error
-      const json = await response.json();
-
-      alert(`Error: ${json.message}`);
+      const { message } = await response.json();
+      if (message)
+        alert(`Error: ${message}`);
+      else
+        alert(`Error Creating New Category. code: 500`);
     }
 
     document.getElementById("inputCreateType").value = '';
@@ -813,6 +815,7 @@ async function createTag (event) {
   }
   catch (error) {
     console.error(`Error Creating New Category`, error);
+    alert(`Error Creating New Category. code null`);
   }
 }
 
@@ -855,15 +858,17 @@ async function addMedicine (event) {
       description
     });
 
-    if (response.ok) {
+    if (response && response.ok) {
       const med = await response.json();
 
       alert(`Medicine Added Successfully.\nMed Name: ${med.name}`);
     }
     else {
-      const json = await response.json();
-
-      alert(`Erorr add medicine: ${json.message}`);
+      const { message } = await response.json();
+      if (message)
+        alert(`Error: ${message}`);
+      else
+        alert(`Error Adding Medicine. code: 500`);
     }
 
     document.getElementById("inputDescription").value = '';
