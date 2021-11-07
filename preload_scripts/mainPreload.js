@@ -17,20 +17,24 @@ const ALLOWED_SEND_CHANNELS = [
   'export-csv',
   'user-logout',
   "set-ip",
-  "close-setting"
+  "close-setting",
+  "request-ip"
 ];
 
 const ALLOWED_RECEIVED_CHANNELS = [
   'fromMain',
   'redirect-page',
   'reload-data',
-  "load-setting"
+  "load-setting",
+  "server-addr",
+  "request-ip"
 ];
 
 const ALLOWED_INVOKED_CHANNELS = [
   'get-all-users',
   'search-data',
-  'get-all-items'
+  'get-all-items',
+  "request-ip"
 ];
 
 /*

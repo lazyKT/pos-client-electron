@@ -10,7 +10,7 @@ const {
 const { createCashierWindow } = require("./cashierWindow.js");
 const { createInventoryWindow } = require("./inventoryWindow.js");
 const { loginUser } = require("../models/user.js")
-
+const AppConfig = require("../config");
 
 let win, pageName
 
@@ -50,6 +50,8 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
 
 
   win.webContents.on("did-finish-load", () => {
+
+    win.webContents.send("server-addr", AppConfig.serverURL);
 
     /**
      IPC Messages
@@ -100,6 +102,7 @@ function redirectPage (parent) {
     case "user":
       // parent.webContents.send("redirect-page", "user");
       parent.loadFile(path.join(__dirname, "../views/user/user.html"));
+      parent.webContents.send("server-addr", AppConfig.serverURL);
       break;
     case "inventory":
       createInventoryWindow();

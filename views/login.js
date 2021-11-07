@@ -7,6 +7,13 @@ const loginButton = document.getElementById('login');
 const cancelButton  = document.getElementById('login-cancel');
 const errorDiv = document.getElementById('error');
 let route = null
+let serverUrl
+
+
+window.loginAPI.receive("server-addr", addr => {
+  console.log(addr);
+  serverURL = addr;
+});
 
 
 cancelButton.addEventListener ("click", e => {
@@ -56,7 +63,7 @@ loginButton.addEventListener('click', async (e) => {
       password : password.value
     };
 
-    const response = await fetch("http://127.0.0.1:8080/api/employees/login", {
+    const response = await fetch(`${serverURL}/api/employees/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

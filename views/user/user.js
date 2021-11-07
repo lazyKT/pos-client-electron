@@ -1,6 +1,6 @@
-console.log('User Scripts Running..');
-
 const loadingSpinner = document.getElementById("loading-spinner");
+// let serverUrl = "http://192.168.1.114:8080"
+
 
 /*
   create userRenderer property and assign to the global window object
@@ -185,24 +185,44 @@ userRenderer = {
 };
 
 
-/* this IIFE will run whenever the user page contents are loaded */
-(async function(window) {
-  const response = await fetch("http://127.0.0.1:8080/api/employees", {
-    method: "GET",
-    headers: {
-      "Content-Type" : "application/json",
-      "Accept" : "application/json"
+(async function() {
+  try {
+    const ip = await window.api.invoke('request-ip');
+    serverUrl = ip;
+    console.log(ip);
+    const response = await fetch(`http://192.168.1.114:8080/api/employees`, {
+      method: "GET",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      }
+    });
+
+    if (response && response.ok) {
+        const employees = await response.json();
+        loadingSpinner.style.display = "none";
+        employees.forEach( employee => window.userRenderer.populateUserTable(employee));
     }
-  });
-
-  if (response.ok) {
-      const employees = await response.json();
-      loadingSpinner.style.display = "none";
-      employees.forEach( employee => window.userRenderer.populateUserTable(employee));
+    else {
+      alert ("Error Fetching Users");
+    }
   }
+  catch (error) {
+    alert ("Error Fetching Users");
+  }
+})(window)
 
-})(window);
 
+window.api.receive("server-addr", async addr => {
+  try {
+    serverUrl = addr;
+    console.log("serverUrl", addr);
+
+  }
+  catch (error) {
+
+  }
+})
 
 window.api.receive('reload-data', async (data) => {
 
