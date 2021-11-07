@@ -1,5 +1,5 @@
 let medNumber, medDesc, medPrice, medQty, medExp, medApprove, medTag, medIngredients;
-let editMedButton, saveButton, backButton;
+let editMedButton, saveButton, backButton, pagination;
 let filtering = false;
 let editing = false;
 let editingID, medTagName;
@@ -10,6 +10,7 @@ window.onload = function () {
     const allDetails = document.getElementById("all-detail-item-contents");
     const medDetails = document.getElementById("med-details");
     const cancelButton = document.getElementById("dismiss-window");
+    pagination = document.getElementById("pagination");
     backButton = document.getElementById("back");
     medNumber = document.getElementById("medNumber");
     medDesc = document.getElementById("medDesc");
@@ -163,7 +164,7 @@ function displayMedicines (med, idx) {
     seventhColumn.innerHTML = description ? description : "";
 
     row.addEventListener("click", event => {
-      console.log("row click", _id);
+
       editingID = _id;
       showMedicineDetails(_id);
     });
@@ -187,11 +188,14 @@ function displayMedicines (med, idx) {
 function showEmptyBox (tag) {
   try {
     const div = document.createElement("div");
-    div.setAttribute("class", "alert alert-primary m-2 w-100 text-center");
+    div.setAttribute("class", "alert alert-primary my-2 w-100 text-center");
     div.setAttribute("role", "alert");
     div.innerHTML = `No item(s) found with ${tag}`;
 
     (document.getElementById("med-contents")).appendChild(div);
+
+    if (pagination)
+      pagination.style.display = "none";
   }
   catch (error) {
     alert ("Error Showing Empty Box");
@@ -207,6 +211,9 @@ function showErrorMessage (message) {
     div.innerHTML = message;
 
     (document.getElementById("med-contents")).appendChild(div);
+
+    if (pagination)
+      pagination.style.display = "none";
   }
   catch (error) {
     alert ("Error Showing Empty Box");
@@ -274,7 +281,7 @@ async function showMedicineDetails (id) {
 
     if (response.ok) {
       const med = await response.json();
-      console.log(med);
+
       displayMedInfo(med);
     }
     else {
@@ -404,7 +411,7 @@ async function getMedById (id) {
 /** Edit Medicine **/
 async function editMed (id, med) {
   try {
-    console.log(med);
+
     const response = await fetch(`${serverURL}/api/meds/${id}`, {
       method: "PUT",
       headers: {

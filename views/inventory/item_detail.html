@@ -35,7 +35,7 @@
                     <div class="input-group">
                       <input class="form-control search-input-med" id='search-input-med'
                         type="text" name="" value="" placeholder="Search Items" onkeyup= "searchMedsKeyUp(event)">
-                      <button onclick="filterMeds()" class="mx-1 btn btn-primary" 
+                      <button onclick="filterMeds()" class="mx-1 btn btn-primary"
                         id="search-med-btn" type="button" name="button">Search</button>
                       <button onclick="resetFilter()" class="mx-1 btn btn-light"
                         id="cancel-med-search" type="button" name="button" style='display:none'>Cancel</button>
@@ -68,9 +68,9 @@
                       <li><a class="dropdown-item" href="#">Location</a></li>
                     </ul>
 
-                    <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="exportCSV()">
+                    <!-- <button class="btn btn-success mx-1" type="button" name="button" id="create-item" onclick="exportCSV()">
                       Export CSV
-                    </button>
+                    </button> -->
 
                   </div>
                 </div>
@@ -79,26 +79,34 @@
               <!-- contents -->
               <table class="table table-hover mt-3" id="item-details-table">
                   <thead>
-                  <tr>
-                    <th scope="col">Product ID</th>
-                    <th scope="col">Description</th>
-                    <th scope='col'>Expiry Date</th>
-                    <th scope='col'>Quantity</th>
-                    <th scope='col'>Unit Price</th>
-                    <th scope='col'>Approved</th>
-                    <th scope='col'>Ingredients</th>
-                  </tr>
-
-
+                    <tr>
+                      <th scope="col">Product ID</th>
+                      <th scope="col">Description</th>
+                      <th scope='col'>Expiry Date</th>
+                      <th scope='col'>Quantity</th>
+                      <th scope='col'>Unit Price</th>
+                      <th scope='col'>Approved</th>
+                      <th scope='col'>Ingredients</th>
+                    </tr>
                   </thead>
-                  <tbody>
-                      <!-- contents -->
-                  </tbody>
-
               </table>
               <!-- <a id="dismiss-window" class="btn btn-outline-secondary w-25 my-1">Cancel</a> -->
+              <!-- pagination -->
+              <nav class="mt-4">
+                <ul class="pagination justify-content-center mt-2" id="pagination">
+                  <li class="page-item disabled" id="previous">
+                    <a class="page-link" onclick="prevPaginationClick(event)" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                  </li>
+                  <li class="page-item" id="next">
+                    <a class="page-link" onclick="nextPaginationClick(event)" href="#">Next</a>
+                  </li>
+                </ul>
+              </nav>
+              <!-- end of pagination -->
             </div>
         </div>
+
+        <!-- edit/view meds -->
         <div class="container mt-3" id="subItem-edit-box" style='display:none'>
           <div class="d-flex justify-content-center">
             <p><b>Edit Item</b></p>

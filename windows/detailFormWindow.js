@@ -1,6 +1,6 @@
 /**
- another form window to edit/show item data
- **/
+  another form window to edit/show medicines
+**/
  const path = require("path");
  const {
    BrowserWindow,
@@ -37,7 +37,6 @@ exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, c
   }
 
   win.loadFile(path.join(__dirname, "../views/inventory/item_detail.html"));
-  win.openDevTools();
 
 
   win.once("ready-to-show", () => win.show());
@@ -56,16 +55,6 @@ exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, c
     ipcMain.on('dismiss-form-window', () => {
       if(win) win.close();
     });
-
-    // ipcMain.on("open-details", (event, args) => {
-    //   console.log(args);
-    //   win.loadFile(path.join(__dirname, "../views/inventory/med_details.html"));
-    //   win.webContents.send("reload-data", args);
-    // });
-
-    // ipcMain.handle("request-med-id", (event, args) => {
-    //   return "1234";
-    // })
 
    });
  }

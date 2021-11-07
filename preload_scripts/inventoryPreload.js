@@ -13,7 +13,7 @@ const ALLOWED_SEND_CHANNELS = [
   "logout",
   "item-data",
   "item-details",
-  "get-all-detail-items"
+  "export-data"
 ];
 
 const ALLOWED_INVOKED_CHANNELS = [

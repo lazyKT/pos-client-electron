@@ -84,6 +84,11 @@ async function changeSort(field) {
 }
 
 
+function exportCSV() {
+  window.inventoryAPI.send("export-data");
+}
+
+
 
 /***
 # Search Input OnChange Event
@@ -734,7 +739,7 @@ async function addMedTagsToMedicineForm () {
 
     if (response && response.ok) {
       const optionTags = await response.json();
-      console.log(optionTags);
+      
       // add optons
       optionTags.forEach(
         tag => {
