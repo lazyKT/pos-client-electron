@@ -794,6 +794,10 @@ async function createTag (event) {
     });
 
     if (response && response.ok) {
+      document.getElementById("inputCreateType").value = '';
+      document.getElementById("inputAlertQuantity").value = '';
+      document.getElementById("inputAlertExpiryDate").value = '';
+      document.getElementById("inputLocation").value = '';
       const tag = await response.json();
       alert(`New Category Created : ${tag.name}`);
       await reloadData({});
@@ -807,11 +811,6 @@ async function createTag (event) {
       else
         alert(`Error Creating New Category. code: 500`);
     }
-
-    document.getElementById("inputCreateType").value = '';
-    document.getElementById("inputAlertQuantity").value = '';
-    document.getElementById("inputAlertExpiryDate").value = '';
-    document.getElementById("inputLocation").value = '';
   }
   catch (error) {
     console.error(`Error Creating New Category`, error);
@@ -859,6 +858,16 @@ async function addMedicine (event) {
     });
 
     if (response && response.ok) {
+      
+      document.getElementById("inputDescription").value = '';
+      document.getElementById("inputQuantity").value = '';
+      document.getElementById("inputExpiryDate").value = '';
+      document.getElementById("inputProductId").value = '';
+      document.getElementById("inputApproved").value = '';
+      document.getElementById("inputTag").value = '';
+      document.getElementById("inputPrice").value = '';
+      document.getElementById("inputIngredients").value = '';
+
       const med = await response.json();
 
       alert(`Medicine Added Successfully.\nMed Name: ${med.name}`);
@@ -870,15 +879,6 @@ async function addMedicine (event) {
       else
         alert(`Error Adding Medicine. code: 500`);
     }
-
-    document.getElementById("inputDescription").value = '';
-    document.getElementById("inputQuantity").value = '';
-    document.getElementById("inputExpiryDate").value = '';
-    document.getElementById("inputProductId").value = '';
-    document.getElementById("inputApproved").value = '';
-    document.getElementById("inputTag").value = '';
-    document.getElementById("inputPrice").value = '';
-    document.getElementById("inputIngredients").value = '';
   }
   catch (error) {
     console.error(`Error Creating New Category`, error);
