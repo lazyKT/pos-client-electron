@@ -38,12 +38,14 @@ window.previewAPI.receive("preview-data", data => {
   )
 });
 
-const exportButton = document.getElementById("export");
+const exportButton = document.getElementById("export-preview");
 
 exportButton.addEventListener("click", e => {
+  console.log("export-preview");
+  exportButton.setAttribute("disabled", true);
   loading.style.display = "flex";
-  
-  window.previewAPI.send("export-data", exportData);
+
+  window.previewAPI.send("export-data-after-preview", exportData);
 });
 
 

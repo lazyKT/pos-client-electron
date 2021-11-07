@@ -35,7 +35,7 @@ exports.createPreviewWindow = function (parent, data) {
 
 
   win.loadFile(path.join(__dirname, "../views/inventory/preview.html"));
-  
+  win.openDevTools();
 
   win.on("ready-to-show", () => win.show());
 
@@ -49,41 +49,41 @@ exports.createPreviewWindow = function (parent, data) {
 
   win.webContents.on("did-finish-load", () => {
     win.webContents.send("preview-data", data);
+
+    ipcMain.on("export-data-after-preview", async (event, args) => {
+      try {
+        // console.log("export-data-after-preview", args);
+        const dest = await dialog.showSaveDialog({
+          filters: [
+            { name: 'CSV files', extensions: ['csv']}
+          ]
+        });
+
+        if (dest.canceled) return;
+
+        exportCSV(dest.filePath, args)
+          .then(() => {
+            // show info dialog after successful export
+            dialog.showMessageBox ({
+              title: 'CSV File Exported',
+              message: `File saved in ${dest.filePath}`
+            });
+            win.close();
+          })
+          .catch(
+            erorr => {
+              console.log('Error Exporting csv file ->', error);
+              alert(`Error exporting data. ${error}`);
+            }
+          );
+
+      }
+      catch(error) {
+        console.log('Error Exporting csv file ->', error);
+      }
+    });
   });
 
-
-  ipcMain.on("export-data", async (event, args) => {
-    try {
-
-      const dest = await dialog.showSaveDialog({
-        filters: [
-          { name: 'CSV files', extensions: ['csv']}
-        ]
-      });
-
-      if (dest.canceled) return;
-
-      exportCSV(dest.filePath, args)
-        .then(() => {
-          // show info dialog after successful export
-          dialog.showMessageBox ({
-            title: 'CSV File Exported',
-            message: `File saved in ${dest.filePath}`
-          });
-          win.close();
-        })
-        .catch(
-          erorr => {
-            console.log('Error Exporting csv file ->', error);
-            alert(`Error exporting data. ${error}`);
-          }
-        );
-
-    }
-    catch(error) {
-      console.log('Error Exporting csv file ->', error);
-    }
-  });
 }
 
 

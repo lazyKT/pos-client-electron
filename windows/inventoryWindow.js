@@ -95,7 +95,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
     /**
     # Open Export Options Window
     **/
-    ipcMain.on("export-data", (e, args) => {
+    ipcMain.on("open-export-options", (e, args) => {
       createInventoryExportWindow (win);
     });
 
