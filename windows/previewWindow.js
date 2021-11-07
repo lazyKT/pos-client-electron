@@ -12,6 +12,7 @@ const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
 
 let win
+let exporting = false;
 
 
 exports.createPreviewWindow = function (parent, data) {
@@ -52,14 +53,22 @@ exports.createPreviewWindow = function (parent, data) {
 
     ipcMain.on("export-data-after-preview", async (event, args) => {
       try {
-        // console.log("export-data-after-preview", args);
+
+        if (exporting)
+          return;
+
+        console.log("export-data-after-preview", exporting);
+        exporting = true;
         const dest = await dialog.showSaveDialog({
           filters: [
             { name: 'CSV files', extensions: ['csv']}
           ]
         });
 
-        if (dest.canceled) return;
+        if (dest.canceled) {
+          if(win) win.close();
+          return;
+        }
 
         exportCSV(dest.filePath, args)
           .then(() => {
@@ -68,15 +77,17 @@ exports.createPreviewWindow = function (parent, data) {
               title: 'CSV File Exported',
               message: `File saved in ${dest.filePath}`
             });
-            win.close();
+            if (win) win.close();
+            exporting = false;
           })
           .catch(
             erorr => {
               console.log('Error Exporting csv file ->', error);
               alert(`Error exporting data. ${error}`);
+              if (win) win.close();
+              exporting = false;
             }
           );
-
       }
       catch(error) {
         console.log('Error Exporting csv file ->', error);
