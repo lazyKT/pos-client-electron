@@ -776,6 +776,7 @@ function removeMedTagsFromMedicineFrom () {
 async function createTag (event) {
   try {
     event.preventDefault();
+    event.target.innerHTML = "Loading ...";
 
     const name = document.getElementById("inputCreateType").value;
     const lowQtyAlert = document.getElementById("inputAlertQuantity").value;
@@ -794,10 +795,6 @@ async function createTag (event) {
     });
 
     if (response && response.ok) {
-      document.getElementById("inputCreateType").value = '';
-      document.getElementById("inputAlertQuantity").value = '';
-      document.getElementById("inputAlertExpiryDate").value = '';
-      document.getElementById("inputLocation").value = '';
       const tag = await response.json();
       alert(`New Category Created : ${tag.name}`);
       await reloadData({});
@@ -816,6 +813,13 @@ async function createTag (event) {
     console.error(`Error Creating New Category`, error);
     alert(`Error Creating New Category. code null`);
   }
+  finally {
+    document.getElementById("inputCreateType").value = '';
+    document.getElementById("inputAlertQuantity").value = '';
+    document.getElementById("inputAlertExpiryDate").value = '';
+    document.getElementById("inputLocation").value = '';
+    event.target.innerHTML = "Create";
+  }
 }
 
 
@@ -825,6 +829,7 @@ async function createTag (event) {
 async function addMedicine (event) {
   try {
     event.preventDefault();
+    event.target.innerHTML = "Loading ...";
 
     const name = document.getElementById("inputDescription").value;
     const qty = document.getElementById("inputQuantity").value;
@@ -858,15 +863,6 @@ async function addMedicine (event) {
     });
 
     if (response && response.ok) {
-      
-      document.getElementById("inputDescription").value = '';
-      document.getElementById("inputQuantity").value = '';
-      document.getElementById("inputExpiryDate").value = '';
-      document.getElementById("inputProductId").value = '';
-      document.getElementById("inputApproved").value = '';
-      document.getElementById("inputTag").value = '';
-      document.getElementById("inputPrice").value = '';
-      document.getElementById("inputIngredients").value = '';
 
       const med = await response.json();
 
@@ -883,6 +879,17 @@ async function addMedicine (event) {
   catch (error) {
     console.error(`Error Creating New Category`, error);
     alert(`Error adding medicine: app error`);
+  }
+  finally {
+    document.getElementById("inputDescription").value = '';
+    document.getElementById("inputQuantity").value = '';
+    document.getElementById("inputExpiryDate").value = '';
+    document.getElementById("inputProductId").value = '';
+    document.getElementById("inputApproved").value = '';
+    document.getElementById("inputTag").value = '';
+    document.getElementById("inputPrice").value = '';
+    document.getElementById("inputIngredients").value = '';
+    event.target.innerHTML = "Add Medicine"
   }
 }
 

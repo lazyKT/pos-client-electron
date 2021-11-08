@@ -18,7 +18,8 @@ const ALLOWED_SEND_CHANNELS = [
   'user-logout',
   "set-ip",
   "close-setting",
-  "request-ip"
+  "request-ip",
+  "app-config"
 ];
 
 const ALLOWED_RECEIVED_CHANNELS = [
@@ -27,14 +28,12 @@ const ALLOWED_RECEIVED_CHANNELS = [
   'reload-data',
   "load-setting",
   "server-addr",
-  "request-ip"
+  "request-ip",
+  "app-config-response"
 ];
 
 const ALLOWED_INVOKED_CHANNELS = [
-  'get-all-users',
-  'search-data',
-  'get-all-items',
-  "request-ip"
+
 ];
 
 /*
@@ -48,19 +47,22 @@ contextBridge.exposeInMainWorld("api", {
         otherwise, no action
         */
       if (ALLOWED_SEND_CHANNELS.includes(channel)) {
-
+        console.log(channel);
         ipcRenderer.send(channel, data);
       }
+      else
+        throw new Error (`Unknown IPC Channel, '${channel}' received at mainAPI.send`);
     },
     receive: (channel, cb) => {
-      console.log(channel);
       /*
         if the channel name received is listed in allowed received channels, execute callback
         otherwise, no action
         */
       if (ALLOWED_RECEIVED_CHANNELS.includes(channel)) {
-        ipcRenderer.on(channel, (event, ...args) => cb(...args));
+        ipcRenderer.on(channel, (event, ...args) => cb(...args) );
       }
+      else
+        throw new Error (`Unknown IPC Channel, '${channel}' received at mainAPI.receive`);
     },
     invoke: async (channel, data) => {
       try {
@@ -71,6 +73,8 @@ contextBridge.exposeInMainWorld("api", {
 
           return response;
         }
+        else
+          throw new Error (`Unknown IPC Channel, '${channel}' received at mainAPI.invoke`);
       }
       catch (error) {
         console.log(`Error invoking @ channel: ${channel}`, error);

@@ -15,8 +15,8 @@ const ALLOWED_SEND_CHANNELS = [
 ];
 
 
-const ALLOWED_INVOKED_CHANNELS = [
-  "create-new-user",
+const ALLOWED_RECEIVE_CHANNELS = [
+  "app-config"
 ];
 
 
@@ -28,17 +28,10 @@ contextBridge.exposeInMainWorld ( "formAPI", {
     }
     else throw new Error(`Unkown IPC Channel, ${channel} in send`);
   },
-  invoke: async (channel, data) => {
-    if (ALLOWED_INVOKED_CHANNELS.includes(channel)) {
-      try {
-        const response = await ipcRenderer.invoke(channel, data);
-
-        return response;
-      }
-      catch (error) {
-        console.log(error);
-      }
+  receive: (channel, callback) => {
+    if (ALLOWED_RECEIVE_CHANNELS.includes(channel)) {
+      ipcRenderer.on(channel, (event, ...args) => callback(...args));
     }
-    else throw new Error(`Unkown IPC Channel, ${channel} in invoke`);
+    else throw new Error(`Unkown IPC Channel, ${channel} in formAPI.receive`);
   }
 });

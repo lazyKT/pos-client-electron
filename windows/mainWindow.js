@@ -32,84 +32,70 @@ exports.createMainWindow = function createMainWindow () {
         preload: path.join(__dirname, "../preload_scripts/mainPreload.js") // use a preload scrip
       }
     });
-  }
 
 
-  win.loadFile(path.join(__dirname, "../views/main.html"));
+    win.loadFile(path.join(__dirname, "../views/main.html"));
 
-  win.once("ready-to-show", () => win.show() );
+    win.once("ready-to-show", () => win.show() );
 
-  // upon close the window, set win to null and release the win object
-  win.on("close", () => {
-    if (win) {
+    // upon close the window, set win to null and release the win object
+    win.on("close", () => {
+      if (win) {
+        /**
+        # Always clean up the listeners and event emitters
+        **/
+        removeListeners(["user-logout", "create-modal", "user-data", "user-logout", "logout", "request-ip"]);
+        unregisterEmitters();
+        win = null;
+      }
+    });
+
+
+    win.webContents.on("did-finish-load", () => {
+
       /**
-      # Always clean up the listeners and event emitters
+        IPC Messages
+      */
+
+      ipcMain.on("login", (e, from) => {
+
+       createLoginWindow(win, from);
+      });
+
+
+      // logout request from Renderer
+      ipcMain.on('logout', (e, response) => {
+        e.sender.send('logout-response', 200);
+      });
+
+      /**
+      ##### USER IPC CHANNELS #####
       **/
-      removeListeners(["user-logout", "create-modal", "user-data", "user-logout", "logout", "request-ip"]);
-      unregisterEmitters();
-      win = null;
-    }
-  });
+
+      ipcMain.on('user-logout', (e, response) => {
+        win.loadFile(path.join(__dirname, "../views/main.html"));
+      });
 
 
-  win.webContents.on("did-finish-load", () => {
+      // main process receives ipc message to open create new data modal
+      ipcMain.on('create-modal', (e, windowType) => {
+        createFormWindow(win, windowType);
+      });
 
-    /**
-      IPC Messages
-    */
-    // win.webContents.send("server-addr", AppConfig.serverURL);
 
-    ipcMain.on("login", (e, from) => {
+      ipcMain.on("app-config", (event, args) => {
+        console.log(args);
+        event.sender.send("app-config-response", AppConfig.serverURL);
+      });
 
-     createLoginWindow(win, from);
+
     });
 
 
-    // logout request from Renderer
-    ipcMain.on('logout', (e, response) => {
-      e.sender.send('logout-response', 200);
-    });
-
-    // ipcMain.on("request-ip", e => {
-    //   console.log("request-ip", AppConfig.serverURL);
-    //   e.sender.send(AppConfig.serverURL);
-    // });
-
-    /**
-    ##### USER IPC CHANNELS #####
-    **/
-
-    ipcMain.on('user-logout', (e, response) => {
-      win.loadFile(path.join(__dirname, "../views/main.html"));
-    });
+    Menu.setApplicationMenu(applicationMenu);
 
 
-    // main process receives ipc message to open create new data modal
-    ipcMain.on('create-modal', (e, windowType) => {
-      createFormWindow(win, windowType);
-    });
-
-    // // receive ipc message to response single user data by id
-    // ipcMain.on('user-data', (e, req) => {
-    //   const { id, method } = req;
-    //   const user = getUserById(id);
-    //
-    //   if (user) {
-    //     createEditFormWindow(win, method, user)
-    //   }
-    // });
-
-
-  });
-
-
-  Menu.setApplicationMenu(applicationMenu);
-
-}
-
-
-exports.closeMainWindow = function closeMainWindow() {
-  if (win)  win.close();
+  }
 }
 
 

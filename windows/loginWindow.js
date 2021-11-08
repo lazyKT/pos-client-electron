@@ -35,7 +35,6 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
   pageName = from
 
   win.loadFile(path.join(__dirname, "../views/login.html"));
-  // win.openDevTools(); // ## For Debug
 
   win.once("ready-to-show", () => win.show());
 
@@ -100,7 +99,6 @@ function redirectPage (parent) {
       createCashierWindow();
       break;
     case "user":
-      // parent.webContents.send("redirect-page", "user");
       parent.loadFile(path.join(__dirname, "../views/user/user.html"));
       parent.webContents.send("server-addr", AppConfig.serverURL);
       break;

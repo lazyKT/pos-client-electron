@@ -1,5 +1,5 @@
 const loadingSpinner = document.getElementById("loading-spinner");
-// let serverUrl = "http://192.168.1.114:8080"
+let serverUrl
 
 
 /*
@@ -151,7 +151,8 @@ userRenderer = {
     fifthColumn.appendChild(editBtn);
     //
     editBtn.addEventListener('click', e => {
-      window.api.send('user-data', {_id, method: 'PUT'});
+      // window.api.send('user-data', {_id, method: 'PUT'});
+      alert("Comming Soon!");
     });
     /* View Details button */
     const viewBtn = document.createElement('button');
@@ -161,7 +162,8 @@ userRenderer = {
     fifthColumn.appendChild(viewBtn);
 
     viewBtn.addEventListener('click', e => {
-      window.api.send('user-data', {_id, method: 'GET'});
+      // window.api.send('user-data', {_id, method: 'GET'});
+      alert("Comming Soon!");
     })
   },
   showEmptyMessage: () => {
@@ -179,48 +181,39 @@ userRenderer = {
     window.api.send('export-csv', 'user');
   },
   logout: () => {
-    console.log("logout click");
     window.api.send("user-logout", "");
   }
 };
 
 
 (async function() {
-  try {
-    const ip = await window.api.invoke('request-ip');
-    serverUrl = ip;
-    console.log(ip);
-    const response = await fetch(`http://192.168.1.114:8080/api/employees`, {
-      method: "GET",
-      headers: {
-        "Content-Type" : "application/json",
-        "Accept" : "application/json"
-      }
-    });
-
-    if (response && response.ok) {
-        const employees = await response.json();
-        loadingSpinner.style.display = "none";
-        employees.forEach( employee => window.userRenderer.populateUserTable(employee));
-    }
-    else {
-      alert ("Error Fetching Users");
-    }
-  }
-  catch (error) {
-    alert ("Error Fetching Users");
-  }
+  window.api.send("app-config", "ip");
 })(window)
 
 
-window.api.receive("server-addr", async addr => {
+window.api.receive("app-config-response", async addr => {
   try {
     serverUrl = addr;
-    console.log("serverUrl", addr);
+    const response = await fetchEmployees();
+
+    if (response && response.ok) {
+      const employees = await response.json();
+
+      employees.forEach( employee => window.userRenderer.populateUserTable(employee));
+    }
+    else {
+      const { message } = await response.json();
+      const errMessage = message ? `Error Fetching Employee. ${message}`
+                                : "Error Fetching Employee. code 500";
+      alert(errMessage)
+    }
 
   }
   catch (error) {
-
+    alert ("Error Fetching Users. code 300");
+  }
+  finally {
+    loadingSpinner.style.display = "none";
   }
 })
 
@@ -231,3 +224,21 @@ window.api.receive('reload-data', async (data) => {
       await window.userRenderer.reloadData(data);
   }
 });
+
+
+async function fetchEmployees () {
+  try {
+    const response = await fetch(`${serverUrl}/api/employees`, {
+      method: "GET",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error);
+  }
+}

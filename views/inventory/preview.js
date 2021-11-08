@@ -8,8 +8,10 @@ window.previewAPI.receive("preview-data", data => {
   const table = document.getElementById("preview-table");
   removeRows();
   exportData = data;
+
   reformatData();
-  data.forEach(
+
+  exportData.forEach(
     (item, idx) => {
       const row = table.insertRow(idx + 1);
       row.setAttribute("id", "table-row-preview");
@@ -23,7 +25,7 @@ window.previewAPI.receive("preview-data", data => {
 
       firstColumn.innerHTML = item.productNumber ? item.productNumber : "00000";
       secondColumn.innerHTML = item.name;
-      thirdColumn.innerHTML = (new Date(item.expiry)).toLocaleDateString();
+      thirdColumn.innerHTML = item.expiry;
       forthColumn.innerHTML = item.qty;
       fifthColumn.innerHTML = item.price;
       sixthColumn.innerHTML = item.approve ? "Yes" : "No";

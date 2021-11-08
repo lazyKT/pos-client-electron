@@ -207,6 +207,7 @@
                 <option value="tag">Category</option>
                 <option value="name" selected>Description</option>
                 <option value="description">Ingredients</option>
+                <option value="productNumber">Product Number</option>
               </select>
 
               <button class="btn btn-primary mx-2" onclick="searchAllMedicines()">
@@ -308,7 +309,8 @@
                         <input type="text" class="form-control" id="inputIngredients" required>
                       </div>
                     </div>
-                    <a style="margin-top:15px" type="submit" class="btn btn-primary" id="createItem" onclick="addMedicine(event)">Add Med</a>
+                    <a type="submit" class="btn btn-primary mt-2"
+                      id="createItem" onclick="addMedicine(event)">Add Medicine</a>
 
                 </form>
               </div>
