@@ -17,7 +17,8 @@
     "nodemon": "^2.0.13"
   },
   "dependencies": {
-    "csv-writer": "^1.6.0"
+    "csv-writer": "^1.6.0",
+    "electron-packager": "^15.4.0"
   },
   "repository": {
     "type": "git",

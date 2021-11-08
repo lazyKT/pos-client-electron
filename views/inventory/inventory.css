@@ -76,3 +76,31 @@ header {
 .med-row {
   cursor: pointer;
 }
+
+
+.my-alert-modal {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: none;
+  justify-content: center;
+  top: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.my-alert-modal-content {
+  width: 250px;
+  height: fit-content;
+  margin-top: 80px;
+  border: none;
+  border-radius: 10px;
+  background-color: white;
+}
+
+.border-top-radius {
+  border: none;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+}
+
+

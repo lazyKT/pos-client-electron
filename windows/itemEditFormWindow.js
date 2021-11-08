@@ -17,7 +17,7 @@
 
  exports.createEditFormWindow = function createEditFormWindow(parentWindow, type, contents) {
 
-   if (!win || win === null) {
+   if (!win) {
      win = new BrowserWindow ({
        width: 550,
        height: 700,
@@ -32,10 +32,7 @@
        }
      });
 
-   }
-
-
-   win.loadFile(path.join(__dirname, "../views/inventory/edit_show_item.html"));
+     win.loadFile(path.join(__dirname, "../views/inventory/edit_show_item.html"));
 
 
    win.once("ready-to-show", () => win.show());
@@ -71,7 +68,9 @@
    ipcMain.on("dismiss-edit-item-form-window", (event, args) => {
      ipcMain.removeHandler("edit-item"); // remove existing handler
      if(win) win.close();
-   })
+   });
+
+   }
 
 }
 

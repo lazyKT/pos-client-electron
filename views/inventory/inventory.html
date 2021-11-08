@@ -230,6 +230,7 @@
             <div class="card my-2 box">
               <div class="card-body">
                 <p><b>Create Category</b></p>
+                <p style="color:red" id="error-create-category"></p>
               <form>
                 <div class="row">
                 <div class="form-group col-md-3">
@@ -266,6 +267,7 @@
             <div class="card my-2 box" width = 'auto'>
               <div class="card-body">
                 <p><b>Create Item</b></p>
+                <p style="color:red" id="error-create-item"></p>
                 <form>
                   <div class="row">
                     <div class="form-group col-md-3">
@@ -321,5 +323,23 @@
         </div>
       </div>
     </div>
+
+  </div>
+  <!--- alert modal -->
+  <div id="alert-modal" class="my-alert-modal">
+    <div class="my-alert-modal-content" id="alert-modal-content">
+      <div id="alert-modal-header" class="p-2">
+        
+      </div>
+      <div id="my-alert-modal-message">
+
+      </div>
+      <div class="d-flex justify-content-center p-1">
+        <button class="btn btn-primary my-1" onclick="removeAlertModal(event)">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>  
   </body>
 </html>

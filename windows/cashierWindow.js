@@ -5,7 +5,7 @@ const {
 } = require('electron');
 
 const { createMemberCheckoutWindow } = require("./memberCheckoutWindow.js");
-const { createPaymentSummaryWindow } = require(path.join(__dirname, "./PaymentSummaryWindow.js"));
+const { createPaymentSummaryWindow } = require(path.join(__dirname, "./paymentSummaryWindow.js"));
 
 
 let win

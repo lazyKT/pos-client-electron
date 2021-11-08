@@ -56,6 +56,14 @@ window.onload = function () {
     });
 
     saveButton.addEventListener("click", async e => {
+
+      if (medDesc.value === '' || medQty.value === '' || medExp.value === '' || medApprove.value === '' 
+                || medTag.value === '' || medNumber.value === '' || medIngredients.value === '')
+      {
+        showAlertModal("Missing Required Values!", "Error!", "error");
+        return;
+      }
+
       try {
         e.preventDefault();
         const data = {
@@ -73,19 +81,19 @@ window.onload = function () {
 
         if (response.ok) {
           const updatedMed = await response.json();
-          alert(`Editted Success. ${medDesc.value}`);
+          showAlertModal(`${medDesc.value}, edited successfully`, "Success!", "success");
           hideMedicineDetails();
         }
         else {
           const { message } = await response.json();
           if (message)
-            alert(`Error Saving Changes: ${message}`);
+            showAlertModal(`Cannot Show Medicines Details. ${message}`, "Application Error!", "error");
           else
-            alert("Error Saving Changes. code: 500");
+            showAlertModal("Cannot Show Medicines Details. code 500", "Application Error!", "error");
         }
       }
       catch (error) {
-        alert("Error Saving Changes. code: null");
+          showAlertModal("Cannot Show Medicines Details. code 300", "Application Error!", "error");
       }
     });
 }
@@ -120,13 +128,16 @@ async function filterMeds() {
   }
   catch (error) {
     console.error(error);
-    alert("Error Searching Medcine. code : null");
+    showAlertModal("Error Searching Medicines. code 300", "Error!", "error");
   }
 }
 
 
 async function resetFilter() {
   filtering = false;
+  const searchMedInput = document.getElementById("search-input-med");
+  searchMedInput.value = "";
+  removeMessageBoxes();
   await reloadData(medTagName);
 }
 
@@ -180,7 +191,7 @@ function displayMedicines (med, idx) {
     });
   }
   catch (error) {
-    alert ("Error Displaying Medicines. code : null");
+    showAlertModal("Cannot display medicines!", "Network Error!", "error");
   }
 }
 
@@ -190,6 +201,7 @@ function showEmptyBox (tag) {
     const div = document.createElement("div");
     div.setAttribute("class", "alert alert-primary my-2 w-100 text-center");
     div.setAttribute("role", "alert");
+    div.setAttribute("id", "empty-msg-alert-box");
     div.innerHTML = `No item(s) found with ${tag}`;
 
     (document.getElementById("med-contents")).appendChild(div);
@@ -208,6 +220,7 @@ function showErrorMessage (message) {
     const div = document.createElement("div");
     div.setAttribute("class", "alert alert-danger m-2 w-100 text-center");
     div.setAttribute("role", "alert");
+    div.setAttribute("id", "err-msg-alert-box");
     div.innerHTML = message;
 
     (document.getElementById("med-contents")).appendChild(div);
@@ -216,8 +229,19 @@ function showErrorMessage (message) {
       pagination.style.display = "none";
   }
   catch (error) {
-    alert ("Error Showing Empty Box");
+    showAlertModal("Error Showing Empty Box", "Application Error!", "error");
   }
+}
+
+
+function removeMessageBoxes () {
+  const errMessageBox = document.getElementById("err-msg-alert-box");
+  if (errMessageBox)
+    errMessageBox.remove();
+
+  const emptyMessageBox = document.getElementById("empty-msg-alert-box");
+  if (emptyMessageBox)
+    emptyMessageBox.remove();
 }
 
 /***********************************************************************
@@ -258,14 +282,14 @@ async function reloadData(q) {
                       `Error Fetching Medicines: ${message}` :
                       "Error Fetching Medicines. code: 500";
 
-      alert(errMessage);
+      // showAlertModal(errMessage, "Network Error!", "error");
       showErrorMessage(errMessage);
     }
 
     status = 'ready';
   }
   catch (error) {
-    alert("Error Fetching Medicines. code: null");
+    showAlertModal("Cannot Fetch Medicine Details", "Network Error!", "error");
   }
 };
 
@@ -287,14 +311,14 @@ async function showMedicineDetails (id) {
     else {
       const { message } = await response.json();
       if (message)
-        alert ("Erorr Showing Medicine Details.", message);
+        showAlertModal(`Cannot Show Medicines Details. ${message}`, "Error!", "error");
       else
-        alert("Error Showing Medicine Details. code : 500");
+        showAlertModal("Cannot Show Medicines Details. code 500", "Network Error!", "error");
     }
   }
   catch (error) {
     console.error (error);
-    alert("Error Showing Medicine Details. code : null");
+    showAlertModal("Cannot Show Medicines Details. code 300", "Application Error!", "error");
   }
 }
 
@@ -335,7 +359,7 @@ async function hideMedicineDetails () {
   }
   catch (error) {
     console.log(error);
-    alert("Error Reloading Medicines. code : null");
+    showAlertModal("Cannot Reload Medicines. code 300", "Network Error!", "error");
   }
 }
 
@@ -348,7 +372,8 @@ function toggleInputs () {
     input => {
       if (editing) {
         if (saveButton) saveButton.style.display = "block";
-        input.removeAttribute("readonly");
+        if (input.getAttribute("id") !== "medTag")
+          input.removeAttribute("readonly");
       }
       else {
         if (saveButton) saveButton.style.display = "none";
@@ -356,6 +381,7 @@ function toggleInputs () {
       }
     }
   );
+  // (document.getElementById("medTag")).setAttribute("readonly", true);
   if (editing)
     medApprove.removeAttribute("disabled");
   else
@@ -363,9 +389,34 @@ function toggleInputs () {
 }
 
 
-// function toggleInputs (editing) {
-//
-// }
+function showAlertModal(msg, header, type) {
+
+  const alertModal = document.getElementById("alert-modal");
+  alertModal.style.display = "flex";
+
+  const modalContent = document.getElementById("alert-modal-content");
+  const modalContentHeader = document.getElementById("alert-modal-header");
+
+  if (type === "success")
+    modalContentHeader.style.background = "green";
+  else {
+    modalContentHeader.style.background = "red";
+  }
+
+  modalContentHeader.innerHTML = header;
+  modalContentHeader.style.color = "white";
+
+  const message = document.getElementById("my-alert-modal-message");
+  message.innerHTML = msg;
+}
+
+
+function removeAlertModal (e) {
+  e.preventDefault();
+  const alertModal = document.getElementById("alert-modal");
+  if (alertModal)
+    alertModal.style.display = "none";
+}
 
 /***********************************************************************
 ####################### Network Requests ###############################
