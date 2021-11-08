@@ -142,7 +142,7 @@ async function filterTags () {
     filtering = true;
     const response = await searchTags(q);
 
-    if (response.ok) {
+    if (response && response.ok) {
       const tags = await response.json();
       if (tags.length === 0) {
         displayFilteredResults(tags);
@@ -257,14 +257,23 @@ function displayFilteredResults (results) {
 
 /** show this message box when the contents are empty **/
 function showEmptyMessage () {
-   const searchInput = document.getElementById('search-input');
-   const dataContainer = document.getElementById('data-container');
-   const div = document.createElement('div');
-   div.setAttribute('id', 'empty-message-box');
-   div.setAttribute('class', 'alert alert-info');
-   div.setAttribute('role', 'alert');
-   div.innerHTML = `No result found related to ${searchInput.value}`;
-   dataContainer.insertBefore(div, dataContainer.children[dataContainer.childElementCount - 1]);
+
+  const itemTable = document.getElementById("item-table");
+
+  // get table rows from the current data table
+  const oldData = itemTable.querySelectorAll('tr');
+
+  // excpet the table header, remove all the data
+  oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
+
+  const searchInput = document.getElementById('search-input');
+  const dataContainer = document.getElementById('data-container');
+  const div = document.createElement('div');
+  div.setAttribute('id', 'empty-message-box');
+  div.setAttribute('class', 'alert alert-info');
+  div.setAttribute('role', 'alert');
+  div.innerHTML = `No result found related to ${searchInput.value}`;
+  dataContainer.insertBefore(div, dataContainer.children[dataContainer.childElementCount - 1]);
  };
 
 /**

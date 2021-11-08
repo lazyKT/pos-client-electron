@@ -1,6 +1,6 @@
 {
-  "name": "client",
-  "version": "1.0.0",
+  "name": "ces-client",
+  "version": "0.1.0",
   "description": "* npm\r * node js\r * electron\r * nodemon",
   "main": "main.js",
   "scripts": {
@@ -16,6 +16,9 @@
     "electron": "^15.2.0",
     "nodemon": "^2.0.13"
   },
+  "dependencies": {
+    "csv-writer": "^1.6.0"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lazyKT/pos-client-electron.git"
@@ -23,6 +26,5 @@
   "bugs": {
     "url": "https://github.com/lazyKT/pos-client-electron/issues"
   },
-  "homepage": "https://github.com/lazyKT/pos-client-electron#readme",
-  "dependencies": {}
+  "homepage": "https://github.com/lazyKT/pos-client-electron#readme"
 }
