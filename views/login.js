@@ -38,11 +38,22 @@ function toggleModalButtons(show) {
 
 /** show error message */
 function showErrorMessage(msg) {
+
+  removeErrorMessage();
+
   let errorNode = document.createElement('div');
   errorNode.setAttribute('class', 'alert alert-danger');
   errorNode.setAttribute('role', 'alert');
+  errorNode.setAttribute("id", "error-message-login");
   errorNode.innerHTML = msg;
   errorDiv.appendChild(errorNode);
+}
+
+
+function removeErrorMessage() {
+  const errorMessageAlert = document.getElementById("error-message-login");
+  if (errorMessageAlert)
+    errorMessageAlert.remove();
 }
 
 
@@ -75,7 +86,6 @@ loginButton.addEventListener('click', async (e) => {
     console.log(response);
 
     if (response.ok) {
-      console.log("response ok")
       window.loginAPI.send("login-request", { username: username.value, status: "success"});
     }
     else {

@@ -21,10 +21,10 @@ function requestLoginWindow(pageName) {
   window.api.send('login', pageName);
 }
 
-// recieve ipc message from main process to allow redirect
-window.api.receive('redirect-page', async pageName => {
-  await redirectToNewPage(pageName)
-});
+// // recieve ipc message from main process to allow redirect
+// window.api.receive('redirect-page', async pageName => {
+//   await redirectToNewPage(pageName)
+// });
 
 
 /*

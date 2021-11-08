@@ -7,6 +7,15 @@ const cancelBtn = document.getElementById('dismiss-window');
 const createBtn = document.getElementById('create-user');
 const errorDiv = document.getElementById('error');
 
+let serverUrl
+
+
+window.formAPI.receive("app-config", addr => {
+  serverUrl = addr;
+  console.log(serverUrl);
+});
+
+
 document.getElementById('username').focus();
 
 // close create user window
@@ -36,9 +45,7 @@ createBtn.addEventListener('click', async (e) => {
       level: accLevel
     }
 
-    console.log(data);
-
-    const response = await fetch("http://127.0.0.1:8080/api/employees", {
+    const response = await fetch(`${serverUrl}/api/employees`, {
       method: "POST",
       headers: {
         "Content-Type" : "application/json",
@@ -46,17 +53,17 @@ createBtn.addEventListener('click', async (e) => {
       },
       body: JSON.stringify(data)
     });
-    console.log(response);
 
-    if (response.ok) {
+    if (response && response.ok) {
       const json = await response.json();
-      console.log(json);
       window.formAPI.send('form-data-finish', {method: 'CREATE', data: {username}, type: 'user'});
     }
     else {
-      const status = response.status;
-      if (status === 400)
-        showErorrMessage("user already exists");
+      const { message } = await response.json();
+      const errMessage = message ? `Error Creating New User. ${message}`
+                            : "Error Creating New User. code 300";
+
+      showErorrMessage(errMessage);
     }
   }
   catch (error) {
@@ -67,9 +74,20 @@ createBtn.addEventListener('click', async (e) => {
 
 
 function showErorrMessage (message) {
+
+  removeErrorMessage();
+
   let errorNode = document.createElement('div');
   errorNode.setAttribute('class', 'alert alert-danger');
   errorNode.setAttribute('role', 'alert');
+  errorNode.setAttribute("id", "error-message-create");
   errorNode.innerHTML = message;
   errorDiv.appendChild(errorNode);
+}
+
+
+function removeErrorMessage () {
+  const errorMessageAlert = document.getElementById("error-message-create");
+  if (errorMessageAlert)
+    errorMessageAlert.remove();
 }

@@ -30,7 +30,6 @@ exports.createSettingWindow = function () {
 
 
   win.loadFile(path.join(__dirname, "../views/settings.html"));
-  win.openDevTools();
 
   win.on("ready-to-show", () => win.show());
 
@@ -44,7 +43,7 @@ exports.createSettingWindow = function () {
 
 
   win.webContents.on("did-finish-load", () => {
-    
+
     console.log(AppConfig);
     win.webContents.send("load-setting", AppConfig);
   });
