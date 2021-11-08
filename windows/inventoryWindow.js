@@ -45,7 +45,6 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
   win.loadFile(path.join(__dirname, "../views/inventory/inventory.html"));
 
-
   win.once("ready-to-show", () => {
     win.show();
   });

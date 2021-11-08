@@ -144,12 +144,11 @@ async function filterTags () {
 
     if (response.ok) {
       const tags = await response.json();
-
       if (tags.length === 0) {
-        // show empty message
+        displayFilteredResults(tags);
         showEmptyMessage(q);
       }
-      else {
+      else{
         displayFilteredResults(tags);
       }
       totalTags = tags.length
@@ -249,10 +248,10 @@ function displayFilteredResults (results) {
   // excpet the table header, remove all the data
   oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
 
-  if (results.length > 0)
+  // if (results.length > 0)
     results.forEach( (result, idx) => populateItemTable(result, idx + 1));
-  else
-    showEmptyMessage();
+  // else
+  //   showEmptyMessage();
 };
 
 
@@ -265,7 +264,7 @@ function showEmptyMessage () {
    div.setAttribute('class', 'alert alert-info');
    div.setAttribute('role', 'alert');
    div.innerHTML = `No result found related to ${searchInput.value}`;
-   dataContainer.appendChild(div);
+   dataContainer.insertBefore(div, dataContainer.children[dataContainer.childElementCount - 1]);
  };
 
 /**

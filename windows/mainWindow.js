@@ -23,8 +23,8 @@ exports.createMainWindow = function createMainWindow () {
 
   if (!win) {
     win = new BrowserWindow({
-      width: 1000,
-      height: 800,
+      width: 1020,
+      height: 850,
       show: false,
       webPreferences: {
         nodeIntegration: false,
