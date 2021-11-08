@@ -1,4 +1,4 @@
-let status = "ready";
+let reloadStatus = "ready";
 // for pagination
 let limit = 10;
 let page = 1;
@@ -18,22 +18,23 @@ window.inventoryAPI.receive("server-url", async url => {
   try {
 
     serverURL = url;
-    const response = await fetchTags();
+    await reloadData({});
+    // const response = await fetchTags();
 
-    if (response && response.ok) {
-      const tags = await response.json();
-      await createPaginationButtons();
+    // if (response && response.ok) {
+    //   const tags = await response.json();
+    //   await createPaginationButtons();
 
-      displayData(tags);
-    }
-    else {
-      // show error
-      (document.getElementById("loading-spinner")).style.display = "none";
-      const { message } = await response.json();
-      const errMessage = message ? `Error Fetching Category: ${message}` : "Error Fetching Category. code : 500";
-      alert(errMessage);
-      showErrorMessage(errMessage);
-    }
+    //   displayData(tags);
+    // }
+    // else {
+    //   // show error
+    //   (document.getElementById("loading-spinner")).style.display = "none";
+    //   const { message } = await response.json();
+    //   const errMessage = message ? `Error Fetching Category: ${message}` : "Error Fetching Category. code : 500";
+    //   alert(errMessage);
+    //   showErrorMessage(errMessage);
+    // }
   }
   catch (error) {
     alert(`Error Fetching Tags: code: null`);
@@ -44,8 +45,9 @@ window.inventoryAPI.receive("server-url", async url => {
 
 window.inventoryAPI.receive('reload-data', async data => {
 
-  if (status === 'ready') {
-      status = 'reloading';
+  console.log("reload from ipc", reloadStatus);
+  if (reloadStatus === 'ready') {
+      // reloadStatus = 'reloading';
       await reloadData({data});
   }
 });
@@ -121,7 +123,7 @@ async function displayData (tags) {
     await addMedTagsToMedicineForm();
     tags.forEach(
       (tag, idx) => populateItemTable(tag, idx + 1)
-    )
+    );
   }
   catch (error) {
     alert ("Error Display Medicine Category. code null");
@@ -144,12 +146,11 @@ async function filterTags () {
 
     if (response && response.ok) {
       const tags = await response.json();
-
       if (tags.length === 0) {
         // show empty message
         showEmptyMessage(q);
       }
-      else {
+      else{
         displayFilteredResults(tags);
       }
       totalTags = tags.length
@@ -191,27 +192,29 @@ async function resetFilter () {
 /**
  Reload the inventory data fetched from main process
 **/
-async function reloadData (newData, q="") {
+async function reloadData (newData) {
+
+  console.log("requst reload", reloadStatus);
+  if (reloadStatus === "reloading")
+    return;
+
+  reloadStatus = "reloading";
 
   try {
     const itemTable = document.getElementById("item-table");
     const { type, data, method } = newData;
-
+    console.log("reload data");
     // get table rows from the current data table
     const oldData = itemTable.querySelectorAll('tr');
 
     // excpet the table header, remove all the data
+    console.log()
     oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
 
     // reload the data by fetching data based on the data type, and populate the table again
-    let response
+    let response = await fetchTags();
 
-    if (q === "")
-       response = await fetchTags();
-    else
-      response = await searchTags(q);
-
-    if (response.ok) {
+    if (response && response.ok) {
       const tags = await response.json();
 
       displayData(tags);
@@ -226,11 +229,13 @@ async function reloadData (newData, q="") {
       else
         alert (`Error Reloading Meds Categories: Server Error`);
     }
-
-    status = 'ready';
   }
   catch (error) {
     console.log(`Error Reloading ${newData.type} data`, error);
+  }
+  finally {
+    reloadStatus = "ready";
+    console.log("reloadStatus", reloadStatus);
   }
 };
 
@@ -249,10 +254,10 @@ function displayFilteredResults (results) {
   // excpet the table header, remove all the data
   oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
 
-  if (results.length > 0)
+  // if (results.length > 0)
     results.forEach( (result, idx) => populateItemTable(result, idx + 1));
-  else
-    showEmptyMessage();
+  // else
+  //   showEmptyMessage();
 };
 
 
@@ -805,7 +810,7 @@ async function createTag (event) {
 
     if (response && response.ok) {
       const tag = await response.json();
-      alert(`New Category Created : ${tag.name}`);
+      showAlertModal(`${name}, is successfully created!`, "New Category Created!", "success");
       await reloadData({});
       createPaginationButtons();
     }
@@ -813,14 +818,13 @@ async function createTag (event) {
       // show error
       const { message } = await response.json();
       if (message)
-        alert(`Error: ${message}`);
+        showAlertModal(`Error Creating New Category. ${message}`, "Error!", "error");
       else
-        alert(`Error Creating New Category. code: 500`);
+        showAlertModal("Error Creating New Category. code 500", "Error!", "error");
     }
   }
   catch (error) {
-    console.error(`Error Creating New Category`, error);
-    alert(`Error Creating New Category. code null`);
+    showAlertModal("Error Creating New Category. code 300", "Error!", "error");
   }
   finally {
     document.getElementById("inputCreateType").value = '';
@@ -857,7 +861,7 @@ async function addMedicine (event) {
     const re = new RegExp("^[0-9]+$");
     if (!re.test(price)) {
       // validating price input
-      alert(`Invalid Price: ${price}`);
+      console.error("Invalid price");
       return;
     }
 
@@ -875,19 +879,20 @@ async function addMedicine (event) {
 
       const med = await response.json();
 
-      alert(`Medicine Added Successfully.\nMed Name: ${med.name}`);
+      showAlertModal(`${name} is successfully added!`, "New Medicines Created", "success");  
     }
     else {
       const { message } = await response.json();
       if (message)
-        alert(`Error: ${message}`);
+        showAlertModal(`Error Creating Medicines. ${message}`, "Error!", "error");
       else
-        alert(`Error Adding Medicine. code: 500`);
+        showAlertModal("Error Creating Medicines. code 300.", "Error!", "error");  
+      console.log("error", message);
     }
   }
   catch (error) {
     console.error(`Error Creating New Category`, error);
-    alert(`Error adding medicine: app error`);
+    showAlertModal("Error Creating Medicines. code 500.", "Error!", "error");  
   }
   finally {
     document.getElementById("inputDescription").value = '';
@@ -900,6 +905,36 @@ async function addMedicine (event) {
     document.getElementById("inputIngredients").value = '';
     event.target.innerHTML = "Add Medicine"
   }
+}
+
+
+function showAlertModal(msg, header, type) {
+
+  const alertModal = document.getElementById("alert-modal");
+  alertModal.style.display = "flex";
+
+  const modalContent = document.getElementById("alert-modal-content");
+  const modalContentHeader = document.getElementById("alert-modal-header");
+
+  if (type === "success")
+    modalContentHeader.style.background = "green";
+  else {
+    modalContentHeader.style.background = "red";
+  }
+
+  modalContentHeader.innerHTML = header;
+  modalContentHeader.style.color = "white";
+
+  const message = document.getElementById("my-alert-modal-message");
+  message.innerHTML = msg;
+}
+
+
+function removeAlertModal (e) {
+  e.preventDefault();
+  const alertModal = document.getElementById("alert-modal");
+  if (alertModal)
+    alertModal.style.display = "none";
 }
 
 

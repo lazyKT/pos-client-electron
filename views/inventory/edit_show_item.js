@@ -34,7 +34,7 @@ window.editContentAPI.receive('response-edit-item-data', async data => {
 
       if (method === 'view') {
         // make inputs non-editable
-        description.setAttribute('readonly', true);
+        // description.setAttribute('readonly', true);
         dateAlert.setAttribute('readonly', true);
         quantityAlert.setAttribute('readonly', true);
         location.setAttribute('readonly', true);
@@ -42,7 +42,7 @@ window.editContentAPI.receive('response-edit-item-data', async data => {
       }
       else if (method === 'edit') {
         // remove the readonly attributes from input
-        description.removeAttribute('readonly');
+        // description.removeAttribute('readonly');
         dateAlert.removeAttribute('readonly');
         quantityAlert.removeAttribute('readonly');
         location.removeAttribute('readonly');

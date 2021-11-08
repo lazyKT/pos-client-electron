@@ -1,5 +1,5 @@
 {
-  "name": "CES Client",
+  "name": "ces-client",
   "version": "0.1.0",
   "description": "* npm\r * node js\r * electron\r * nodemon",
   "main": "main.js",
@@ -17,7 +17,8 @@
     "nodemon": "^2.0.13"
   },
   "dependencies": {
-    "csv-writer": "^1.6.0"
+    "csv-writer": "^1.6.0",
+    "electron-packager": "^15.4.0"
   },
   "repository": {
     "type": "git",
