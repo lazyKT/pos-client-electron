@@ -73,5 +73,12 @@ contextBridge.exposeInMainWorld ("inventoryAPI", {
       }
     }
     else throw new Error("Unknown IPC Channels Detected in inventoryPreload.invoke");
+  },
+  removeListener: (channel) => {
+    const func = ipcRenderer.listeners(channel)[0];
+    if (func) {
+      console.log(`Removed listener from ${channel}`);
+      ipcRenderer.removeListener(channel, func);
+    }
   }
 });

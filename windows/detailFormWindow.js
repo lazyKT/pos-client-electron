@@ -38,7 +38,6 @@ exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, c
 
   win.loadFile(path.join(__dirname, "../views/inventory/item_detail.html"));
 
-
   win.once("ready-to-show", () => win.show());
 
   win.on("close", () => {
