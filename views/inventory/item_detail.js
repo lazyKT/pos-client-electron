@@ -1,8 +1,8 @@
-let medNumber, medDesc, medPrice, medQty, medExp, medApprove, medTag, medIngredients;
-let editMedButton, saveButton, backButton, pagination;
+let medNumber, medDesc, medPrice, medQty, medExp, medApprove, medIngredients;
+let editMedButton, saveButton, deleteButton, backButton, pagination;
 let filtering = false;
 let editing = false;
-let editingID, medTagName;
+let editingID, medTagName, medTagId;
 let serverURL;
 
 window.onload = function () {
@@ -18,22 +18,25 @@ window.onload = function () {
     medQty = document.getElementById("medQty");
     backButton = document.getElementById("back");
     medExp = document.getElementById("medExp");
-    medTag = document.getElementById("medTag");
+    // medTag = document.getElementById("medTag");
     medApprove = document.getElementById("medApprove");
     editMedButton = document.getElementById("edit-medicine");
+    deleteButton = document.getElementById("delete-medicine");
     medIngredients = document.getElementById("medIngredients");
     saveButton = document.getElementById("save-edit");
 
     medDetails.style.display = "none";
 
     window.detailInventoryAPI.receive('reload-data', async data => {
-
+      console.log(data, data);
       serverURL = data.url;
+      medTagId = data.id;
       medTagName = data.name;
+      console.log(medTagName)
       if (status === 'ready') {
           status = 'reloading';
           (document.getElementById("heading")).innerHTML = data.name;
-          await reloadData(data.name);
+          await reloadData(data.id);
           filtering = false;
       }
     });
@@ -57,8 +60,10 @@ window.onload = function () {
 
     saveButton.addEventListener("click", async e => {
 
-      if (medDesc.value === '' || medQty.value === '' || medExp.value === '' || medApprove.value === '' 
-                || medTag.value === '' || medNumber.value === '' || medIngredients.value === '')
+      e.preventDefault();
+
+      if (medDesc.value === '' || medQty.value === '' || medExp.value === '' || medApprove.value === ''
+                || medNumber.value === '' || medIngredients.value === '')
       {
         showAlertModal("Missing Required Values!", "Error!", "error");
         return;
@@ -72,7 +77,7 @@ window.onload = function () {
           qty: parseInt(medQty.value),
           expiry: medExp.value,
           medApprove: medApprove.value === "YES" ? true : false,
-          tag: medTag.value,
+          tag: medTagId,
           productNumber: medNumber.value,
           description: medIngredients.value
         };
@@ -80,21 +85,26 @@ window.onload = function () {
         const response = await editMed(editingID, data);
 
         if (response.ok) {
-          const updatedMed = await response.json();
+          const deletedMed = await response.json();
           showAlertModal(`${medDesc.value}, edited successfully`, "Success!", "success");
           hideMedicineDetails();
         }
         else {
           const { message } = await response.json();
           if (message)
-            showAlertModal(`Cannot Show Medicines Details. ${message}`, "Application Error!", "error");
+            showAlertModal(`Cannot Show Medicines Details. ${message}`, "Error!", "error");
           else
-            showAlertModal("Cannot Show Medicines Details. code 500", "Application Error!", "error");
+            showAlertModal("Cannot Show Medicines Details. code 500", "Internal Server Error!", "error");
         }
       }
       catch (error) {
           showAlertModal("Cannot Show Medicines Details. code 300", "Application Error!", "error");
       }
+    });
+
+    deleteButton.addEventListener("click", e => {
+      e.preventDefault();
+      showDeleteModal();
     });
 }
 
@@ -138,7 +148,7 @@ async function resetFilter() {
   const searchMedInput = document.getElementById("search-input-med");
   searchMedInput.value = "";
   removeMessageBoxes();
-  await reloadData(medTagName);
+  await reloadData(medTagId);
 }
 
 
@@ -196,13 +206,13 @@ function displayMedicines (med, idx) {
 }
 
 
-function showEmptyBox (tag) {
+function showEmptyBox () {
   try {
     const div = document.createElement("div");
     div.setAttribute("class", "alert alert-primary my-2 w-100 text-center");
     div.setAttribute("role", "alert");
     div.setAttribute("id", "empty-msg-alert-box");
-    div.innerHTML = `No item(s) found with ${tag}`;
+    div.innerHTML = `No item(s) found in ${medTagName}`;
 
     (document.getElementById("med-contents")).appendChild(div);
 
@@ -250,14 +260,7 @@ function removeMessageBoxes () {
 async function reloadData(q) {
 
   try {
-    const itemTable = document.getElementById("item-details-table");
-    // const { type, data, method } = newData;
-
-    // get table rows from the current data table
-    const oldData = itemTable.querySelectorAll('tr');
-
-    // excpet the table header, remove all the data
-    oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
+    clearContainer();
 
     // reload the data by fetching data based on the data type, and populate the table again
     if (!filtering)
@@ -268,7 +271,7 @@ async function reloadData(q) {
     if (response && response.ok) {
       const meds = await response.json();
       if (meds.length === 0) {
-        showEmptyBox(q);
+        showEmptyBox();
       }
       else {
         meds.forEach(
@@ -332,7 +335,7 @@ function displayMedInfo (med) {
   medExp.value = dateFormat.split("T")[0];
   medQty.value = parseInt(med.qty);
   medPrice.value = parseInt(med.price);
-  medTag.value = (med.tag).join(", ");
+  // medTag.value = med.category;
   if (med.approve) {
     (document.getElementById("approve-yes")).setAttribute("selected", true);
     (document.getElementById("approve-no")).removeAttribute("selected");
@@ -355,7 +358,7 @@ async function hideMedicineDetails () {
     medDetails.style.display = "none";
     editing = false;
     toggleInputs();
-    await reloadData(medTagName);
+    await reloadData(medTagId);
   }
   catch (error) {
     console.log(error);
@@ -418,6 +421,69 @@ function removeAlertModal (e) {
     alertModal.style.display = "none";
 }
 
+
+function showDeleteModal () {
+  const deleteModal = document.getElementById("delete-alert-modal");
+  if (deleteModal) {
+    deleteModal.style.display = "flex";
+  }
+}
+
+
+function hideDeleteModal (event) {
+  event.preventDefault();
+  const deleteModal = document.getElementById("delete-alert-modal");
+  if (deleteModal) {
+    deleteModal.style.display = "none";
+  }
+}
+
+
+async function deleteMedicine (e) {
+  try {
+    e.preventDefault();
+
+    e.target.innerHTML = "Loading ...";
+
+    const response = await deleteMedicineById (editingID);
+
+    if (response && response.ok) {
+        hideDeleteModal(e);
+        showAlertModal(`Successful Deletion.`, "Success!", "success");
+        hideMedicineDetails();
+    }
+    else {
+      const { message } = await response.json();
+
+      const errMessage = message ? message : "Deletion Failed. code 500";
+      showAlertModal(errMessage, "Error!", "error");
+    }
+  }
+  catch (error) {
+    showAlertModal("Deletion Failed. code 300", "Application Error!", "error");
+  }
+  finally {
+    e.target.innerHTML = "Delete";
+  }
+}
+
+
+/***
+# clear existing data and make room for new data
+**/
+function clearContainer () {
+  const itemTable = document.getElementById("item-details-table");
+  // const { type, data, method } = newData;
+
+  // get table rows from the current data table
+  const oldData = itemTable.querySelectorAll('tr');
+
+  // excpet the table header, remove all the data
+  oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
+
+  removeMessageBoxes();
+}
+
 /***********************************************************************
 ####################### Network Requests ###############################
 ***********************************************************************/
@@ -462,7 +528,7 @@ async function getMedById (id) {
 /** Edit Medicine **/
 async function editMed (id, med) {
   try {
-
+    console.log(id, med);
     const response = await fetch(`${serverURL}/api/meds/${id}`, {
       method: "PUT",
       headers: {
@@ -486,7 +552,7 @@ async function editMed (id, med) {
 async function searchMedsRequest (q) {
   try {
 
-    let url = `${serverURL}/api/meds/by-tag?tag=${medTagName}&q=${q}`
+    let url = `${serverURL}/api/meds/by-tag?tag=${medTagId}&q=${q}`
 
     const response = await fetch(url, {
       method: "GET",
@@ -499,6 +565,27 @@ async function searchMedsRequest (q) {
     return response;
   }
   catch (error) {
+    console.error (error);
+  }
+}
 
+
+/**
+# Delete Medicine by Id
+**/
+async function deleteMedicineById (id) {
+  try {
+    const response = await fetch (`http://127.0.0.1:8080/api/meds/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error (error);
   }
 }

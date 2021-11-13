@@ -19,22 +19,8 @@ window.inventoryAPI.receive("server-url", async url => {
 
     serverURL = url;
     await reloadData({});
-    // const response = await fetchTags();
 
-    // if (response && response.ok) {
-    //   const tags = await response.json();
-    //   await createPaginationButtons();
-
-    //   displayData(tags);
-    // }
-    // else {
-    //   // show error
-    //   (document.getElementById("loading-spinner")).style.display = "none";
-    //   const { message } = await response.json();
-    //   const errMessage = message ? `Error Fetching Category: ${message}` : "Error Fetching Category. code : 500";
-    //   alert(errMessage);
-    //   showErrorMessage(errMessage);
-    // }
+    await createPaginationButtons();
   }
   catch (error) {
     alert(`Error Fetching Tags: code: null`);
@@ -137,8 +123,6 @@ async function filterTags () {
 
   if (!q || q === '')
      return;
-
-  console.log(q);
 
   try {
     filtering = true;
@@ -254,15 +238,14 @@ function displayFilteredResults (results) {
   // excpet the table header, remove all the data
   oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
 
-  // if (results.length > 0)
-    results.forEach( (result, idx) => populateItemTable(result, idx + 1));
-  // else
-  //   showEmptyMessage();
+  results.forEach( (result, idx) => populateItemTable(result, idx + 1));
 };
 
 
 /** show this message box when the contents are empty **/
 function showEmptyMessage () {
+
+  removeMessageBoxes();
 
   const itemTable = document.getElementById("item-table");
 
@@ -328,13 +311,11 @@ function populateItemTable (tags, idx=1) {
   seeMedicineButton.innerHTML = "See Medicines";
   fifthColumn.appendChild(seeMedicineButton);
 
-  // seeMedicineButton.addEventListener("click", e => {
-  //   window.inventoryAPI.send("item-details", data: {name, url: serverURL})
-  // });
   seeMedicineButton.addEventListener("click", e => {
     window.inventoryAPI.send("item-details", {
-      name: name,
-      url: serverURL
+      id: _id,
+      url: serverURL,
+      name
     })
   });
 
@@ -346,7 +327,6 @@ function populateItemTable (tags, idx=1) {
   fifthColumn.appendChild(viewBtn);
 
   viewBtn.addEventListener('click', e => {
-    console.log("View Clk");
     window.inventoryAPI.send('item-data', {
       type: "view",
       data: {
@@ -354,7 +334,7 @@ function populateItemTable (tags, idx=1) {
         url: serverURL
       }
     });
-  })
+  });
 };
 
 
@@ -858,6 +838,7 @@ async function addMedicine (event) {
       throw new Error ("Missing Required Data");
     }
 
+
     const re = new RegExp("^[0-9]+$");
     if (!re.test(price)) {
       // validating price input
@@ -872,27 +853,27 @@ async function addMedicine (event) {
       productNumber,
       tag,
       price: parseInt(price),
-      description
+      description: description === "" ? "NA" : description
     });
 
     if (response && response.ok) {
 
       const med = await response.json();
 
-      showAlertModal(`${name} is successfully added!`, "New Medicines Created", "success");  
+      showAlertModal(`${name} is successfully added!`, "New Medicines Created", "success");
     }
     else {
       const { message } = await response.json();
       if (message)
         showAlertModal(`Error Creating Medicines. ${message}`, "Error!", "error");
       else
-        showAlertModal("Error Creating Medicines. code 300.", "Error!", "error");  
+        showAlertModal("Error Creating Medicines. code 300.", "Error!", "error");
       console.log("error", message);
     }
   }
   catch (error) {
     console.error(`Error Creating New Category`, error);
-    showAlertModal("Error Creating Medicines. code 500.", "Error!", "error");  
+    showAlertModal("Error Creating Medicines. code 500.", "Error!", "error");
   }
   finally {
     document.getElementById("inputDescription").value = '';
@@ -1030,7 +1011,7 @@ async function createTagRequest (tag) {
 
 async function addMedicineRequest (med) {
   try {
-
+    console.log(med);
     const response = await fetch(`${serverURL}/api/meds`, {
       method: "POST",
       headers: {
@@ -1084,5 +1065,28 @@ async function searchAllMedsRequest (q, area) {
   }
   catch (error) {
 
+  }
+}
+
+
+/***********************************************************************
+####################### Clean up EventListeners ########################
+***********************************************************************/
+
+window.onUnload = () => {
+  removeEventListeners(["server-url", "reload-data", "open-export-option", "item-data", "item-details", "logout"])
+};
+
+
+function removeEventListeners (listeners) {
+  try {
+    listeners.forEach (
+      listener => {
+        window.inventoryAPI.removeListener(listener);
+      }
+    )
+  }
+  catch (error) {
+    console.error ("Error Removing Event Listeners", error);
   }
 }
