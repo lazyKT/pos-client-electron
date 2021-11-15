@@ -835,6 +835,13 @@ async function addMedicine (event) {
 
     if (!name || name === '' || !qty || qty === '' || !expiryDate || expiryDate === '' || !price || price === '' ||
           !productNumber || productNumber === '' || !approved || approved === '' || !tag || tag === '') {
+      console.log(name);
+      console.log(qty);
+      console.log(expiryDate);
+      console.log(price);
+      console.log(productNumber);
+      console.log(approved);
+      console.log(tag);
       throw new Error ("Missing Required Data");
     }
 
