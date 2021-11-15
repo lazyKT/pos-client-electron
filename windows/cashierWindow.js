@@ -4,63 +4,82 @@ const {
   ipcMain
 } = require('electron');
 
-const { createMemberCheckoutWindow } = require("./memberCheckoutWindow.js");
-const { createPaymentSummaryWindow } = require(path.join(__dirname, "./paymentSummaryWindow.js"));
+const AppConfig = require("../config");
+
 
 
 let win
 
 exports.createCashierWindow = function createCashierWindow() {
 
-  win = new BrowserWindow({
-    width: 1200,
-    height: 1000,
-    show: false,
-    // fullscreen: true,
-    webPreferences: {
-      contextIsolation: true,
-      nodeIntegration: true,
-      preload: path.join(__dirname, "../preload_scripts/cashierPreload.js")
-    }
-  });
+  if (!win) {
+    win = new BrowserWindow({
+      width: 1200,
+      height: 1000,
+      show: false,
+      // fullscreen: true,
+      webPreferences: {
+        contextIsolation: true,
+        nodeIntegration: true,
+        preload: path.join(__dirname, "../preload_scripts/cashierPreload.js")
+      }
+    });
 
-  win.loadFile(path.join(__dirname, "../views/cashier/cashier.html"));
+    win.loadFile(path.join(__dirname, "../views/cashier/cashier.html"));
 
-  win.openDevTools();
+    win.openDevTools();
 
-  win.once('ready-to-show', () => {
-    win.show();
-  });
+    win.once('ready-to-show', () => {
+      win.show();
+    });
 
-  win.on('close', () => win = null);
+    win.on('close', () => {
+      if (win) {
+        removeEventListeners(["cashier-close"]);
+        removeEmitters();
+        win = null;
+      }
+    });
 
 
-  win.webContents.on("did-finish-load", () => {
+    win.webContents.on("did-finish-load", () => {
+      /** send serverURL to cashier render process */
+      win.webContents.send("ip-address", AppConfig.serverURL);
+    });
 
     /**
     IPC Messages
     **/
     ipcMain.on("cashier-close", () => {
       if (win) win.close();
-    })
-
-    // open member checkout window
-    ipcMain.on("member-checkout-window", (event, args) => {
-      createMemberCheckoutWindow(win);
     });
-
-    // open payment summary window
-    ipcMain.on("open-payment-summary", (event, args) => {
-      createPaymentSummaryWindow(win, args);
-    });
-
-  });
-
+  }
 }
 
 
-exports.closeCashierWindow = function closeCashierWindow() {
-  if (win) {
-    win.close();
+function removeEventListeners (listeners) {
+  try {
+    listeners.forEach(
+      listener => {
+        const func = ipcMain.listeners(listener)[0];
+        if (func)
+          ipcMain.removeListener(listener, func);
+      }
+    )
+  }
+  catch (error) {
+    console.error("Error Removing Event Listeners From CashierWindow\n", error);
+  }
+}
+
+
+function removeEmitters () {
+  try {
+    if (win) {
+      win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
+    }
+  }
+  catch (error) {
+    console.error("Error Removing Event Emitters From CashierWindow\n", error);
   }
 }

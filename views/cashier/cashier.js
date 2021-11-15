@@ -1,61 +1,24 @@
-// // alert(`Welcome. Check in time: ${new Date()}\nPlease check if date and time are correct.`);
-
-
-// DUMMY Data
-const items = [
-  {
-    id: "1234ac",
-    name: "Panadol",
-    price: 1200
-  },
-  {
-    id: "1231ac",
-    name: "Dicogen",
-    price: 1000
-  },
-  {
-    id: "1214ac",
-    name: "Biogesic",
-    price: 800
-  },
-  {
-    id: "1235ac",
-    name: "Fluza",
-    price: 1300
-  },
-  {
-    id: "2234ac",
-    name: "Konidin",
-    price: 1600
-  },
-  {
-    id: "1634ac",
-    name: "Oramin-G",
-    price: 2000
-  },
-  {
-    id: "1114ac",
-    name: "Surgical Mask",
-    price: 1500
-  },
-]
-
-
 let shoppingCart = {
   items: [],
   total: 0
   }
+let serverUrl;
+let totalPrice = 0;
 
 // DOM Nodes
 const addItemBtn = document.getElementById("add-item");
+const searchBtn = document.getElementById("search-item");
 const addFeesBtn = document.getElementById("add-fees");
 const checkoutBtn = document.getElementById("checkout-btn");
 const payBtn = document.getElementById("pay-btn");
 const discardBtn = document.getElementById("discard-btn");
 const printBtn = document.getElementById("print-btn");
 const checkoutModal = document.getElementById("checkout-modal");
-let totalPrice = 0;
+const errorProductScan = document.getElementById("product-scan-error");
+const errorSearchItem = document.getElementById("search-item-error");
 
+showErrorMessage(errorProductScan, show=false);
+showErrorMessage(errorSearchItem, show=false);
 
 /**
 # Once the window loads up, disable all three action buttons and hide what's necessary
@@ -67,55 +30,15 @@ toggleButtonState(printBtn, false);
 toggleButtonState(discardBtn, false);
 
 
-// /**
-// # receive IPC event from the main process after member selection
-// **/
-// window.cashierAPI.receive("member-select", data => {
-
-//   const { id, username, point, fullname } = data;
-//   shoppingCart.memberDetails = data;
-
-//   memberInfoDiv.style.display = "block";
-
-//   (document.getElementById("member-id")).value = id;
-
-//   // member username
-//   (document.getElementById("member-uname")).value = username;
-
-//   // member fname
-//   (document.getElementById("member-fname")).value = fullname;
-
-//   // member points
-//   (document.getElementById("member-points")).value = point;
-
-//   showHideButtons(payBtn, show=true);
-//   showHideButtons(checkoutBtn, show=false);
-//   toggleButtonState(payBtn, enabled=true);
-//   toggleButtonState(printBtn, enabled=true); // enable print btn to print receipt
-//   toggleButtonState(checkoutBtn, enabled=false); // disable pay button
-//   toggleButtonState(discardBtn, enabled=false); // disable discard Button
-
-// });
+/***
+# Remove All Event Listeners when the window is unloaded
+**/
+window.onUnload = () => cleanUp();
 
 
-// /**
-// # reset cashier window
-// **/
-window.cashierAPI.receive("reset-cashier-window", () => {
-
-  showHideButtons(payBtn, show=false); // hide the paybtn
-  showHideButtons(checkoutBtn, show=true); // show checkoutBtn
-  toggleButtonState(checkoutBtn, false);
-  toggleButtonState(payBtn, false);
-  toggleButtonState(printBtn, false);
-  toggleButtonState(discardBtn, false);
-
-  clearCart(); // clear cart
-
-  totalPrice = 0;
-  (document.getElementById("total-price")).innerHTML = totalPrice;
-
-  addEmptyMessageBox();
+window.cashierAPI.receive("ip-address", addr => {
+  serverUrl = addr;
+  console.log(addr);
 });
 
 
@@ -128,38 +51,97 @@ function logoutToMainMenu() {
 /**
 # add medicines to cart
 **/
-addItemBtn.addEventListener("click", e => {
+addItemBtn.addEventListener("click", async e => {
 
-  const itemInput = document.getElementById("item-input").value;
+  const itemInput = document.getElementById("item-input");
 
-  if (!itemInput || itemInput === '')
-    return;
+  try {
 
-  // disable the button to prevent the user's multiple click actions
-  addItemBtn.setAttribute("disabled", true);
-  addItemBtn.innerHTML = "Loading...";
-  removeMessageBox();
+    if (!itemInput || itemInput.value === '')
+      return;
 
-  const item = getItem (itemInput);
-  if (item !== null) {
-    addItemToCart(item);
+    toggleAddButton(e.target, done=false);
+
+    const response = await getItemByProductCode(itemInput.value);
+
+    if (response && response.ok) {
+      showErrorMessage(errorProductScan, show=false);
+      const product = await response.json();
+      addItemToCart(product);
+    }
+    else {
+      const { message } = await response.json();
+
+      const errorMessage = message ? message : "Error: code 500!";
+      showErrorMessage(errorProductScan, show=true, errorMessage);
+    }
   }
-
-  document.getElementById("item-input").value = "";
-  addItemBtn.removeAttribute("disabled");
-  addItemBtn.innerHTML = "Add Item";
+  catch (error) {
+    console.log("Error Scanning Product Code", error);
+    showErrorMessage(errorProductScan, show=true, "Error: code 300!");
+  }
+  finally {
+    toggleAddButton(e.target, done=true);
+    itemInput.value = "";
+  }
 });
 
 
-// /**
-// # add clinic fees
-// **/
-// addFeesBtn.addEventListener("click", e => {
-//   // console.log("clicl");
-//   removeMessageBox();
+function toggleAddButton (button, done) {
+  if (done) {
+    button.innerHTML = "Add item";
+    button.removeAttribute("disabled");
+  }
+  else {
+    button.innerHTML = "Loading...";
+    button.setAttribute("disabled", true);
+  }
+}
 
-// });
 
+searchBtn.addEventListener("click", async e => {
+  try {
+    const searchInput = document.getElementById("item-search-input");
+
+    if (!searchInput || searchInput.value === '')
+      return;
+
+    toggleSearchButton(e.target, done=false);
+
+    const response = await searchProducts(searchInput.value);
+
+    if (response && response.ok) {
+      const products = await response.json();
+
+      displaySearchResults(products, searchInput.value);
+    }
+    else {
+      const { message } = await response.json();
+      const errorMessage = message ? message : "Error: Code 500!";
+      showErrorMessage(errorSearchItem, show=true, errorMessage);
+    }
+
+  }
+  catch (error) {
+    console.error("Error Searching Items\n", error);
+    showErrorMessage(errorSearchItem, show=true, "Error: code 300!");
+  }
+  finally {
+    toggleSearchButton(e.target, done=true);
+  }
+});
+
+
+function toggleSearchButton (button, done) {
+  if (done) {
+    button.innerHTML = "Search";
+    button.removeAttribute("disabled");
+  }
+  else {
+    button.innerHTML = "Loading...";
+    button.setAttribute("disabled", true);
+  }
+}
 
 /**
 # Clear the cart when discard button is pressed
@@ -182,107 +164,12 @@ checkoutBtn.addEventListener("click", e => {
 });
 
 
-// /**
-// # Member Checkout
-// **/
-// memberCheckoutBtn.addEventListener("click", e => {
-//   /** request for member checkout(information) window */
-//   checkoutModal.style.display = "none";
-//   window.cashierAPI.send("member-checkout-window", "");
-// });
-
-
-/**
-# Normal Checkout
-**/
-// if(normalCheckoutBtn){
-// normalCheckoutBtn.addEventListener("click", e => {
-//   /** Just dismiss the modal and proceed */
-//   checkoutModal.style.display = "none";
-//   showHideButtons(payBtn, show=true);
-//   showHideButtons(checkoutBtn, show=false);
-//   toggleButtonState(payBtn, enabled=true);
-//   toggleButtonState(printBtn, enabled=true); // enable print btn to print receipt
-//   toggleButtonState(checkoutBtn, enabled=false); // disable pay button
-// });}
-
-
-// /**
-// # Remove Member Checkout Button and change to Normal Checkout
-// **/
-// removeMemberCheckoutBtn.addEventListener("click", e => {
-//   shoppingCart.memberPts = 0;
-//   shoppingCart.memberDetails = null;
-
-//   memberInfoDiv.style.display = "none";
-//   useMemberPtsBtn.style.display = "block";
-// });
-
-
-
-// /**
-// # Apply member points at checkout
-// **/
-// useMemberPtsBtn.addEventListener("click", e => {
-
-//   e.preventDefault();
-
-//   const pts = document.getElementById("member-points-input").value;
-//   const availablePts = document.getElementById("member-points").value;
-
-//   if (!pts || pts === "")
-//     return;
-
-//   if (parseInt(pts) > parseInt(availablePts)) {
-//     alert("Invalid Member Points. Not enough.");
-//     return;
-//   }
-
-//   showHideButtons(useMemberPtsBtn, show=false); // hide use member point btn
-//   toggleButtonState(useMemberPtsBtn, enabled=false); // disable use member point btn
-//   showHideButtons(removeMemberPtsBtn, show=true); // show remove member point btn
-//   toggleButtonState(removeMemberPtsBtn, enabled=true); // enable remove member point btn
-
-//   shoppingCart.memberPts = parseInt(pts);
-//   (document.getElementById("use-member-point-alert")).innerHTML = `* Member Point(s) applied: ${pts}`;
-
-// });
-
-
-// /**
-// # Remove applied member points
-// **/
-// removeMemberPtsBtn.addEventListener("click", e => {
-//   (document.getElementById("use-member-point-alert")).innerHTML = null;
-
-//   document.getElementById("member-points-input").value = '';
-
-//   showHideButtons(useMemberPtsBtn, show=true); // hide use member point btn
-//   toggleButtonState(useMemberPtsBtn, enabled=true); // disable use member point btn
-//   showHideButtons(removeMemberPtsBtn, show=false); // show remove member point btn
-//   toggleButtonState(removeMemberPtsBtn, enabled=false); // enable remove member point btn
-// });
-
-
-
 /** pay btn **/
 payBtn.addEventListener("click", e => {
   // open payment summary window
 
   window.cashierAPI.send("open-payment-summary", shoppingCart);
 });
-
-
-
-
-/**
-# Remove Cart Empty Message
-**/
-function removeMessageBox() {
-  const messageBox = document.getElementsByClassName("alert")[0];
-
-  if (messageBox) messageBox.remove();
-}
 
 
 /**
@@ -303,17 +190,17 @@ function addEmptyMessageBox() {
 /**
 # Add Items to the Cart
 **/
-function addItemToCart ({id, name, price}) {
+function addItemToCart ({productNumber, name, price}) {
   const cart = document.getElementById("cart");
 
-  const itemsUpdated = updateExistingItemsInCart({id, price});
+  const itemsUpdated = updateExistingItemsInCart({productNumber, price});
   // console.log(itemsUpdated);
 
   if (itemsUpdated == 0) {
     /** create new cart item */
     const cartItem = document.createElement("div");
     cartItem.setAttribute("class", "p-2 bg-light my-1 row");
-    cartItem.setAttribute("id", `data-item-${id}`);
+    cartItem.setAttribute("id", `data-item-${productNumber}`);
 
     const quantityDiv = document.createElement("div");
     quantityDiv.setAttribute("id", "item-qty-div");
@@ -329,7 +216,7 @@ function addItemToCart ({id, name, price}) {
     cartItem.appendChild(priceDiv);
 
     // item quantity
-    const itemQty = createQuantityDivision(1, id, price);
+    const itemQty = createQuantityDivision(1, productNumber, price);
     quantityDiv.appendChild(itemQty);
 
     // item name
@@ -341,8 +228,8 @@ function addItemToCart ({id, name, price}) {
     // item price
     const itemPrice = document.createElement("h6");
     itemPrice.setAttribute("class", "text-muted mx-1 my-2");
-    itemPrice.setAttribute("id", `item-price-${id}`);
-    itemPrice.setAttribute("data-price-item-id", id);
+    itemPrice.setAttribute("id", `item-price-${productNumber}`);
+    itemPrice.setAttribute("data-price-item-id", productNumber);
     itemPrice.innerHTML = `${price} ks`;
     priceDiv.appendChild(itemPrice);
 
@@ -356,7 +243,7 @@ function addItemToCart ({id, name, price}) {
     toggleButtonState(discardBtn, true);
 
     /* update the shopping cart object */
-    updateShoppingCart({id, name, price}, "add");
+    updateShoppingCart({productNumber, name, price}, "add");
   }
 }
 
@@ -367,12 +254,12 @@ function addItemToCart ({id, name, price}) {
 # return int -> 0 if there is no existing item, non-zero positive number if the item exists and successfully updated
 # return -> number of updated existing items
 **/
-function updateExistingItemsInCart ({id, price}) {
+function updateExistingItemsInCart ({updateShoppingCart, price}) {
 
   // get reference of cart dom
   const cart = document.getElementById("cart");
 
-  const existingItems = cart.querySelectorAll(`[data-qty-item-id="${id}"]`);
+  const existingItems = cart.querySelectorAll(`[data-qty-item-id="${updateShoppingCart}"]`);
 
   if (existingItems.length > 0) {
     const currentQty = existingItems[0].innerHTML;
@@ -380,7 +267,7 @@ function updateExistingItemsInCart ({id, price}) {
     existingItems[0].innerHTML = parseInt(currentQty) + 1;
 
     // update price for the cart item
-    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${id}"]`)[0].innerHTML;
+    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${updateShoppingCart}"]`)[0].innerHTML;
 
     const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
 
@@ -391,7 +278,7 @@ function updateExistingItemsInCart ({id, price}) {
     (document.getElementById("total-price")).innerHTML = totalPrice;
 
     /* update the shopping cart object */
-    updateShoppingCart({id, price}, "add");
+    updateShoppingCart({updateShoppingCart, price}, "add");
 
     return parseInt(currentQty);
   }
@@ -403,37 +290,37 @@ function updateExistingItemsInCart ({id, price}) {
 /**
 # Create Quantity Division with increment/decrement actions
 **/
-function createQuantityDivision (qty, id, price) {
+function createQuantityDivision (qty, productNumber, price) {
 
   const div = document.createElement("div");
   div.setAttribute("class", "d-flex justify-content-between align-items-center");
 
   const decrementButton = document.createElement("button");
-  decrementButton.setAttribute("class", "btn btn-primary");
+  decrementButton.setAttribute("class", "btn btn-secondary text-white");
   decrementButton.setAttribute("onclick", reduceQuantityInCart());
   decrementButton.innerHTML = `<i class="fas fa-minus"></i>`;
   div.appendChild(decrementButton);
 
   const qtyText = document.createElement("h6");
   qtyText.setAttribute("class", "px-2 text-muted");
-  qtyText.setAttribute("data-qty-item-id", id);
+  qtyText.setAttribute("data-qty-item-id", productNumber);
   qtyText.innerHTML = qty;
   div.appendChild(qtyText);
 
   const incrementButton = document.createElement("button");
-  incrementButton.setAttribute("class", "btn btn-primary");
+  incrementButton.setAttribute("class", "btn btn-info text-white");
   // incrementButton.setAttribute("onclick", "increaseQuantityInCart()");
   incrementButton.innerHTML = `<i class="fas fa-plus"></i>`;
   div.appendChild(incrementButton);
 
 
   incrementButton.addEventListener("click", e => {
-    increaseQuantityInCart(id, price);
+    increaseQuantityInCart(productNumber, price);
   });
 
 
   decrementButton.addEventListener("click", e => {
-    reduceQuantityInCart(id, price);
+    reduceQuantityInCart(productNumber, price);
   })
 
   return div;
@@ -443,8 +330,8 @@ function createQuantityDivision (qty, id, price) {
 /**
 # Reduce Item Quantity in cart
 **/
-function reduceQuantityInCart (id, price) {
-  const existingItems = cart.querySelectorAll(`[data-qty-item-id="${id}"]`);
+function reduceQuantityInCart (productNumber, price) {
+  const existingItems = cart.querySelectorAll(`[data-qty-item-id="${productNumber}"]`);
 
   if (existingItems.length > 0) {
     const currentQty = existingItems[0].innerHTML;
@@ -453,19 +340,19 @@ function reduceQuantityInCart (id, price) {
 
     if ((currentQty - 1) === 0) {
       // remove product from cart
-      const cartItem = document.getElementById(`data-item-${id}`);
+      const cartItem = document.getElementById(`data-item-${productNumber}`);
       if (cartItem) cartItem.remove();
     }
     else {
       // update price for the cart item
-      const priceDOM = cart.querySelectorAll(`[data-price-item-id="${id}"]`)[0].innerHTML;
+      const priceDOM = cart.querySelectorAll(`[data-price-item-id="${productNumber}"]`)[0].innerHTML;
 
       const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
 
       (document.getElementById(`item-price-${id}`)).innerHTML = `${parseInt(priceTag) - price} ks`;
     }
 
-    updateShoppingCart({id, price}, "remove");
+    updateShoppingCart({productNumber, price}, "remove");
 
     totalPrice -= price;
     (document.getElementById("total-price")).innerHTML = totalPrice;
@@ -476,8 +363,8 @@ function reduceQuantityInCart (id, price) {
 /**
 # Increase Item Quantity in cart
 **/
-function increaseQuantityInCart (id, price) {
-  const existingItems = cart.querySelectorAll(`[data-qty-item-id="${id}"]`);
+function increaseQuantityInCart (productNumber, price) {
+  const existingItems = cart.querySelectorAll(`[data-qty-item-id="${productNumber}"]`);
 
   if (existingItems.length > 0) {
     const currentQty = existingItems[0].innerHTML;
@@ -485,13 +372,13 @@ function increaseQuantityInCart (id, price) {
     existingItems[0].innerHTML = parseInt(currentQty) + 1;
 
     // update price for the cart item
-    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${id}"]`)[0].innerHTML;
+    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${productNumber}"]`)[0].innerHTML;
 
     const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
 
-    (document.getElementById(`item-price-${id}`)).innerHTML = `${parseInt(priceTag) + price} ks`;
+    (document.getElementById(`item-price-${productNumber}`)).innerHTML = `${parseInt(priceTag) + price} ks`;
 
-    updateShoppingCart({id, price}, "add");
+    updateShoppingCart({productNumber, price}, "add");
 
     totalPrice += price;
     (document.getElementById("total-price")).innerHTML = totalPrice;
@@ -585,8 +472,6 @@ function clearCart() {
   toggleButtonState(printBtn, enabled=false);
   toggleButtonState(payBtn, enabled=false);
   toggleButtonState(discardBtn, enabled=false);
-  /** hide the member info div **/
-  memberInfoDiv.style.display = "none";
 }
 
 
@@ -617,18 +502,178 @@ function showHideButtons(btn, show) {
 }
 
 
-/**
-# Get item from the database
-**/
-function getItem (itemCode) {
-  let item = null;
-  for (let i of items) {
-    // console.log(i.id, itemCode, i.id===itemCode);
-    if (i.id === itemCode) {
-      item = i;
-      break;
-    }
+/*=============================================================
+==================== Show Search Results ======================
+=============================================================*/
+
+function displaySearchResults (products, q) {
+  const container = document.getElementById("search-results");
+
+  clearSearchContainer(container);
+
+  if (products.length === 0) {
+    showEmptyResult (container, q);
+  }
+  else {
+    products.forEach(
+      product => {
+        const div = document.createElement("div");
+        const h6 = document.createElement("h6");
+        h6.setAttribute("class", "text-muted mb-3");
+        h6.innerHTML = product.name;
+        div.appendChild(h6);
+
+        createSingleRow(div, "Category", product.category);
+
+        createSingleRow(div, "Ingredients", product.description);
+
+        createRow(div, ["Location", "Product Number", "Price"], [product.location, product.productNumber, product.price]);
+
+        createRow(div,
+          ["Quantity", "Doctor Approve", "Expiry"],
+          [product.qty, product.approve, (new Date(product.expiry)).toLocaleDateString()]);
+
+        container.appendChild(div);
+        container.appendChild(document.createElement("hr"));
+      }
+    );
+  }
+}
+
+function createSingleRow (parent, title, value) {
+  const div = document.createElement("div");
+  div.setAttribute("class", "mb-3");
+
+  const titleDOM = document.createElement("h6");
+  titleDOM.setAttribute("class", "text-muted");
+  titleDOM.innerHTML = title;
+
+  const valueDOM = document.createElement("span");
+  valueDOM.setAttribute("class", "mb-3");
+  valueDOM.innerHTML = value;
+
+  div.appendChild(titleDOM);
+  div.appendChild(valueDOM);
+
+  parent.appendChild(div);
+}
+
+
+function createRow (parent, titles, values) {
+  const row = document.createElement("div");
+  row.setAttribute("class", "row mb-3");
+
+  for (let i = 0; i < 3; i++) {
+    createCol(row, titles[i], values[i]);
   }
 
-  return item;
+  parent.appendChild(row);
+}
+
+function createCol (parent, title, value) {
+  const col = document.createElement("div");
+  col.setAttribute("class", "col");
+
+  const titleDOM = document.createElement("h6");
+  titleDOM.setAttribute("class", "text-muted");
+  titleDOM.innerHTML = title;
+
+  const valueDOM = document.createElement("span");
+  valueDOM.innerHTML = value;
+
+  col.appendChild(titleDOM);
+  col.appendChild(valueDOM);
+
+  parent.appendChild(col);
+}
+
+
+function showEmptyResult (container, q) {
+  if (container) {
+    const emptyAlert = document.createElement("div");
+    emptyAlert.setAttribute("class", "alert alert-info");
+    emptyAlert.innerHTML = `No product(s) found with keyword, ${q}`;
+
+    container.appendChild(emptyAlert);
+  }
+}
+
+
+/** clear results container to make room for new results **/
+function clearSearchContainer (container) {
+  if (container) {
+    while (container.lastChild) {
+      container.removeChild(container.lastChild);
+    }
+  }
+}
+
+
+/*=============================================================
+====================== Alerts and Errors ======================
+=============================================================*/
+
+
+
+function showErrorMessage (container, show, message) {
+  if (container) {
+    if (show) {
+      container.style.display = "block";
+      container.innerHTML = message;
+    }
+    else {
+      container.style.display = "none";
+    }
+  }
+}
+
+
+/*=============================================================
+======================= Network Requests ======================
+=============================================================*/
+
+// get item by product code
+async function getItemByProductCode (code) {
+  try {
+    const response = await fetch(`${serverUrl}/api/meds/exact-search?productNumber=${code}`, {
+      method: "GET",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error("Error getting item by product code", error);
+  }
+}
+
+
+// search products
+async function searchProducts (q) {
+  try {
+    const response = await fetch(`${serverUrl}/api/meds/checkout?q=${q}`, {
+      method: "GET",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error("Error searching items", error);
+  }
+}
+
+
+/*=============================================================
+===================== Clean Up Functions ======================
+=============================================================*/
+
+function cleanUp() {
+  window.cashierAPI.removeListener("ip-address");
 }
