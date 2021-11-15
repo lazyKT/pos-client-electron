@@ -10,8 +10,12 @@ let serverURL;
 let filtering = false;
 
 // DOM Nodes
-const loadingSpinner = document.getElementById("loading-spinner");
+window.onload = () => {
+  const loadingSpinner = document.getElementById("loading-spinner");
+  const inputExpiryDate = document.getElementById("inputExpiryDate");
 
+  setMinExpiryDate(inputExpiryDate);
+}
 
 
 window.inventoryAPI.receive("server-url", async url => {
@@ -291,7 +295,7 @@ function populateItemTable (tags, idx=1) {
   const editBtn = document.createElement('button');
   editBtn.setAttribute('class', 'btn mx-1 btn-primary');
   editBtn.setAttribute('data-id', _id);
-  editBtn.innerHTML = 'EDIT';
+  editBtn.innerHTML = '<i class="fas fa-pen"></i>';
   fifthColumn.appendChild(editBtn);
 
   editBtn.addEventListener('click', e => {
@@ -308,7 +312,7 @@ function populateItemTable (tags, idx=1) {
   const seeMedicineButton = document.createElement("button");
   seeMedicineButton.setAttribute("class", "btn mx-1 btn-success");
   seeMedicineButton.setAttribute("data-id", _id);
-  seeMedicineButton.innerHTML = "See Medicines";
+  seeMedicineButton.innerHTML = '<i class="fas fa-info-circle"></i>';
   fifthColumn.appendChild(seeMedicineButton);
 
   seeMedicineButton.addEventListener("click", e => {
@@ -321,9 +325,9 @@ function populateItemTable (tags, idx=1) {
 
   /* View Details button */
   const viewBtn = document.createElement('button');
-  viewBtn.setAttribute('class', 'btn mx-1 btn-info');
+  viewBtn.setAttribute('class', 'btn mx-1 btn-info text-white');
   viewBtn.setAttribute('data-id', _id);
-  viewBtn.innerHTML = 'See More Details';
+  viewBtn.innerHTML = '<i class="fas fa-eye"></i>';
   fifthColumn.appendChild(viewBtn);
 
   viewBtn.addEventListener('click', e => {
@@ -730,6 +734,27 @@ function removeAllContoents () {
 /***********************************************************************
 ################## CREATE NEW TAGS AND MEDICINES TAB ###################
 ***********************************************************************/
+
+/**
+# Set Minimun Expiry Date to next five months
+**/
+function setMinExpiryDate (input) {
+  const today = new Date();
+  let yyyy = today.getFullYear();
+  let mm = today.getMonth() + 6;
+
+  if (mm > 12) {
+    yyyy = yyyy + 1;
+    mm = mm % 12
+  }
+
+  if (mm < 10)
+    mm = "0" + mm;
+
+  let expDate = `${yyyy}-${mm}-01`;
+  input.setAttribute("min", expDate);
+}
+
 async function addMedTagsToMedicineForm () {
   try {
     const tagSelect = document.getElementById("inputTag");
