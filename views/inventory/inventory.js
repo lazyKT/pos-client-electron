@@ -579,7 +579,9 @@ async function searchAllMedicines() {
         showEmptyMessageSearchAllMeds(searchAllMeds);
       }
       else {
-        results.forEach( r => displaySearchResultsAllMeds(r));
+        results.forEach( r => {
+          displaySearchResultsAllMeds(r);
+        });
       }
     }
     else {
@@ -603,35 +605,42 @@ async function searchAllMedicines() {
 # Display Search Results
 **/
 function displaySearchResultsAllMeds (med) {
+  try {
 
-  // clear the current contents
+    const parent = document.getElementById("search-all-meds-result");
 
-  const parent = document.getElementById("search-all-meds-result");
+    // medicine name
+    medInfoRow(parent, "Medicine Description", med.name);
+    medInfoRow(parent, "Product Number", med.productNumber); // product number
 
-  // medicine name
-  medInfoRow(parent, "Medicine Description", med.name);
-  medInfoRow(parent, "Product Number", med.productNumber); // product number
+    // first row
+    const firstRow = document.createElement("div");
+    firstRow.setAttribute("class", "row p-2");
+    parent.appendChild(firstRow);
 
-  // first row
-  const firstRow = document.createElement("div");
-  firstRow.setAttribute("class", "row p-2");
-  parent.appendChild(firstRow);
-  medInfoRow(firstRow, "Medicine Category", med.tag);
-  medInfoRow(firstRow, "Medicine Price", med.price);
-  medInfoRow(firstRow, "Medicine Quantity", med.qty);
+    medInfoRow(firstRow, "Medicine Category", med.category);
+    medInfoRow(firstRow, "Medicine Price", med.price);
+    medInfoRow(firstRow, "Medicine Quantity", med.qty);
 
-  // second row
-  const secondRow = document.createElement("div");
-  secondRow.setAttribute("class", "row p-2");
-  parent.appendChild(secondRow);
-  medInfoRow(secondRow, "Medicine Expiry", (new Date(med.expiry)).toLocaleDateString());
-  medInfoRow(secondRow, "Medicine Updated", (new Date(med.updated)).toLocaleDateString());
-  medInfoRow(secondRow, "Medicine Created", (new Date(med.updated)).toLocaleDateString());
+    // second row
+    const secondRow = document.createElement("div");
+    secondRow.setAttribute("class", "row p-2");
+    parent.appendChild(secondRow);
+    medInfoRow(secondRow, "Medicine Expiry", (new Date(med.expiry)).toLocaleDateString());
+    medInfoRow(secondRow, "Medicine Updated", (new Date(med.updated)).toLocaleDateString());
+    medInfoRow(secondRow, "Medicine Created", (new Date(med.updated)).toLocaleDateString());
 
-  // ingredients
-  medInfoRow(parent, "Medicine Ingredients", med.description);
+    // ingredients
+    medInfoRow(parent, "Medicine Ingredients", med.description);
 
-  (document.getElementById("search-all-meds-result")).appendChild(document.createElement("hr"));
+    (document.getElementById("search-all-meds-result")).appendChild(document.createElement("hr"));
+  }
+  catch (error) {
+
+  }
+  finally {
+
+  }
 }
 
 
@@ -643,7 +652,7 @@ function medInfoRow(parent, title, value) {
   igTitle.setAttribute("class", "text-muted form-label");
   igValue.setAttribute("class", "text-dark form-label");
   igTitle.innerHTML = `<small>${title}</small>`;
-  igValue.innerHTML = value;
+  igValue.innerHTML = value ? value : "--";
 
   div.appendChild(igTitle);
   div.appendChild(igValue);
@@ -833,9 +842,15 @@ async function addMedicine (event) {
     const price = document.getElementById("inputPrice").value;
     const description = document.getElementById("inputIngredients").value;
 
-    if (!name || name === '' || !qty || qty === '' || !expiryDate || expiryDate === '' || !price || price === '' ||
+    if (!name || name === '' || !qty || qty === '' || !price || price === '' ||
           !productNumber || productNumber === '' || !approved || approved === '' || !tag || tag === '') {
-      throw new Error ("Missing Required Data");
+      showAlertModal("Error Creating Medicines. Missing Required Data.", "Error!", "error");
+      return;
+    }
+
+    if (!expiryDate || expiryDate === '' ) {
+      showAlertModal("Error Creating Medicines. Invalid Expiry Date!", "Error!", "error");
+      return;
     }
 
 
