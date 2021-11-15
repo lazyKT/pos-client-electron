@@ -49,7 +49,7 @@
         <div class="row my-1">
           <div class="col order-5 menu-item card mx-1"
           id="setting"
-          onclick="alert('coming soon')">
+          onclick="requestLoginWindow('cashier')">
             <div class="card-body">
               <i class="fas fa-cash-register"></i>
               <p>Cashier</p>
@@ -67,30 +67,7 @@
         </div>
       </div>
     </div>
-    <!-- login modal -->
-    <div class="modal">
-      <div class="container mt-3">
-        <div class="d-flex justify-content-center">
-          <p>Please Log In</p>
-        </div>
-        <div class="card mx-1">
-          <div class="card-body">
-            <form>
-              <div class="mb-3">
-                <label for="exampleInputEmail1" class="form-label">Username</label>
-                <input type="text" class="form-control" id="username" aria-describedby="emailHelp">
-              </div>
-              <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password">
-              </div>
-              <button id="login" class="btn btn-primary w-100 my-1">Login</button>
-              <button id="login-cancel" class="btn btn-outline-secondary w-100 my-1">Cancel</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+    
     <script src="main.js" data-name='main'>
 
     </script>

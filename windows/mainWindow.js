@@ -35,6 +35,7 @@ exports.createMainWindow = function createMainWindow () {
 
 
     win.loadFile(path.join(__dirname, "../views/main.html"));
+    win.openDevTools();
 
     win.once("ready-to-show", () => win.show() );
 
@@ -58,9 +59,10 @@ exports.createMainWindow = function createMainWindow () {
       */
 
       ipcMain.on("login", (e, from) => {
-
+       
        createLoginWindow(win, from);
       });
+
 
 
       // logout request from Renderer

@@ -28,7 +28,7 @@ window.onload = function () {
     medDetails.style.display = "none";
 
     window.detailInventoryAPI.receive('reload-data', async data => {
-      console.log(data, data);
+      console.log(data);
       serverURL = data.url;
       medTagId = data.id;
       medTagName = data.name;

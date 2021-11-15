@@ -1,4 +1,4 @@
-// alert(`Welcome. Check in time: ${new Date()}\nPlease check if date and time are correct.`);
+// // alert(`Welcome. Check in time: ${new Date()}\nPlease check if date and time are correct.`);
 
 
 // DUMMY Data
@@ -43,13 +43,10 @@ const items = [
 
 let shoppingCart = {
   items: [],
-  total: 0,
-  memberPts: 0,
-  memberDetails: null
-}
+  total: 0
+  }
 
 // DOM Nodes
-const memberInfoDiv = document.getElementById("member-info-div");
 const addItemBtn = document.getElementById("add-item");
 const addFeesBtn = document.getElementById("add-fees");
 const checkoutBtn = document.getElementById("checkout-btn");
@@ -57,68 +54,57 @@ const payBtn = document.getElementById("pay-btn");
 const discardBtn = document.getElementById("discard-btn");
 const printBtn = document.getElementById("print-btn");
 const checkoutModal = document.getElementById("checkout-modal");
-const memberCheckoutBtn = document.getElementById("member-checkout-btn");
-const normalCheckoutBtn = document.getElementById("normal-checkout-btn");
-const removeMemberCheckoutBtn = document.getElementById("remove-member-checkout");
-const useMemberPtsBtn = document.getElementById("use-member-points");
-const removeMemberPtsBtn = document.getElementById("remove-member-points");
 let totalPrice = 0;
 
 
 /**
 # Once the window loads up, disable all three action buttons and hide what's necessary
 **/
-memberInfoDiv.style.display = "none"; // hide member info division
 showHideButtons(payBtn, show=false); // hide the paybtn
-showHideButtons(removeMemberPtsBtn, show=false); // hide remove member points button
-toggleButtonState(removeMemberPtsBtn, enabled=false);
 toggleButtonState(checkoutBtn, false);
 toggleButtonState(payBtn, false);
 toggleButtonState(printBtn, false);
 toggleButtonState(discardBtn, false);
 
 
-/**
-# receive IPC event from the main process after member selection
-**/
-window.cashierAPI.receive("member-select", data => {
+// /**
+// # receive IPC event from the main process after member selection
+// **/
+// window.cashierAPI.receive("member-select", data => {
 
-  const { id, username, point, fullname } = data;
-  shoppingCart.memberDetails = data;
+//   const { id, username, point, fullname } = data;
+//   shoppingCart.memberDetails = data;
 
-  memberInfoDiv.style.display = "block";
+//   memberInfoDiv.style.display = "block";
 
-  (document.getElementById("member-id")).value = id;
+//   (document.getElementById("member-id")).value = id;
 
-  // member username
-  (document.getElementById("member-uname")).value = username;
+//   // member username
+//   (document.getElementById("member-uname")).value = username;
 
-  // member fname
-  (document.getElementById("member-fname")).value = fullname;
+//   // member fname
+//   (document.getElementById("member-fname")).value = fullname;
 
-  // member points
-  (document.getElementById("member-points")).value = point;
+//   // member points
+//   (document.getElementById("member-points")).value = point;
 
-  showHideButtons(payBtn, show=true);
-  showHideButtons(checkoutBtn, show=false);
-  toggleButtonState(payBtn, enabled=true);
-  toggleButtonState(printBtn, enabled=true); // enable print btn to print receipt
-  toggleButtonState(checkoutBtn, enabled=false); // disable pay button
-  toggleButtonState(discardBtn, enabled=false); // disable discard Button
+//   showHideButtons(payBtn, show=true);
+//   showHideButtons(checkoutBtn, show=false);
+//   toggleButtonState(payBtn, enabled=true);
+//   toggleButtonState(printBtn, enabled=true); // enable print btn to print receipt
+//   toggleButtonState(checkoutBtn, enabled=false); // disable pay button
+//   toggleButtonState(discardBtn, enabled=false); // disable discard Button
 
-});
+// });
 
 
-/**
-# reset cashier window
-**/
+// /**
+// # reset cashier window
+// **/
 window.cashierAPI.receive("reset-cashier-window", () => {
 
-  memberInfoDiv.style.display = "none"; // hide member info division
   showHideButtons(payBtn, show=false); // hide the paybtn
   showHideButtons(checkoutBtn, show=true); // show checkoutBtn
-  showHideButtons(removeMemberPtsBtn, show=false); // hide remove member points button
-  toggleButtonState(removeMemberPtsBtn, enabled=false);
   toggleButtonState(checkoutBtn, false);
   toggleButtonState(payBtn, false);
   toggleButtonState(printBtn, false);
@@ -165,14 +151,14 @@ addItemBtn.addEventListener("click", e => {
 });
 
 
-/**
-# add clinic fees
-**/
-addFeesBtn.addEventListener("click", e => {
-  // console.log("clicl");
-  removeMessageBox();
+// /**
+// # add clinic fees
+// **/
+// addFeesBtn.addEventListener("click", e => {
+//   // console.log("clicl");
+//   removeMessageBox();
 
-});
+// });
 
 
 /**
@@ -196,85 +182,86 @@ checkoutBtn.addEventListener("click", e => {
 });
 
 
-/**
-# Member Checkout
-**/
-memberCheckoutBtn.addEventListener("click", e => {
-  /** request for member checkout(information) window */
-  checkoutModal.style.display = "none";
-  window.cashierAPI.send("member-checkout-window", "");
-});
+// /**
+// # Member Checkout
+// **/
+// memberCheckoutBtn.addEventListener("click", e => {
+//   /** request for member checkout(information) window */
+//   checkoutModal.style.display = "none";
+//   window.cashierAPI.send("member-checkout-window", "");
+// });
 
 
 /**
 # Normal Checkout
 **/
-normalCheckoutBtn.addEventListener("click", e => {
-  /** Just dismiss the modal and proceed */
-  checkoutModal.style.display = "none";
-  showHideButtons(payBtn, show=true);
-  showHideButtons(checkoutBtn, show=false);
-  toggleButtonState(payBtn, enabled=true);
-  toggleButtonState(printBtn, enabled=true); // enable print btn to print receipt
-  toggleButtonState(checkoutBtn, enabled=false); // disable pay button
-});
+// if(normalCheckoutBtn){
+// normalCheckoutBtn.addEventListener("click", e => {
+//   /** Just dismiss the modal and proceed */
+//   checkoutModal.style.display = "none";
+//   showHideButtons(payBtn, show=true);
+//   showHideButtons(checkoutBtn, show=false);
+//   toggleButtonState(payBtn, enabled=true);
+//   toggleButtonState(printBtn, enabled=true); // enable print btn to print receipt
+//   toggleButtonState(checkoutBtn, enabled=false); // disable pay button
+// });}
 
 
-/**
-# Remove Member Checkout Button and change to Normal Checkout
-**/
-removeMemberCheckoutBtn.addEventListener("click", e => {
-  shoppingCart.memberPts = 0;
-  shoppingCart.memberDetails = null;
+// /**
+// # Remove Member Checkout Button and change to Normal Checkout
+// **/
+// removeMemberCheckoutBtn.addEventListener("click", e => {
+//   shoppingCart.memberPts = 0;
+//   shoppingCart.memberDetails = null;
 
-  memberInfoDiv.style.display = "none";
-  useMemberPtsBtn.style.display = "block";
-});
-
-
-
-/**
-# Apply member points at checkout
-**/
-useMemberPtsBtn.addEventListener("click", e => {
-
-  e.preventDefault();
-
-  const pts = document.getElementById("member-points-input").value;
-  const availablePts = document.getElementById("member-points").value;
-
-  if (!pts || pts === "")
-    return;
-
-  if (parseInt(pts) > parseInt(availablePts)) {
-    alert("Invalid Member Points. Not enough.");
-    return;
-  }
-
-  showHideButtons(useMemberPtsBtn, show=false); // hide use member point btn
-  toggleButtonState(useMemberPtsBtn, enabled=false); // disable use member point btn
-  showHideButtons(removeMemberPtsBtn, show=true); // show remove member point btn
-  toggleButtonState(removeMemberPtsBtn, enabled=true); // enable remove member point btn
-
-  shoppingCart.memberPts = parseInt(pts);
-  (document.getElementById("use-member-point-alert")).innerHTML = `* Member Point(s) applied: ${pts}`;
-
-});
+//   memberInfoDiv.style.display = "none";
+//   useMemberPtsBtn.style.display = "block";
+// });
 
 
-/**
-# Remove applied member points
-**/
-removeMemberPtsBtn.addEventListener("click", e => {
-  (document.getElementById("use-member-point-alert")).innerHTML = null;
 
-  document.getElementById("member-points-input").value = '';
+// /**
+// # Apply member points at checkout
+// **/
+// useMemberPtsBtn.addEventListener("click", e => {
 
-  showHideButtons(useMemberPtsBtn, show=true); // hide use member point btn
-  toggleButtonState(useMemberPtsBtn, enabled=true); // disable use member point btn
-  showHideButtons(removeMemberPtsBtn, show=false); // show remove member point btn
-  toggleButtonState(removeMemberPtsBtn, enabled=false); // enable remove member point btn
-});
+//   e.preventDefault();
+
+//   const pts = document.getElementById("member-points-input").value;
+//   const availablePts = document.getElementById("member-points").value;
+
+//   if (!pts || pts === "")
+//     return;
+
+//   if (parseInt(pts) > parseInt(availablePts)) {
+//     alert("Invalid Member Points. Not enough.");
+//     return;
+//   }
+
+//   showHideButtons(useMemberPtsBtn, show=false); // hide use member point btn
+//   toggleButtonState(useMemberPtsBtn, enabled=false); // disable use member point btn
+//   showHideButtons(removeMemberPtsBtn, show=true); // show remove member point btn
+//   toggleButtonState(removeMemberPtsBtn, enabled=true); // enable remove member point btn
+
+//   shoppingCart.memberPts = parseInt(pts);
+//   (document.getElementById("use-member-point-alert")).innerHTML = `* Member Point(s) applied: ${pts}`;
+
+// });
+
+
+// /**
+// # Remove applied member points
+// **/
+// removeMemberPtsBtn.addEventListener("click", e => {
+//   (document.getElementById("use-member-point-alert")).innerHTML = null;
+
+//   document.getElementById("member-points-input").value = '';
+
+//   showHideButtons(useMemberPtsBtn, show=true); // hide use member point btn
+//   toggleButtonState(useMemberPtsBtn, enabled=true); // disable use member point btn
+//   showHideButtons(removeMemberPtsBtn, show=false); // show remove member point btn
+//   toggleButtonState(removeMemberPtsBtn, enabled=false); // enable remove member point btn
+// });
 
 
 
@@ -334,7 +321,7 @@ function addItemToCart ({id, name, price}) {
     cartItem.appendChild(quantityDiv);
 
     const itemNameDiv = document.createElement("div");
-    itemNameDiv.setAttribute("class", "col-6");
+    itemNameDiv.setAttribute("class", "col-5");
     cartItem.appendChild(itemNameDiv);
 
     const priceDiv = document.createElement("div");
@@ -428,7 +415,7 @@ function createQuantityDivision (qty, id, price) {
   div.appendChild(decrementButton);
 
   const qtyText = document.createElement("h6");
-  qtyText.setAttribute("class", "text-muted");
+  qtyText.setAttribute("class", "px-2 text-muted");
   qtyText.setAttribute("data-qty-item-id", id);
   qtyText.innerHTML = qty;
   div.appendChild(qtyText);
