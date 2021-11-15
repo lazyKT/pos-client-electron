@@ -793,8 +793,22 @@ async function addMedTagsToMedicineForm () {
 }
 
 
-function removeMedTagsFromMedicineFrom () {
+function getNextFiveMonths () {
+  const today = new Date();
+  let yyyy = today.getFullYear();
+  let mm = today.getMonth() + 6;
 
+  if (mm > 12) {
+    yyyy = yyyy + 1;
+    mm = mm % 12
+  }
+
+  if (mm < 10)
+    mm = "0" + mm;
+
+  let expDate = `${yyyy}-${mm}-01`;
+
+  return new Date(expDate);
 }
 
 
@@ -878,11 +892,16 @@ async function addMedicine (event) {
       return;
     }
 
+    
+    if (new Date(expiryDate) < getNextFiveMonths()) {
+      showAlertModal("Expiry Date must be at least 5 months from now!", "Error!", "error");
+      return;
+    }
 
     const re = new RegExp("^[0-9]+$");
     if (!re.test(price)) {
       // validating price input
-      console.error("Invalid price");
+      showAlertModal("Error Creating Medicines. Invalid Price!", "Error!", "error");
       return;
     }
 
