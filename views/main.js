@@ -21,6 +21,10 @@ function requestLoginWindow(pageName) {
   window.api.send('login', pageName);
 }
 
+function choosePage(selectedPage){
+  console.log("selected page", selectedPage);
+}
+
 // // recieve ipc message from main process to allow redirect
 // window.api.receive('redirect-page', async pageName => {
 //   await redirectToNewPage(pageName)
