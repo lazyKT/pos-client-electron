@@ -32,7 +32,7 @@ window.onload = function () {
       serverURL = data.url;
       medTagId = data.id;
       medTagName = data.name;
-      console.log(medTagName)
+      console.log(medTagName, status);
       if (status === 'ready') {
           status = 'reloading';
           (document.getElementById("heading")).innerHTML = data.name;
@@ -287,11 +287,13 @@ async function reloadData(q) {
 
       // showAlertModal(errMessage, "Network Error!", "error");
       showErrorMessage(errMessage);
+      console.error(errMessage);
     }
 
     status = 'ready';
   }
   catch (error) {
+    console.error(error);
     showAlertModal("Cannot Fetch Medicine Details", "Network Error!", "error");
   }
 };
@@ -335,7 +337,7 @@ function displayMedInfo (med) {
   medExp.value = dateFormat.split("T")[0];
   medQty.value = parseInt(med.qty);
   medPrice.value = parseInt(med.price);
-  // medTag.value = med.category;
+  medTag.value = med.category;
   if (med.approve) {
     (document.getElementById("approve-yes")).setAttribute("selected", true);
     (document.getElementById("approve-no")).removeAttribute("selected");

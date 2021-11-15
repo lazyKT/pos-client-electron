@@ -10,8 +10,12 @@ let serverURL;
 let filtering = false;
 
 // DOM Nodes
-const loadingSpinner = document.getElementById("loading-spinner");
+window.onload = () => {
+  const loadingSpinner = document.getElementById("loading-spinner");
+  const inputExpiryDate = document.getElementById("inputExpiryDate");
 
+  setMinExpiryDate(inputExpiryDate);
+}
 
 
 window.inventoryAPI.receive("server-url", async url => {
@@ -291,7 +295,7 @@ function populateItemTable (tags, idx=1) {
   const editBtn = document.createElement('button');
   editBtn.setAttribute('class', 'btn mx-1 btn-primary');
   editBtn.setAttribute('data-id', _id);
-  editBtn.innerHTML = 'EDIT';
+  editBtn.innerHTML = '<i class="fas fa-pen"></i>';
   fifthColumn.appendChild(editBtn);
 
   editBtn.addEventListener('click', e => {
@@ -308,7 +312,7 @@ function populateItemTable (tags, idx=1) {
   const seeMedicineButton = document.createElement("button");
   seeMedicineButton.setAttribute("class", "btn mx-1 btn-success");
   seeMedicineButton.setAttribute("data-id", _id);
-  seeMedicineButton.innerHTML = "See Medicines";
+  seeMedicineButton.innerHTML = '<i class="fas fa-info-circle"></i>';
   fifthColumn.appendChild(seeMedicineButton);
 
   seeMedicineButton.addEventListener("click", e => {
@@ -321,9 +325,9 @@ function populateItemTable (tags, idx=1) {
 
   /* View Details button */
   const viewBtn = document.createElement('button');
-  viewBtn.setAttribute('class', 'btn mx-1 btn-info');
+  viewBtn.setAttribute('class', 'btn mx-1 btn-info text-white');
   viewBtn.setAttribute('data-id', _id);
-  viewBtn.innerHTML = 'See More Details';
+  viewBtn.innerHTML = '<i class="fas fa-eye"></i>';
   fifthColumn.appendChild(viewBtn);
 
   viewBtn.addEventListener('click', e => {
@@ -579,7 +583,9 @@ async function searchAllMedicines() {
         showEmptyMessageSearchAllMeds(searchAllMeds);
       }
       else {
-        results.forEach( r => displaySearchResultsAllMeds(r));
+        results.forEach( r => {
+          displaySearchResultsAllMeds(r);
+        });
       }
     }
     else {
@@ -603,35 +609,42 @@ async function searchAllMedicines() {
 # Display Search Results
 **/
 function displaySearchResultsAllMeds (med) {
+  try {
 
-  // clear the current contents
+    const parent = document.getElementById("search-all-meds-result");
 
-  const parent = document.getElementById("search-all-meds-result");
+    // medicine name
+    medInfoRow(parent, "Medicine Description", med.name);
+    medInfoRow(parent, "Product Number", med.productNumber); // product number
 
-  // medicine name
-  medInfoRow(parent, "Medicine Description", med.name);
-  medInfoRow(parent, "Product Number", med.productNumber); // product number
+    // first row
+    const firstRow = document.createElement("div");
+    firstRow.setAttribute("class", "row p-2");
+    parent.appendChild(firstRow);
 
-  // first row
-  const firstRow = document.createElement("div");
-  firstRow.setAttribute("class", "row p-2");
-  parent.appendChild(firstRow);
-  medInfoRow(firstRow, "Medicine Category", med.tag);
-  medInfoRow(firstRow, "Medicine Price", med.price);
-  medInfoRow(firstRow, "Medicine Quantity", med.qty);
+    medInfoRow(firstRow, "Medicine Category", med.category);
+    medInfoRow(firstRow, "Medicine Price", med.price);
+    medInfoRow(firstRow, "Medicine Quantity", med.qty);
 
-  // second row
-  const secondRow = document.createElement("div");
-  secondRow.setAttribute("class", "row p-2");
-  parent.appendChild(secondRow);
-  medInfoRow(secondRow, "Medicine Expiry", (new Date(med.expiry)).toLocaleDateString());
-  medInfoRow(secondRow, "Medicine Updated", (new Date(med.updated)).toLocaleDateString());
-  medInfoRow(secondRow, "Medicine Created", (new Date(med.updated)).toLocaleDateString());
+    // second row
+    const secondRow = document.createElement("div");
+    secondRow.setAttribute("class", "row p-2");
+    parent.appendChild(secondRow);
+    medInfoRow(secondRow, "Medicine Expiry", (new Date(med.expiry)).toLocaleDateString());
+    medInfoRow(secondRow, "Medicine Updated", (new Date(med.updated)).toLocaleDateString());
+    medInfoRow(secondRow, "Medicine Created", (new Date(med.updated)).toLocaleDateString());
 
-  // ingredients
-  medInfoRow(parent, "Medicine Ingredients", med.description);
+    // ingredients
+    medInfoRow(parent, "Medicine Ingredients", med.description);
 
-  (document.getElementById("search-all-meds-result")).appendChild(document.createElement("hr"));
+    (document.getElementById("search-all-meds-result")).appendChild(document.createElement("hr"));
+  }
+  catch (error) {
+
+  }
+  finally {
+
+  }
 }
 
 
@@ -643,7 +656,7 @@ function medInfoRow(parent, title, value) {
   igTitle.setAttribute("class", "text-muted form-label");
   igValue.setAttribute("class", "text-dark form-label");
   igTitle.innerHTML = `<small>${title}</small>`;
-  igValue.innerHTML = value;
+  igValue.innerHTML = value ? value : "--";
 
   div.appendChild(igTitle);
   div.appendChild(igValue);
@@ -721,6 +734,27 @@ function removeAllContoents () {
 /***********************************************************************
 ################## CREATE NEW TAGS AND MEDICINES TAB ###################
 ***********************************************************************/
+
+/**
+# Set Minimun Expiry Date to next five months
+**/
+function setMinExpiryDate (input) {
+  const today = new Date();
+  let yyyy = today.getFullYear();
+  let mm = today.getMonth() + 6;
+
+  if (mm > 12) {
+    yyyy = yyyy + 1;
+    mm = mm % 12
+  }
+
+  if (mm < 10)
+    mm = "0" + mm;
+
+  let expDate = `${yyyy}-${mm}-01`;
+  input.setAttribute("min", expDate);
+}
+
 async function addMedTagsToMedicineForm () {
   try {
     const tagSelect = document.getElementById("inputTag");
@@ -759,8 +793,22 @@ async function addMedTagsToMedicineForm () {
 }
 
 
-function removeMedTagsFromMedicineFrom () {
+function getNextFiveMonths () {
+  const today = new Date();
+  let yyyy = today.getFullYear();
+  let mm = today.getMonth() + 6;
 
+  if (mm > 12) {
+    yyyy = yyyy + 1;
+    mm = mm % 12
+  }
+
+  if (mm < 10)
+    mm = "0" + mm;
+
+  let expDate = `${yyyy}-${mm}-01`;
+
+  return new Date(expDate);
 }
 
 
@@ -833,23 +881,27 @@ async function addMedicine (event) {
     const price = document.getElementById("inputPrice").value;
     const description = document.getElementById("inputIngredients").value;
 
-    if (!name || name === '' || !qty || qty === '' || !expiryDate || expiryDate === '' || !price || price === '' ||
+    if (!name || name === '' || !qty || qty === '' || !price || price === '' ||
           !productNumber || productNumber === '' || !approved || approved === '' || !tag || tag === '') {
-      console.log(name);
-      console.log(qty);
-      console.log(expiryDate);
-      console.log(price);
-      console.log(productNumber);
-      console.log(approved);
-      console.log(tag);
-      throw new Error ("Missing Required Data");
+      showAlertModal("Error Creating Medicines. Missing Required Data.", "Error!", "error");
+      return;
     }
 
+    if (!expiryDate || expiryDate === '' ) {
+      showAlertModal("Error Creating Medicines. Invalid Expiry Date!", "Error!", "error");
+      return;
+    }
+
+    
+    if (new Date(expiryDate) < getNextFiveMonths()) {
+      showAlertModal("Expiry Date must be at least 5 months from now!", "Error!", "error");
+      return;
+    }
 
     const re = new RegExp("^[0-9]+$");
     if (!re.test(price)) {
       // validating price input
-      console.error("Invalid price");
+      showAlertModal("Error Creating Medicines. Invalid Price!", "Error!", "error");
       return;
     }
 
