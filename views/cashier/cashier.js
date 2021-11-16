@@ -6,6 +6,9 @@ let serverUrl;
 let totalPrice = 0;
 
 // DOM Nodes
+const mainContents = document.getElementById("main");
+const loadingSpinner = document.getElementById("loading");
+
 const addItemBtn = document.getElementById("add-item");
 const searchBtn = document.getElementById("search-item");
 const addFeesBtn = document.getElementById("add-fees");
@@ -17,12 +20,16 @@ const checkoutModal = document.getElementById("checkout-modal");
 const errorProductScan = document.getElementById("product-scan-error");
 const errorSearchItem = document.getElementById("search-item-error");
 
-showErrorMessage(errorProductScan, show=false);
-showErrorMessage(errorSearchItem, show=false);
+
 
 /**
 # Once the window loads up, disable all three action buttons and hide what's necessary
 **/
+
+onLoadPage(mainContents, loadingSpinner);
+showErrorMessage(errorProductScan, show=false);
+showErrorMessage(errorSearchItem, show=false);
+
 showHideButtons(payBtn, show=false); // hide the paybtn
 toggleButtonState(checkoutBtn, false);
 toggleButtonState(payBtn, false);
@@ -30,19 +37,26 @@ toggleButtonState(printBtn, false);
 toggleButtonState(discardBtn, false);
 
 
-window.onload = () => {
+window.cashierAPI.receive("user-details", details => {
 
-  const now = new Date();
-  const loginTime = document.getElementById("login-time");
-  loginTime.innerHTML = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
-  const employeeName = document.getElementById("employee-name");
-  employeeName.innerHTML = sessionStorage.username;
+  try {
+    const now = new Date();
+    const loginTime = document.getElementById("login-time");
+    loginTime.innerHTML = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+    const employeeName = document.getElementById("employee-name");
+    employeeName.innerHTML = details.username;
 
-  if (localStorage.getItem("serverUrl"))
-    serverUrl = localStorage.getItem("serverUrl");
-  else
-    throw new Error ("Server Url not found!");
-};
+    if (localStorage.getItem("serverUrl"))
+      serverUrl = localStorage.getItem("serverUrl");
+    else
+      throw new Error ("Server Url not found!");
+
+    onDidLoadedPage(mainContents, loadingSpinner);
+  }
+  catch (error) {
+    console.error(error);
+  }
+});
 
 
 /***
@@ -622,6 +636,16 @@ function clearSearchContainer (container) {
 ====================== Alerts and Errors ======================
 =============================================================*/
 
+
+function onLoadPage (content, loading) {
+  content.style.display = "none";
+  loading.style.display = "flex";
+}
+
+function onDidLoadedPage (content, loading) {
+  content.style.display = "block";
+  loading.remove();
+}
 
 
 function showErrorMessage (container, show, message) {

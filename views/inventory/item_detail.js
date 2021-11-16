@@ -7,6 +7,12 @@ let serverURL;
 
 window.onload = function () {
     let status = "ready";
+
+    const mainContents = document.getElementById("main");
+    const loadingSpinner = document.getElementById("loading");
+
+    // onLoadPage(mainContents, loadingSpinner);
+
     const allDetails = document.getElementById("all-detail-item-contents");
     const medDetails = document.getElementById("med-details");
     const cancelButton = document.getElementById("dismiss-window");
@@ -27,19 +33,26 @@ window.onload = function () {
 
     medDetails.style.display = "none";
 
-    window.detailInventoryAPI.receive('reload-data', async data => {
+    serverURL = localStorage.getItem("serverUrl");
+    if (!serverURL || serverURL === null) {
+      showErrorMessage("Error: failed to get server url");
+    }
+    else {
+      window.detailInventoryAPI.receive('reload-data', async data => {
+        medTagId = data.id;
+        medTagName = data.name;
+        console.log(medTagName, status);
+        if (status === 'ready') {
+            status = 'reloading';
+            (document.getElementById("heading")).innerHTML = data.name;
+            await reloadData(data.id);
+            filtering = false;
+        }
+      });
+    }
 
-      serverURL = data.url;
-      medTagId = data.id;
-      medTagName = data.name;
-      console.log(medTagName, status);
-      if (status === 'ready') {
-          status = 'reloading';
-          (document.getElementById("heading")).innerHTML = data.name;
-          await reloadData(data.id);
-          filtering = false;
-      }
-    });
+    onDidLoadedPage(mainContents, loadingSpinner);
+
 
     backButton.addEventListener("click", e => {
       e.preventDefault();
@@ -493,6 +506,20 @@ function clearContainer () {
 
   removeMessageBoxes();
 }
+
+/***********************************************************************
+#################### Page Load/Unload States ###########################
+***********************************************************************/
+function onLoadPage (main, loading) {
+  main.style.display = "none";
+  loading.style.display = "flex";
+}
+
+function onDidLoadedPage (main, loading) {
+  main.style.display = "block";
+  loading.remove();
+}
+
 
 /***********************************************************************
 ####################### Network Requests ###############################

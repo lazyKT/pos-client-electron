@@ -19,8 +19,7 @@ const ALLOWED_SEND_CHANNELS = [
 
 const ALLOWED_RECEIVED_CHANNELS = [
   /** write your allowed channels herer */
-  "reload-data",
-  "server-url"
+  "reload-data"
 ];
 
 

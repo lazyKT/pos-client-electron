@@ -60,11 +60,6 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
   win.webContents.on("did-finish-load", () => {
 
-    /**
-    IPC Messages
-    **/
-    win.webContents.send("server-url", AppConfig.serverURL);
-
     /** LogOut **/
     ipcMain.on("logout", () => {
       ipcMain.removeHandler("get-all-items");

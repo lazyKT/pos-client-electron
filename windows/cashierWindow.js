@@ -80,7 +80,7 @@ function removeEmitters (emitters) {
     if (win) {
       emitters.forEach(
         emitter => {
-          const func = win.webContents.listener(emitter)[0];
+          const func = win.webContents.listeners(emitter)[0];
           if (func)
             win.webContents.removeListener(emitter, func);
         }

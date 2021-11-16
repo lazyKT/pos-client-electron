@@ -35,7 +35,6 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
   pageName = from
 
   win.loadFile(path.join(__dirname, "../views/login.html"));
-  // win.openDevTools();
 
   win.once("ready-to-show", () => win.show());
 
