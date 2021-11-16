@@ -10,10 +10,9 @@ const errorDiv = document.getElementById('error');
 let serverUrl
 
 
-window.formAPI.receive("app-config", addr => {
-  serverUrl = addr;
-  console.log(serverUrl);
-});
+window.onload = () => {
+  serverUrl = localStorage.getItem("serverUrl");
+}
 
 
 document.getElementById('username').focus();
@@ -33,8 +32,9 @@ createBtn.addEventListener('click', async (e) => {
     const mobile = document.getElementById('mobile').value;
     const password = document.getElementById('password').value;
     const accLevel = document.getElementById('acc-lvl').value;
+    const fName = document.getElementById('fName').value;
 
-    if (!username && username === '' && !email && email === '' && !password && password === '') {
+    if (!username || username === '' || !mobile || mobile === '' || !password || password === '' || !fName || fName === '') {
       throw new Error ("Missing Required Inputs");
     }
 
@@ -42,6 +42,7 @@ createBtn.addEventListener('click', async (e) => {
       username,
       mobile,
       password,
+      fullName: fName,
       level: accLevel
     }
 

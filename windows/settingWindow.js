@@ -6,6 +6,7 @@ const {
   BrowserWindow,
   ipcMain
 } = require("electron");
+const Store = require("electron-store");
 
 const AppConfig = require("../config");
 
@@ -26,37 +27,32 @@ exports.createSettingWindow = function () {
         preload: path.join(__dirname, "../preload_scripts/mainPreload.js")
       }
     });
+
+    // local storage init
+    const store = new Store();
+
+    win.loadFile(path.join(__dirname, "../views/settings.html"));
+
+    win.on("ready-to-show", () => win.show());
+
+    win.on("close", () => {
+      if (win) {
+        removeListeners(["close-setting"]);
+        unregisterEmitters();
+        win = null
+      }
+    });
+
+
+    win.webContents.on("did-finish-load", () => {
+
+    });
+
+    ipcMain.on("close-setting", (event, args) => {
+      if (win)
+        win.close();
+    });
   }
-
-
-  win.loadFile(path.join(__dirname, "../views/settings.html"));
-
-  win.on("ready-to-show", () => win.show());
-
-  win.on("close", () => {
-    if (win) {
-      removeListeners(["close-setting", "set-ip"]);
-      unregisterEmitters();
-      win = null
-    }
-  });
-
-
-  win.webContents.on("did-finish-load", () => {
-
-    console.log(AppConfig);
-    win.webContents.send("load-setting", AppConfig);
-  });
-
-  ipcMain.on("set-ip", (event, args) => {
-    AppConfig.serverURL = args;
-  });
-
-  ipcMain.on("close-setting", (event, args) => {
-    if (win)
-      win.close();
-  });
-
 }
 
 

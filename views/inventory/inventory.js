@@ -10,27 +10,27 @@ let serverURL;
 let filtering = false;
 
 // DOM Nodes
-window.onload = () => {
-  const loadingSpinner = document.getElementById("loading-spinner");
-  const inputExpiryDate = document.getElementById("inputExpiryDate");
+window.onload = async () => {
 
-  setMinExpiryDate(inputExpiryDate);
-}
-
-
-window.inventoryAPI.receive("server-url", async url => {
   try {
+    const loadingSpinner = document.getElementById("loading-spinner");
+    const inputExpiryDate = document.getElementById("inputExpiryDate");
 
-    serverURL = url;
+    setMinExpiryDate(inputExpiryDate);
+
+    serverURL = localStorage.getItem("serverUrl");
+
+    if (!serverURL || serverURL === null)
+      throw new Error("Error: failed to get server url");
+
     await reloadData({});
-
     await createPaginationButtons();
   }
   catch (error) {
-    alert(`Error Fetching Tags: code: null`);
-    showErrorMessage(`Error Fetching Tags: code: null`);
+    showErrorMessage(error);
   }
-});
+
+}
 
 
 window.inventoryAPI.receive('reload-data', async data => {
@@ -302,8 +302,7 @@ function populateItemTable (tags, idx=1) {
     window.inventoryAPI.send('item-data', {
       type: "edit",
       data: {
-        id: _id,
-        url: serverURL
+        id: _id
       }
     });
   });
@@ -318,7 +317,6 @@ function populateItemTable (tags, idx=1) {
   seeMedicineButton.addEventListener("click", e => {
     window.inventoryAPI.send("item-details", {
       id: _id,
-      url: serverURL,
       name
     })
   });
@@ -334,8 +332,7 @@ function populateItemTable (tags, idx=1) {
     window.inventoryAPI.send('item-data', {
       type: "view",
       data: {
-        id: _id,
-        url: serverURL
+        id: _id
       }
     });
   });
@@ -578,7 +575,7 @@ async function searchAllMedicines() {
 
     if (response.ok) {
       const results = await response.json();
-      console.log(results);
+
       if (results.length === 0) {
         showEmptyMessageSearchAllMeds(searchAllMeds);
       }
@@ -1070,7 +1067,6 @@ async function createTagRequest (tag) {
 
 async function addMedicineRequest (med) {
   try {
-    console.log(med);
     const response = await fetch(`${serverURL}/api/meds`, {
       method: "POST",
       headers: {

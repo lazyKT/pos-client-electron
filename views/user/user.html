@@ -41,7 +41,7 @@
         <div class="card-body search-div">
           <input class="w-75" id='search-input' type="text" name="" value="" placeholder="Search Users" onkeyup="onKeyUp(event)">
           <div class="w-25">
-            <button onclick="filterUsers()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
+            <button onclick="filterUsers(event)" class="mx-1 btn btn-primary" id="search-btn" type="button" name="Search">Search</button>
             <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button">Cancel</button>
           </div>
         </div>
@@ -75,7 +75,7 @@
     <div id="alert-modal" class="my-alert-modal">
       <div class="my-alert-modal-content" id="alert-modal-content">
         <div id="alert-modal-header" class="p-2">
-          
+
         </div>
         <div class="p-2" id="my-alert-modal-message">
 

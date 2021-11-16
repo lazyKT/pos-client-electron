@@ -10,7 +10,7 @@ const AppConfig = require("../config");
 
 let win
 
-exports.createCashierWindow = function createCashierWindow() {
+exports.createCashierWindow = function createCashierWindow(name, id) {
 
   if (!win) {
     win = new BrowserWindow({
@@ -36,15 +36,17 @@ exports.createCashierWindow = function createCashierWindow() {
     win.on('close', () => {
       if (win) {
         removeEventListeners(["cashier-close"]);
-        removeEmitters();
+        removeEmitters(["dom-ready"]);
         win = null;
       }
     });
 
-
-    win.webContents.on("did-finish-load", () => {
-      /** send serverURL to cashier render process */
-      win.webContents.send("ip-address", AppConfig.serverURL);
+    // win.webContents.once("did-finish-load", () => {
+    //   console.log("did-finish-load");
+    // });
+    //
+    win.webContents.once("dom-ready", () => {
+      win.webContents.send("user-details", {name, id});
     });
 
     /**
@@ -73,10 +75,16 @@ function removeEventListeners (listeners) {
 }
 
 
-function removeEmitters () {
+function removeEmitters (emitters) {
   try {
     if (win) {
-      win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
+      emitters.forEach(
+        emitter => {
+          const func = win.webContents.listeners(emitter)[0];
+          if (func)
+            win.webContents.removeListener(emitter, func);
+        }
+      )
     }
   }
   catch (error) {

@@ -39,10 +39,9 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
   win.once("ready-to-show", () => win.show());
 
   win.on("close", () => {
-    /**
-    *** upon the window close, remove all the existing handlers to prevent second handler registration error in the future
-    **/
-    ipcMain.removeHandler("login-request");
+
+    removeListeners(["dismiss-login-window", "login-request"]);
+    removeEmitters();
 
     win = null
   });
@@ -56,11 +55,6 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
      IPC Messages
      */
     ipcMain.on("dismiss-login-window", (e, from) => {
-      /**
-      *** upon the window close, remove all the existing handlers to prevent second handler registration error in the future
-      **/
-      ipcMain.removeHandler("login-request");
-
       if (win) win.close();
     });
 
@@ -69,14 +63,28 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
     /** user login request */
     ipcMain.on("login-request", (event, args) => {
       try {
-        const { username, status } = args;
-
-        if (status === "success") {
-
-          /* login success, redirect to requested page */
-          if (win) win.close();
-
-          redirectPage(parentWindow, username);
+        const { name, _id, level } = args;
+        if (parseInt(level) === 3) {
+          /* level 3 emp has authorities on whole system */
+          allowAcess(win, parentWindow, name, _id);
+        }
+        else if (parseInt(level) === 2) {
+          /* level 2 employee cannot access manage user page **/
+          if (pageName === "user") {
+            send401Message(event.sender);
+          }
+          else {
+            allowAcess(win, parentWindow, name, _id);
+          }
+        }
+        else {
+          /** level 1 employee can only access cashier **/
+          if (pageName === "cashier") {
+            allowAcess(win, parentWindow, name, _id);
+          }
+          else {
+            send401Message(event.sender);
+          }
         }
       }
       catch (error) {
@@ -92,24 +100,63 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
 /**
  Redirect Page after successful login
  **/
-function redirectPage (parent) {
+function redirectPage (parent, name, _id) {
   /* redirect page */
   switch(pageName) {
     case "cashier":
-      createCashierWindow();
+      createCashierWindow(name, _id);
       break;
     case "user":
       parent.loadFile(path.join(__dirname, "../views/user/user.html"));
-      parent.webContents.send("server-addr", AppConfig.serverURL);
       break;
     case "inventory":
-      createInventoryWindow();
+      createInventoryWindow(name, _id);
       break;
     default:
       throw new Error("Unknown Page Route!");
   }
 }
 
-exports.closeLoginWindow = function closeLoginWindow() {
+
+function allowAcess (win, parentWindow, username, _id) {
+
   if (win) win.close();
+
+  redirectPage(parentWindow, username, _id);
+}
+
+
+/** send permission denied message to rendere */
+function send401Message (emitter) {
+  emitter.send("access-denied", "You don't have permission to access the contents.");
+}
+
+
+/***
+CLEAN UP
+***/
+function removeListeners (listeners) {
+  try {
+    listeners.forEach(
+      listener => {
+        const func = ipcMain.listeners(listener)[0];
+        if (func)
+          ipcMain.removeListener(listener, func);
+      }
+    )
+  }
+  catch (error) {
+    console.error("Error Removing Event Listeners at loginWindow\n", erorr);
+  }
+}
+
+function removeEmitters () {
+  try {
+    if (win) {
+      win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
+    }
+  }
+  catch (error) {
+    console.error("Error Removing Event Emitters at loginWindow\n", error);
+  }
 }

@@ -34,41 +34,32 @@
 
      win.loadFile(path.join(__dirname, "../views/inventory/edit_show_item.html"));
 
+     win.once("ready-to-show", () => win.show());
 
-   win.once("ready-to-show", () => win.show());
+     win.on("close", () => {
+       if(win) {
+         removeListeners(["dismiss-edit-item-form-window", "item-form-data-finish"]);
+         unregisterEmitters();
+         win = null;
+       }
+     })
 
-   win.on("close", () => {
-     if(win) {
-       removeListeners(["dismiss-edit-item-form-window", "item-form-data-finish"]);
-       unregisterEmitters();
-       win = null;
-     }
-   })
+     win.webContents.on("did-finish-load", () => {
 
-   win.webContents.on("did-finish-load", () => {
+       win.webContents.send("response-edit-item-data", {data: contents, method: type});
+     });
 
-     win.webContents.send("response-edit-item-data", {data: contents, method: type});
+     /* close form when the renderer process informs that the edit process is finished */
+     ipcMain.on("item-form-data-finish", (event, args) => {
+       parentWindow.webContents.send("reload-data", args);
+       if(win) win.close();
+     });
 
-     // /* Edit user */
-     // ipcMain.handle("edit-item", (event, args) => {
-     //   return updateItem(args);
-     // });
-
-
-
-   });
-
-   /* close form when the renderer process informs that the edit process is finished */
-   ipcMain.on("item-form-data-finish", (event, args) => {
-     parentWindow.webContents.send("reload-data", args);
-     if(win) win.close();
-   });
-
-   /* Dimiss Window */
-   ipcMain.on("dismiss-edit-item-form-window", (event, args) => {
-     ipcMain.removeHandler("edit-item"); // remove existing handler
-     if(win) win.close();
-   });
+     /* Dimiss Window */
+     ipcMain.on("dismiss-edit-item-form-window", (event, args) => {
+       ipcMain.removeHandler("edit-item"); // remove existing handler
+       if(win) win.close();
+     });
 
    }
 

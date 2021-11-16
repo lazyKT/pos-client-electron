@@ -17,7 +17,7 @@ const ALLOWED_SEND_CHANNELS = [
 
 
 const ALLOWED_RECEIVED_CHANNELS = [
-  "ip-address"
+  "user-details"
 ];
 
 
@@ -36,18 +36,18 @@ contextBridge.exposeInMainWorld('cashierAPI', {
     }
     else throw new Error ("Unkown IPC Channels detected at chashierAPI.reciee");
   },
-  removeListener: (channel) => {
-    if (ALLOWED_RECEIVED_CHANNELS.includes(channel)) {
-      try {
-        const func = ipcRenderer.listeners(channel)[0];
-        if (func)
-          ipcRenderer.removeListener(channel, func);
-      }
-      catch (error) {
-        console.error("Error Removing Event Listeners at cashierAPI", error);
-      }
+  removeListeners: () => {
+    try {
+      ALLOWED_RECEIVED_CHANNELS.forEach(
+        channel => {
+          const func = ipcRenderer.listeners(channel)[0];
+          if (func)
+            ipcRenderer.removeListener(channel, func);
+        }
+      )
     }
-    else
-      throw new Error ("Unkown IPC Channel detected at cashierAPI.removeListener");
+    catch (error) {
+      console.error("Error Removing Event Listeners at cashierAPI");
+    }
   }
 });

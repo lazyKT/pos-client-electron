@@ -37,6 +37,7 @@ exports.createFormWindow = function createFormWindow(parentWindow, content) {
 
     win.setBackgroundColor('#FFFFFF');
     win.loadFile(path.join(__dirname, "../views/user/user_regis.html"));
+    win.openDevTools();
 
     win.once("ready-to-show", () => win.show());
 

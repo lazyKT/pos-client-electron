@@ -12,6 +12,13 @@ const mainPage = document.getElementById('main-container');
 
 let newNode = null;
 
+
+window.onload = () => {
+  localStorage.setItem("serverUrl", "http://127.0.0.1:8080");
+  console.log("Local Storage Saved");
+};
+
+
 /* hide contents window on first load */
 if(contents) contents.style.display = 'none';
 
@@ -24,12 +31,6 @@ function requestLoginWindow(pageName) {
 function choosePage(selectedPage){
   console.log("selected page", selectedPage);
 }
-
-// // recieve ipc message from main process to allow redirect
-// window.api.receive('redirect-page', async pageName => {
-//   await redirectToNewPage(pageName)
-// });
-
 
 /*
  Redirect to New Page
