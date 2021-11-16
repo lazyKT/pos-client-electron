@@ -44,6 +44,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
 
   win.loadFile(path.join(__dirname, "../views/inventory/inventory.html"));
+  // win.openDevTools();
 
   win.once("ready-to-show", () => {
     win.show();
@@ -96,6 +97,14 @@ exports.createInventoryWindow = function createInventoryWindow () {
     ipcMain.on("open-export-options", (e, args) => {
       createInventoryExportWindow (win);
     });
+
+
+    // /**
+    // # Monitor Clean Up Events ** For Dev Env **
+    // **/
+    // ipcMain.on("clean-up", (e, args) => {
+    //   console.log(`[Inventory API] ${args} has been cleaned up.`);
+    // });
 
 
   });

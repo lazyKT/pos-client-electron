@@ -28,7 +28,7 @@ window.onload = function () {
     medDetails.style.display = "none";
 
     window.detailInventoryAPI.receive('reload-data', async data => {
-      console.log(data);
+
       serverURL = data.url;
       medTagId = data.id;
       medTagName = data.name;
@@ -108,11 +108,16 @@ window.onload = function () {
     });
 }
 
+/**
+# Clean Up Event Listeners when the window is unloaded
+**/
+window.onUnload = () => window.detailInventoryAPI.removeListeners();
+
 
 function searchMedsKeyUp(event) {
   const cancelButton = document.getElementById('cancel-med-search');
   const inputValue = document.getElementById('search-input-med').value;
-
+  event.preventDefault();
   if(inputValue !== null){
     cancelButton.style.display = 'block';
   }
@@ -121,13 +126,16 @@ function searchMedsKeyUp(event) {
   }
 
   if (event.key === 'Enter')
-    filterMeds();
+    filterMeds(event);
 };
 
 
 /** search medcines **/
-async function filterMeds() {
+async function filterMeds(event) {
   try {
+
+    event.preventDefault();
+
     filtering = true;
     const q = document.getElementById("search-input-med").value;
 

@@ -30,6 +30,15 @@ toggleButtonState(printBtn, false);
 toggleButtonState(discardBtn, false);
 
 
+window.onload = () => {
+  const now = new Date();
+  const loginTime = document.getElementById("login-time");
+  loginTime.innerHTML = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+  const employeeName = document.getElementById("employee-name");
+  employeeName.innerHTML = "Serah";
+};
+
+
 /***
 # Remove All Event Listeners when the window is unloaded
 **/
@@ -349,7 +358,7 @@ function reduceQuantityInCart (productNumber, price) {
 
       const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
 
-      (document.getElementById(`item-price-${id}`)).innerHTML = `${parseInt(priceTag) - price} ks`;
+      (document.getElementById(`item-price-${productNumber}`)).innerHTML = `${parseInt(priceTag) - price} ks`;
     }
 
     updateShoppingCart({productNumber, price}, "remove");

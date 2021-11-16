@@ -3,12 +3,17 @@ let exportData;
 
 loading.style.display = "none";
 
+/**
+# Clean Up Event Emitters/Listeners when the window is unloaded
+**/
+window.onUnload = () => window.previewAPI.removeListeners();
+
 window.previewAPI.receive("preview-data", data => {
 
   const table = document.getElementById("preview-table");
   removeRows();
   exportData = data;
-
+  console.log(data);
   reformatData();
 
   exportData.forEach(
