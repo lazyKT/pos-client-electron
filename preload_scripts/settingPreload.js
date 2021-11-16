@@ -9,15 +9,12 @@ const {
 
 
 const ALLOWED_SEND_CHANNELS = [
-  "close-setting",
-  "set-ip"
+  "close-setting"
 ]
 
 const ALLOWED_RECEIVED_CHANNELS = [
   "load-setting"
 ];
-
-console.log("Setting Preload");
 
 contextBridge.exposeInMainWorld ("settingAPI", {
   send: (channel, args) => {

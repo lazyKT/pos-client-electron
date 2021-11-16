@@ -6,7 +6,8 @@ const {
   BrowserWindow,
   ipcMain,
   dialog,
-  Menu
+  Menu,
+  session
 } = require('electron');
 
 const { createLoginWindow } = require("./loginWindow.js");
@@ -35,6 +36,7 @@ exports.createMainWindow = function createMainWindow () {
 
 
     win.loadFile(path.join(__dirname, "../views/main.html"));
+    win.openDevTools();
 
     win.once("ready-to-show", () => win.show() );
 
@@ -56,12 +58,10 @@ exports.createMainWindow = function createMainWindow () {
       /**
         IPC Messages
       */
-
       ipcMain.on("login", (e, from) => {
 
        createLoginWindow(win, from);
       });
-
 
 
       // logout request from Renderer
@@ -97,6 +97,30 @@ exports.createMainWindow = function createMainWindow () {
 
 
   }
+}
+
+
+function setDefaultCookies () {
+  const defaultCookies = { url: "app-config", server: "http://127.0.0.1:8080" };
+
+  session.defaultSession.cookies.set(defaultCookies)
+    .then(() => {
+      console.log("Default Cookies Storage Success!");
+    })
+    .catch (err => {
+      console.error("Error Setting Default Cookies. [MainWindow].\n",err);
+    });
+}
+
+
+function getDefaultCookies () {
+  session.defaultSession.cookies.get({url: "app-config"})
+    .then((cookies) => {
+      console.log("Cookies", cookies);
+    })
+    .catch(err => {
+      console.error("Error Getting Default Cookies", err);
+    });
 }
 
 

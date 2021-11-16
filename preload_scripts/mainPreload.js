@@ -16,7 +16,6 @@ const ALLOWED_SEND_CHANNELS = [
   'form-data-finish',
   'export-csv',
   'user-logout',
-  "set-ip",
   "close-setting",
   "request-ip",
   "app-config"

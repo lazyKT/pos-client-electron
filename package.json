@@ -14,6 +14,7 @@
   "devDependencies": {
     "csv-writer": "^1.6.0",
     "electron": "^15.2.0",
+    "electron-store": "^8.0.1",
     "nodemon": "^2.0.13"
   },
   "dependencies": {

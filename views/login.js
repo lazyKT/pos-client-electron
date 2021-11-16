@@ -10,9 +10,13 @@ let route = null
 let serverUrl
 
 
-window.loginAPI.receive("server-addr", addr => {
-  console.log(addr);
-  serverURL = addr;
+window.onload = () => {
+  serverUrl = localStorage.getItem("serverUrl");
+}
+
+
+window.loginAPI.receive("access-denied", message => {
+  showErrorMessage(message);
 });
 
 
@@ -74,7 +78,7 @@ loginButton.addEventListener('click', async (e) => {
       password : password.value
     };
 
-    const response = await fetch(`${serverURL}/api/employees/login`, {
+    const response = await fetch(`${serverUrl}/api/employees/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -83,10 +87,11 @@ loginButton.addEventListener('click', async (e) => {
       body: JSON.stringify(data)
     });
 
-    console.log(response);
+    if (response && response.ok) {
+      const emp = await response.json();
+      const { level, _id } = emp;
 
-    if (response.ok) {
-      window.loginAPI.send("login-request", { username: username.value, status: "success"});
+      window.loginAPI.send("login-request", { username: username.value, level, _id});
     }
     else {
       const json = await response.json();

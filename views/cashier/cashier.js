@@ -31,11 +31,17 @@ toggleButtonState(discardBtn, false);
 
 
 window.onload = () => {
+
   const now = new Date();
   const loginTime = document.getElementById("login-time");
   loginTime.innerHTML = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
   const employeeName = document.getElementById("employee-name");
-  employeeName.innerHTML = "Serah";
+  employeeName.innerHTML = sessionStorage.username;
+
+  if (localStorage.getItem("serverUrl"))
+    serverUrl = localStorage.getItem("serverUrl");
+  else
+    throw new Error ("Server Url not found!");
 };
 
 
@@ -43,12 +49,6 @@ window.onload = () => {
 # Remove All Event Listeners when the window is unloaded
 **/
 window.onUnload = () => cleanUp();
-
-
-window.cashierAPI.receive("ip-address", addr => {
-  serverUrl = addr;
-  console.log(addr);
-});
 
 
 function logoutToMainMenu() {
@@ -684,5 +684,5 @@ async function searchProducts (q) {
 =============================================================*/
 
 function cleanUp() {
-  window.cashierAPI.removeListener("ip-address");
+  window.cashierAPI.removeListeners();
 }
