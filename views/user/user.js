@@ -3,31 +3,35 @@ let serverUrl
 let reloadStatus = "ready";
 
 
-(async function() {
-  window.api.send("app-config", "ip");
-})(window)
 
+window.onload = async () => {
 
-window.api.receive("app-config-response", async addr => {
   try {
-    serverUrl = addr;
-    
-    await reloadData({});
+    serverUrl = localStorage.getItem("serverUrl");
+
+    if (!serverUrl || serverUrl === null)
+      throw new Error("Error: failed to get server url");
+
+    await reloadData();
   }
   catch (error) {
     console.error(error);
-    alert ("Error Fetching Users. code 300");
+    showErrorMessage(error);
   }
   finally {
     loadingSpinner.style.display = "none";
   }
-});
+}
+
+
+window.onUnload = () => window.api.removeListeners();
+
 
 window.api.receive('reload-data', async (data) => {
 
   console.log("reload-data from ipc", reloadStatus);
   if (reloadStatus === 'ready') {
-      await reloadData(data);
+      await reloadData();
   }
 });
 
@@ -41,22 +45,17 @@ const logout = () => {
   window.api.send('user-logout');
 }
 
-async function reloadData(data) {
+async function reloadData() {
 
   console.log("reload-data", reloadStatus);
   if (reloadStatus === "reloading")
     return;
-  
+
   reloadStatus = "reloading";
 
   try {
-    const { type, _data, method } = data;
 
-    // get table rows from the current data table
-    const oldData = document.querySelectorAll('tr');
-
-    // excpet the table header, remove all the data
-    oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
+    clearDataContainer();
 
     // reload the data by fetching data based on the data type, and populate the table again
     const response = await fetchEmployees();
@@ -72,17 +71,13 @@ async function reloadData(data) {
     }
     else {
       const { message } = await response.json();
-
-      if (message) {
-
-      }
-      else {
-
-      }
+      const errorMessage = message ? message : "Error Reloading Data. code 500";
+      showEmptyMessage(errorMessage);
     }
   }
   catch (error) {
     console.log(error);
+    showEmptyMessage("Error Reloading Data. code 300");
   }
   finally {
     reloadStatus = "ready";
@@ -113,8 +108,7 @@ function populateUserTable(empData, idx=1) {
   fifthColumn.appendChild(editBtn);
   //
   editBtn.addEventListener('click', e => {
-    // window.api.send('user-data', {_id, method: 'PUT'});
-    showAlertModal("Coming Soon!");
+    window.api.send('user-data', {_id, method: 'PUT'});
   });
   /* View Details button */
   const viewBtn = document.createElement('button');
@@ -124,42 +118,47 @@ function populateUserTable(empData, idx=1) {
   fifthColumn.appendChild(viewBtn);
 
   viewBtn.addEventListener('click', e => {
-    // window.api.send('user-data', {_id, method: 'GET'});
-    showAlertModal("Coming Soon!");
+    window.api.send('user-data', {_id, method: 'GET'});
   })
 }
 
 function onKeyUp(event) {
   if (event.key === 'Enter')
-      filterUsers();
+      filterUsers(event);
 }
 
 
 /* filter user data */
-const filterUsers = async () => {
+async function filterUsers (event) {
   const q = document.getElementById('search-input').value;
 
   if (!q || q === '')
     return;
 
+  const searchButton = document.getElementById("search-btn");
+  toggleLoadingButton(searchButton, state="loading");
+
+  clearDataContainer();
+
   try {
-      const response = await fetch(`http://127.0.0.1:8080/api/employees/search?q=${q}`, {
-        method: "GET",
-        headers: {
-          "Content-Type" : "application/json",
-          "Accept" : "application/json"
-        }
-      });
+    const response = await searchEmployees(q);
 
-
-      if (response.ok) {
-        const results = await response.json();
-        displayFilteredResults(results);
-      }
+    if (response && response.ok) {
+      const results = await response.json();
+      displayFilteredResults(results);
+    }
+    else {
+      const { message } = await response.json();
+      const errMessage = message ? message : "Error: Network Connection. code 500";
+      showErrorMessage(errMessage);
+    }
 
   }
   catch (error) {
-      console.log('Error filtering user data', error);
+      showErrorMessage(error);
+  }
+  finally {
+    toggleLoadingButton(searchButton, state="ready");
   }
 }
 
@@ -169,12 +168,7 @@ function displayFilteredResults(results) {
   // get table rows from the current data table
   const oldData = document.querySelectorAll('tr');
 
-  // get rid of the empty-message-box if avaialble
-  const emptyMessageBox = document.getElementById('empty-message-box');
-  if (emptyMessageBox) emptyMessageBox.remove();
-
-  // excpet the table header, remove all the data
-  oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
+  // clearDataContainer();
 
   if (results.length > 0)
     results.forEach( (result, idx) => populateUserTable(result, idx + 1));
@@ -185,7 +179,6 @@ function displayFilteredResults(results) {
 
 /** reset filters */
 const resetFilter =  () => {
-  console.log("reset filter");
   const searchInput = document.getElementById('search-input');
   searchInput.value = '';
 
@@ -195,12 +188,12 @@ const resetFilter =  () => {
     emptyMessageBox.remove();
 
   // window.api.send('form-data-finish', {method: 'GET', type: 'user'});
-  reloadData({method: 'GET', type: 'user'});
+  reloadData();
 }
 
 
 /** show this emoty message if the results are empty */
-const showEmptyMessage = () => {
+function showEmptyMessage () {
   const searchInput = document.getElementById('search-input');
   const dataContainer = document.getElementById('data-container');
   const div = document.createElement('div');
@@ -208,6 +201,17 @@ const showEmptyMessage = () => {
   div.setAttribute('class', 'alert alert-info');
   div.setAttribute('role', 'alert');
   div.innerHTML = `No result found related to ${searchInput.value}`;
+  dataContainer.appendChild(div);
+}
+
+
+function showErrorMessage (message) {
+  const dataContainer = document.getElementById('data-container');
+  const div = document.createElement('div');
+  div.setAttribute('id', 'error-message-box');
+  div.setAttribute('class', 'alert alert-danger');
+  div.setAttribute('role', 'alert');
+  div.innerHTML = message;
   dataContainer.appendChild(div);
 }
 
@@ -237,9 +241,58 @@ function removeAlertModal (e) {
 }
 
 
+function clearDataContainer () {
+  const dataContainer = document.getElementById('data-container');
+  while (dataContainer.childElementCount > 1) {
+    dataContainer.removeChild(dataContainer.lastChild);
+  }
+  reloadDataTable();
+}
+
+
+/** clear old table contents to make room for new contents */
+function reloadDataTable () {
+  // get table rows from the current data table
+  const oldData = document.querySelectorAll('tr');
+
+  // excpet the table header, remove all the data
+  oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
+}
+
+
+function toggleLoadingButton (button, originalText, state) {
+  if (state === "loading") {
+    button.innerHTML = "Loading ...";
+    button.setAttribute("disabled", true);
+  }
+  else {
+    button.innerHTML = button.getAttribute("name");
+    button.removeAttribute("disabled");
+  }
+}
+
+
 async function fetchEmployees () {
   try {
-    const response = await fetch(`${serverUrl}/api/employees`, {
+    const response = await fetch(`${serverUrl}/api/employees?limit=0`, {
+      method: "GET",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
+
+
+async function searchEmployees (q) {
+  try {
+    const response = await fetch(`${serverUrl}/api/employees/search?q=${q}`, {
       method: "GET",
       headers: {
         "Content-Type" : "application/json",

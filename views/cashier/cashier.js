@@ -41,10 +41,11 @@ window.cashierAPI.receive("user-details", details => {
 
   try {
     const now = new Date();
+    console.log(details);
     const loginTime = document.getElementById("login-time");
     loginTime.innerHTML = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
     const employeeName = document.getElementById("employee-name");
-    employeeName.innerHTML = details.username;
+    employeeName.innerHTML = details.name;
 
     if (localStorage.getItem("serverUrl"))
       serverUrl = localStorage.getItem("serverUrl");

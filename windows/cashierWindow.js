@@ -10,7 +10,7 @@ const AppConfig = require("../config");
 
 let win
 
-exports.createCashierWindow = function createCashierWindow(username, id) {
+exports.createCashierWindow = function createCashierWindow(name, id) {
 
   if (!win) {
     win = new BrowserWindow({
@@ -46,7 +46,7 @@ exports.createCashierWindow = function createCashierWindow(username, id) {
     // });
     //
     win.webContents.once("dom-ready", () => {
-      win.webContents.send("user-details", {username, id});
+      win.webContents.send("user-details", {name, id});
     });
 
     /**

@@ -91,17 +91,20 @@ loginButton.addEventListener('click', async (e) => {
       const emp = await response.json();
       const { level, _id } = emp;
 
-      window.loginAPI.send("login-request", { username: username.value, level, _id});
+      window.loginAPI.send("login-request", { name: emp.fullName, level, _id});
     }
     else {
-      const json = await response.json();
-      showErrorMessage(json.message);
+      const { message } = await response.json();
+      const errorMessage = message ? message : "Network Connection Error!"
+      showErrorMessage(errorMessage);
     }
 
     toggleModalButtons(true);
   }
   catch (error) {
     showErrorMessage(error);
+  }
+  finally {
     toggleModalButtons(true);
   }
 });

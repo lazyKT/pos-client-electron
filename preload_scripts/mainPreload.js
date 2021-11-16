@@ -17,8 +17,6 @@ const ALLOWED_SEND_CHANNELS = [
   'export-csv',
   'user-logout',
   "close-setting",
-  "request-ip",
-  "app-config"
 ];
 
 const ALLOWED_RECEIVED_CHANNELS = [
@@ -26,13 +24,6 @@ const ALLOWED_RECEIVED_CHANNELS = [
   'redirect-page',
   'reload-data',
   "load-setting",
-  "server-addr",
-  "request-ip",
-  "app-config-response"
-];
-
-const ALLOWED_INVOKED_CHANNELS = [
-
 ];
 
 /*
@@ -109,6 +100,20 @@ contextBridge.exposeInMainWorld("api", {
 
           new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
         }
+      }
+    },
+    removeListeners: () => {
+      try {
+        ALLOWED_RECEIVED_CHANNELS.forEach(
+          channel => {
+            const func = ipcRenderer.listeners(channel)[0];
+            if (func)
+              ipcRenderer.removeListener(channel, func);
+          }
+        )
+      }
+      catch(error) {
+        console.error("Error Removing Event Listeners from mainAPI\n", error);
       }
     }
   }

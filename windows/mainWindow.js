@@ -46,7 +46,7 @@ exports.createMainWindow = function createMainWindow () {
         /**
         # Always clean up the listeners and event emitters
         **/
-        removeListeners(["user-logout", "create-modal", "user-data", "user-logout", "logout", "request-ip"]);
+        removeListeners(["user-logout", "create-modal", "user-data", "user-logout", "logout"]);
         unregisterEmitters();
         win = null;
       }
@@ -84,11 +84,10 @@ exports.createMainWindow = function createMainWindow () {
       });
 
 
-      ipcMain.on("app-config", (event, args) => {
-        console.log(args);
-        event.sender.send("app-config-response", AppConfig.serverURL);
+      // open edit form
+      ipcMain.on("user-data", (event, args) => {
+        createEditFormWindow(win, args.method, args._id);
       });
-
 
     });
 

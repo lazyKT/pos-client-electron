@@ -63,10 +63,10 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
     /** user login request */
     ipcMain.on("login-request", (event, args) => {
       try {
-        const { username, _id, level } = args;
+        const { name, _id, level } = args;
         if (parseInt(level) === 3) {
           /* level 3 emp has authorities on whole system */
-          allowAcess(win, parentWindow, username, _id);
+          allowAcess(win, parentWindow, name, _id);
         }
         else if (parseInt(level) === 2) {
           /* level 2 employee cannot access manage user page **/
@@ -74,13 +74,13 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
             send401Message(event.sender);
           }
           else {
-            allowAcess(win, parentWindow, username, _id);
+            allowAcess(win, parentWindow, name, _id);
           }
         }
         else {
           /** level 1 employee can only access cashier **/
           if (pageName === "cashier") {
-            allowAcess(win, parentWindow, username, _id);
+            allowAcess(win, parentWindow, name, _id);
           }
           else {
             send401Message(event.sender);
@@ -100,18 +100,17 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
 /**
  Redirect Page after successful login
  **/
-function redirectPage (parent, username, _id) {
+function redirectPage (parent, name, _id) {
   /* redirect page */
   switch(pageName) {
     case "cashier":
-      createCashierWindow(username, _id);
+      createCashierWindow(name, _id);
       break;
     case "user":
       parent.loadFile(path.join(__dirname, "../views/user/user.html"));
-      parent.webContents.send("server-addr", AppConfig.serverURL);
       break;
     case "inventory":
-      createInventoryWindow(username, _id);
+      createInventoryWindow(name, _id);
       break;
     default:
       throw new Error("Unknown Page Route!");

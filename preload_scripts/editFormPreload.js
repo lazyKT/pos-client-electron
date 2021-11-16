@@ -23,13 +23,6 @@ const ALLOWED_SEND_CHANNELS = [
 ];
 
 
-const ALLOWED_INVOKED_CHANNELS = [
-  "edit-user",
-  "edit-item",
-  "edit-detail-item"
-];
-
-
 contextBridge.exposeInMainWorld ("editContentAPI", {
   send: (channel, data) => {
     if (ALLOWED_SEND_CHANNELS.includes(channel)) {
@@ -50,17 +43,18 @@ contextBridge.exposeInMainWorld ("editContentAPI", {
     }
     else throw new Error("Unknown IPC Message Received!");
   },
-  invoke: async (channel, data) => {
-    if (ALLOWED_INVOKED_CHANNELS.includes(channel)) {
-      try {
-        const response = await ipcRenderer.invoke(channel, data);
-
-        return response;
-      }
-      catch (erorr) {
-        console.log(erorr);
-      }
+  removeListeners: () => {
+    try {
+      ALLOWED_RECEIVED_CHANNELS.forEach(
+        channel => {
+          const func = ipcRenderer.listeners(channel)[0];
+          if (func)
+            ipcRenderer.removeListener(channel, func);
+        }
+      )
     }
-    else throw new Error("Unknown IPC Message Invoked");
+    catch(error) {
+      console.error("Error Removing Event Listeners from editContentAPI\n", error);
+    }
   }
 });
