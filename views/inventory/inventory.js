@@ -892,7 +892,7 @@ async function addMedicine (event) {
       return;
     }
 
-    
+
     if (new Date(expiryDate) < getNextFiveMonths()) {
       showAlertModal("Expiry Date must be at least 5 months from now!", "Error!", "error");
       return;
@@ -1132,20 +1132,4 @@ async function searchAllMedsRequest (q, area) {
 ####################### Clean up EventListeners ########################
 ***********************************************************************/
 
-window.onUnload = () => {
-  removeEventListeners(["server-url", "reload-data", "open-export-option", "item-data", "item-details", "logout"])
-};
-
-
-function removeEventListeners (listeners) {
-  try {
-    listeners.forEach (
-      listener => {
-        window.inventoryAPI.removeListener(listener);
-      }
-    )
-  }
-  catch (error) {
-    console.error ("Error Removing Event Listeners", error);
-  }
-}
+window.onUnload = () => window.inventoryAPI.removeListeners();

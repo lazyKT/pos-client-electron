@@ -33,7 +33,6 @@ exports.createInventoryExportWindow = function (parent) {
 
 
   win.loadFile(path.join(__dirname, "../views/inventory/export_data.html"));
-  // win.openDevTools();
 
 
   win.on("ready-to-show", () => win.show());

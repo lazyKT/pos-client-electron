@@ -9,6 +9,13 @@ const previewBtn = document.getElementById("preview");
 const closeBtn = document.getElementById("close");
 const loading = document.getElementById("loading");
 
+
+/**
+# Clean Up Event Emitters/Listeners when the window is unloaded
+**/
+window.onUnload = () => window.exportAPI.removeListeners();
+
+
 window.exportAPI.receive("server-addr", async addr => {
   try {
     serverURL = addr;
@@ -43,11 +50,11 @@ previewBtn.addEventListener("click", async e => {
   try {
     loading.style.display = "block";
     previewBtn.setAttribute("disabled", true);
-    const tag = document.getElementById("tag-select").value;
     const name = document.getElementById("keyword").value;
     const d1 = document.getElementById("date1").value;
     const d2 = document.getElementById("date2").value;
     const excludeDate = document.getElementById("exclude-date");
+    const tag = document.getElementById("tag-select");
 
 
     if (!excludeDate.checked && (!d1 || d1 === "" || !d2 || d2 === "")) {
@@ -57,12 +64,14 @@ previewBtn.addEventListener("click", async e => {
       return;
     }
 
-
-    const response = await getExportData({tag, name, d1, d2, excludeDate: excludeDate.checked});
+    const response = await getExportData({
+      tag: tag.options[tag.selectedIndex].dataset.id,
+      excludeDate: excludeDate.checked,
+      name, d1, d2
+    });
 
     if (response && response.ok) {
       const data = await response.json();
-      console.log(data);
       window.exportAPI.send("open-preview", data);
     }
     else {
@@ -93,6 +102,7 @@ function fillTags (tags) {
     tag => {
       const option = document.createElement("option");
       option.setAttribute("value", tag.name);
+      option.setAttribute("data-id", tag._id);
       option.innerHTML = tag.name;
       tagSelect.appendChild(option);
     }
@@ -136,8 +146,6 @@ async function getExportData(q) {
 
     if (name && name !== "")
       baseUrl = `${baseUrl}&name=${name}`;
-
-    console.log(baseUrl);
 
     const response = await fetch (baseUrl, {
       method: "GET",

@@ -16,12 +16,6 @@ const ALLOWED_SEND_CHANNELS = [
   "open-export-options"
 ];
 
-const ALLOWED_INVOKED_CHANNELS = [
-  /** write your allowed channels herer */
-  "get-all-items",
-  "search-data",
-];
-
 
 const ALLOWED_RECEIVED_CHANNELS = [
   /** write your allowed channels herer */
@@ -58,27 +52,23 @@ contextBridge.exposeInMainWorld ("inventoryAPI", {
     }
     else throw new Error("Unknown IPC Channels Detected in inventoryPreload.recieve");
   },
-  /**
-  # Renderer will use this as ipcRenderer.on
-  **/
-  invoke: async (channel, data) => {
-    if (ALLOWED_INVOKED_CHANNELS.includes(channel)) {
-      try {
-        const response = await ipcRenderer.invoke(channel, data);
-
-        return response;
-      }
-      catch (error) {
-        console.log(error);
-      }
+  removeListeners: () => {
+    // ipcRenderer.send("clean-up", "clean up");
+    try {
+      ALLOWED_RECEIVED_CHANNELS.forEach(
+        channel => {
+          const func = ipcRenderer.listeners(channel)[0];
+          if (func) {
+            console.log(`Removed listener from ${channel}`);
+            ipcRenderer.removeListener(channel, func);
+            // ipcRenderer.send("clean-up", channel);
+          }
+        }
+      )
     }
-    else throw new Error("Unknown IPC Channels Detected in inventoryPreload.invoke");
-  },
-  removeListener: (channel) => {
-    const func = ipcRenderer.listeners(channel)[0];
-    if (func) {
-      console.log(`Removed listener from ${channel}`);
-      ipcRenderer.removeListener(channel, func);
+    catch (error) {
+      // ipcRenderer.send("clean-up", error);
+      console.error("Error Removing Event Listeners from inventoryAPI\n", error);
     }
   }
 });

@@ -31,6 +31,7 @@ exports.createPreviewWindow = function (parent, data) {
     });
 
     win.loadFile(path.join(__dirname, "../views/inventory/preview.html"));
+    win.openDevTools();
 
     win.on("ready-to-show", () => win.show());
 
@@ -99,13 +100,14 @@ function getCsvWriter (filePath) {
     header: [
       {id: 'productNumber', title: 'Product Number'},
       {id: 'name', title: 'Description'},
+      {id: "category", title: "Category"},
+      {id: "location", title: "Location"},
       {id: 'expiry', title: "Expiry Date"},
       {id: 'qty', title: "Quantity"},
       {id: "price", title: "Unit Price"},
       {id: "approve", title: "Doctor Approve"},
       {id: "description", title: "Ingredients"},
-      {id: "tag", title: "Category"},
-      {id: "updated", titile: "Updated On"},
+      {id: "updated", title: "Updated On"},
       {id: "created", title: "Created On"},
     ]
   });
