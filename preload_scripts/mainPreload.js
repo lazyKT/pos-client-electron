@@ -9,6 +9,8 @@ const {
 const ALLOWED_SEND_CHANNELS = [
   'toMain',
   'login',
+  'login-user',
+  'remove-login-event',
   'logout',
   'create-modal',
   'user-data',
@@ -53,22 +55,6 @@ contextBridge.exposeInMainWorld("api", {
       }
       else
         throw new Error (`Unknown IPC Channel, '${channel}' received at mainAPI.receive`);
-    },
-    invoke: async (channel, data) => {
-      try {
-        if (ALLOWED_INVOKED_CHANNELS.includes(channel)) {
-          // console.log('channel', channel);
-          // console.log('data', data);
-          const response = await ipcRenderer.invoke(channel, data);
-
-          return response;
-        }
-        else
-          throw new Error (`Unknown IPC Channel, '${channel}' received at mainAPI.invoke`);
-      }
-      catch (error) {
-        console.log(`Error invoking @ channel: ${channel}`, error);
-      }
     },
     showNotification: ({type, data, method}) => {
       // console.log('show notification', type, data, method);

@@ -15,6 +15,9 @@ window.onload = () => {
 }
 
 
+window.onUnload = () => window.loginAPI.removeListeners();
+
+
 window.loginAPI.receive("access-denied", message => {
   showErrorMessage(message);
 });

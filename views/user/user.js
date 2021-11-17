@@ -7,6 +7,9 @@ let reloadStatus = "ready";
 window.onload = async () => {
 
   try {
+
+    window.api.send("remove-login-event");
+
     serverUrl = localStorage.getItem("serverUrl");
 
     if (!serverUrl || serverUrl === null)
