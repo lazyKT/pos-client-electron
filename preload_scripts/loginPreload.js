@@ -38,8 +38,11 @@ contextBridge.exposeInMainWorld ( "loginAPI", {
       ALLOWED_RECEIVED_CHANNELS.forEach (
         channel => {
           const func = ipcRenderer.listeners(channel)[0];
-          if (func)
+          console.log(channel, func);
+          if (func) {
             ipcRenderer.removeListener(channel, func);
+            console.log(`${channel} removed from loginAPI`);
+          }
         }
       )
     }

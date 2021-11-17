@@ -34,9 +34,11 @@ exports.createMainWindow = function createMainWindow () {
       }
     });
 
+    const mainMenuURL = path.join(__dirname, "../views/main.html");
+    const userMangementURL = path.join(__dirname, "../views/user/user.html");
 
-    win.loadFile(path.join(__dirname, "../views/main.html"));
-    win.openDevTools();
+
+    win.loadFile(mainMenuURL);
 
     win.once("ready-to-show", () => win.show() );
 
@@ -46,49 +48,59 @@ exports.createMainWindow = function createMainWindow () {
         /**
         # Always clean up the listeners and event emitters
         **/
-        removeListeners(["user-logout", "create-modal", "user-data", "user-logout", "logout"]);
+        removeListeners(["login", "login-user", "user-logout", "create-modal", "user-data", "user-logout", "logout"]);
         unregisterEmitters();
         win = null;
       }
     });
 
 
-    win.webContents.on("did-finish-load", () => {
+    /**
+    # When the window changes the file to load page
+    **/
+    win.webContents.on("did-navigate", (event, url) => {
 
-      /**
-        IPC Messages
-      */
-      ipcMain.on("login", (e, from) => {
+      /** if the current page is Main Menu, listen for user login event and remove once done " **/
+      if (url.split("://")[1] === mainMenuURL) {
 
-       createLoginWindow(win, from);
-      });
+        ipcMain.once("login-user", (e, args) => {
+          win.loadFile(userMangementURL);
+        });
+      }
+    });
 
-
-      // logout request from Renderer
-      ipcMain.on('logout', (e, response) => {
-        e.sender.send('logout-response', 200);
-      });
-
-      /**
-      ##### USER IPC CHANNELS #####
-      **/
-
-      ipcMain.on('user-logout', (e, response) => {
-        win.loadFile(path.join(__dirname, "../views/main.html"));
-      });
+    /**
+      IPC Messages
+    */
+    ipcMain.on("login", (e, from) => {
+      console.log("ipcMain.on('login')");
+      createLoginWindow(win, from);
+    });
 
 
-      // main process receives ipc message to open create new data modal
-      ipcMain.on('create-modal', (e, windowType) => {
-        createFormWindow(win, windowType);
-      });
+    // logout request from Renderer
+    ipcMain.on('logout', (e, response) => {
+      e.sender.send('logout-response', 200);
+    });
+
+    /**
+    ##### USER IPC CHANNELS #####
+    **/
+
+    ipcMain.on('user-logout', (e, response) => {
+      win.loadFile(mainMenuURL);
+    });
 
 
-      // open edit form
-      ipcMain.on("user-data", (event, args) => {
-        createEditFormWindow(win, args.method, args._id);
-      });
+    // main process receives ipc message to open create new data modal
+    ipcMain.on('create-modal', (e, windowType) => {
+      createFormWindow(win, windowType);
+    });
 
+
+    // open edit form
+    ipcMain.on("user-data", (event, args) => {
+      createEditFormWindow(win, args.method, args._id);
     });
 
 
@@ -99,38 +111,11 @@ exports.createMainWindow = function createMainWindow () {
 }
 
 
-function setDefaultCookies () {
-  const defaultCookies = { url: "app-config", server: "http://127.0.0.1:8080" };
-
-  session.defaultSession.cookies.set(defaultCookies)
-    .then(() => {
-      console.log("Default Cookies Storage Success!");
-    })
-    .catch (err => {
-      console.error("Error Setting Default Cookies. [MainWindow].\n",err);
-    });
-}
-
-
-function getDefaultCookies () {
-  session.defaultSession.cookies.get({url: "app-config"})
-    .then((cookies) => {
-      console.log("Cookies", cookies);
-    })
-    .catch(err => {
-      console.error("Error Getting Default Cookies", err);
-    });
-}
-
-
 function removeListeners (listeners) {
   try {
     listeners.forEach (
       listener => {
-        const func = ipcMain.listeners(listener)[0];
-        if (func) {
-          ipcMain.removeListener(listener, func);
-        }
+        ipcMain.removeAllListeners([listener]);
       }
     );
   }
@@ -143,8 +128,7 @@ function removeListeners (listeners) {
 function unregisterEmitters () {
   try {
     if (win) {
-        win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
-        ipcMain.removeHandler("request-ip");
+        win.webContents.removeListener("did-navigate", win.webContents.listeners("did-navigate")[0]);
     }
   }
   catch (error) {

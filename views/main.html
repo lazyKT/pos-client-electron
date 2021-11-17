@@ -13,16 +13,7 @@
     <link rel="stylesheet" href="user/user.css">
   </head>
   <body>
-    <!-- login contents -->
-    <div id="contents">
-      <header>
-        <h4 id='content-title'>Pharmacy</h4>
-        <button class="btn-logout" id="logout" onclick="logoutToMainMenu()">
-          Logout<i class="fas fa-sign-out-alt"></i>
-        </button>
-      </header>
-      <!-- dynamic contents -->
-    </div>
+
     <!-- main menu -->
     <div id="main-container" class="main-container">
       <div class="container">
@@ -67,7 +58,29 @@
         </div>
       </div>
     </div>
-    
+
+    <!-- login modal -->
+    <div class="login-modal-container" id="login-modal-container">
+      <div class="login-modal">
+        <h5 class="mb-2">Login</h5>
+        <div class="alert alert-danger mb-1" id="error-alert">
+          
+        </div>
+        <form>
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control" id="username">
+          </div>
+          <div class="mb-3">
+            <label for="exampleInputPassword1" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password">
+          </div>
+          <button id="login" onclick="loginUserToUserPannel(event)" class="btn btn-primary w-100 my-1">Login</button>
+          <button id="login-cancel" onclick="closeLoginModal(event)" class="btn btn-outline-secondary w-100 my-1">Cancel</button>
+        </form>
+      </div>
+    </div>
+
     <script src="main.js" data-name='main'>
 
     </script>

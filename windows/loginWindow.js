@@ -137,13 +137,11 @@ CLEAN UP
 ***/
 function removeListeners (listeners) {
   try {
-    listeners.forEach(
+    listeners.forEach (
       listener => {
-        const func = ipcMain.listeners(listener)[0];
-        if (func)
-          ipcMain.removeListener(listener, func);
+        ipcMain.removeAllListeners([listener]);
       }
-    )
+    );
   }
   catch (error) {
     console.error("Error Removing Event Listeners at loginWindow\n", erorr);
@@ -153,7 +151,7 @@ function removeListeners (listeners) {
 function removeEmitters () {
   try {
     if (win) {
-      win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
+      win.webContents.removeAllListeners(["did-finish-load"]);
     }
   }
   catch (error) {

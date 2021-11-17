@@ -203,7 +203,7 @@ function addEmptyMessageBox() {
   const msgBox = document.createElement("div");
   msgBox.setAttribute("class", "alert alert-info text-center");
   msgBox.setAttribute("role", "alert");
-  msgBox.innerHTML = "Card is Empty!";
+  msgBox.innerHTML = "Card is Cleared!";
 
   const cart = document.getElementById("cart");
   cart.appendChild(msgBox);
@@ -217,7 +217,7 @@ function addEmptyMessageBox() {
 function addItemToCart ({productNumber, name, price}) {
   const cart = document.getElementById("cart");
 
-  const itemsUpdated = updateExistingItemsInCart({productNumber, price});
+  const itemsUpdated = updateExistingItemsInCart(productNumber, price);
   // console.log(itemsUpdated);
 
   if (itemsUpdated == 0) {
@@ -278,12 +278,13 @@ function addItemToCart ({productNumber, name, price}) {
 # return int -> 0 if there is no existing item, non-zero positive number if the item exists and successfully updated
 # return -> number of updated existing items
 **/
-function updateExistingItemsInCart ({updateShoppingCart, price}) {
+function updateExistingItemsInCart (productNumber, price) {
 
   // get reference of cart dom
   const cart = document.getElementById("cart");
 
-  const existingItems = cart.querySelectorAll(`[data-qty-item-id="${updateShoppingCart}"]`);
+  // get qty element
+  const existingItems = cart.querySelectorAll(`[data-qty-item-id="${productNumber}"]`);
 
   if (existingItems.length > 0) {
     const currentQty = existingItems[0].innerHTML;
@@ -291,18 +292,18 @@ function updateExistingItemsInCart ({updateShoppingCart, price}) {
     existingItems[0].innerHTML = parseInt(currentQty) + 1;
 
     // update price for the cart item
-    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${updateShoppingCart}"]`)[0].innerHTML;
+    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${productNumber}"]`)[0].innerHTML;
 
     const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
 
-    (document.getElementById(`item-price-${id}`)).innerHTML = `${2 * parseInt(priceTag)} ks`;
+    (document.getElementById(`item-price-${productNumber}`)).innerHTML = `${2 * parseInt(priceTag)} ks`;
 
     // update total price for the cart
     totalPrice += price;
     (document.getElementById("total-price")).innerHTML = totalPrice;
 
     /* update the shopping cart object */
-    updateShoppingCart({updateShoppingCart, price}, "add");
+    updateShoppingCart({productNumber, price}, "add");
 
     return parseInt(currentQty);
   }
@@ -332,7 +333,7 @@ function createQuantityDivision (qty, productNumber, price) {
   div.appendChild(qtyText);
 
   const incrementButton = document.createElement("button");
-  incrementButton.setAttribute("class", "btn btn-info text-white");
+  incrementButton.setAttribute("class", "btn btn-secondary text-white");
   // incrementButton.setAttribute("onclick", "increaseQuantityInCart()");
   incrementButton.innerHTML = `<i class="fas fa-plus"></i>`;
   div.appendChild(incrementButton);
