@@ -1,4 +1,6 @@
 let shoppingCart = {
+  employee: null,
+  employeeID: null,
   items: [],
   total: 0
   }
@@ -9,11 +11,11 @@ let totalPrice = 0;
 const mainContents = document.getElementById("main");
 const loadingSpinner = document.getElementById("loading");
 
+const itemInput = document.getElementById("item-input");
 const addItemBtn = document.getElementById("add-item");
 const searchBtn = document.getElementById("search-item");
 const addFeesBtn = document.getElementById("add-fees");
 const checkoutBtn = document.getElementById("checkout-btn");
-const payBtn = document.getElementById("pay-btn");
 const discardBtn = document.getElementById("discard-btn");
 const printBtn = document.getElementById("print-btn");
 const checkoutModal = document.getElementById("checkout-modal");
@@ -30,9 +32,7 @@ onLoadPage(mainContents, loadingSpinner);
 showErrorMessage(errorProductScan, show=false);
 showErrorMessage(errorSearchItem, show=false);
 
-showHideButtons(payBtn, show=false); // hide the paybtn
 toggleButtonState(checkoutBtn, false);
-toggleButtonState(payBtn, false);
 toggleButtonState(printBtn, false);
 toggleButtonState(discardBtn, false);
 
@@ -40,12 +40,11 @@ toggleButtonState(discardBtn, false);
 window.cashierAPI.receive("user-details", details => {
 
   try {
-    const now = new Date();
-    console.log(details);
-    const loginTime = document.getElementById("login-time");
-    loginTime.innerHTML = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
-    const employeeName = document.getElementById("employee-name");
-    employeeName.innerHTML = details.name;
+    const loginTimeDOM = document.getElementById("login-time");
+    displayLoginTime(loginTimeDOM);
+
+    const employeeNameDOM = document.getElementById("employee-name");
+    setEmployeeDetails(employeeNameDOM, details.name, details.id);
 
     if (localStorage.getItem("serverUrl"))
       serverUrl = localStorage.getItem("serverUrl");
@@ -60,6 +59,21 @@ window.cashierAPI.receive("user-details", details => {
 });
 
 
+/** display logged in employee name **/
+function setEmployeeDetails (dom, name, id) {
+  dom.innerHTML = name;
+  shoppingCart.employee = name;
+  shoppingCart.employeeID = id;
+}
+
+
+/** set/display login time **/
+function displayLoginTime (dom) {
+  const now = new Date();
+  dom.innerHTML = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+}
+
+
 /***
 # Remove All Event Listeners when the window is unloaded
 **/
@@ -71,22 +85,49 @@ function logoutToMainMenu() {
 }
 
 
+itemInput.addEventListener("keyup", async e => {
+  try {
+    if (e.target.value === '')
+      return;
+
+    if (e.key === "Enter") {
+      await enterOrScanProductCode(e.target.value, addItemBtn);
+      e.target.value = "";
+    }
+  }
+  catch (error) {
+    showErrorMessage('Application Error. Contact Administrator!');
+  }
+});
+
 
 /**
 # add medicines to cart
 **/
 addItemBtn.addEventListener("click", async e => {
-
-  const itemInput = document.getElementById("item-input");
-
   try {
+    const itemInput = document.getElementById("item-input");
 
     if (!itemInput || itemInput.value === '')
       return;
 
-    toggleAddButton(e.target, done=false);
+    await enterOrScanProductCode(itemInput.value, e.target);
 
-    const response = await getItemByProductCode(itemInput.value);
+    itemInput.value = "";
+  }
+  catch (error) {
+    showErrorMessage('Application Error. Contact Administrator!')
+  }
+});
+
+
+// scan or enter product code to add item to cart
+async function enterOrScanProductCode (value, button) {
+
+  try {
+    toggleAddButton(button, done=false);
+
+    const response = await getItemByProductCode(value);
 
     if (response && response.ok) {
       showErrorMessage(errorProductScan, show=false);
@@ -105,10 +146,9 @@ addItemBtn.addEventListener("click", async e => {
     showErrorMessage(errorProductScan, show=true, "Error: code 300!");
   }
   finally {
-    toggleAddButton(e.target, done=true);
-    itemInput.value = "";
+    toggleAddButton(button, done=true);
   }
-});
+}
 
 
 function toggleAddButton (button, done) {
@@ -184,15 +224,7 @@ discardBtn.addEventListener("click", e => {
 # Checkout
 **/
 checkoutBtn.addEventListener("click", e => {
-  checkoutModal.style.display = "flex";
-});
-
-
-/** pay btn **/
-payBtn.addEventListener("click", e => {
-  // open payment summary window
-
-  window.cashierAPI.send("open-payment-summary", shoppingCart);
+  console.log(shoppingCart);
 });
 
 
@@ -202,6 +234,7 @@ payBtn.addEventListener("click", e => {
 function addEmptyMessageBox() {
   const msgBox = document.createElement("div");
   msgBox.setAttribute("class", "alert alert-info text-center");
+  msgBox.setAttributes("id", "empty-msg-box");
   msgBox.setAttribute("role", "alert");
   msgBox.innerHTML = "Card is Cleared!";
 
@@ -209,12 +242,20 @@ function addEmptyMessageBox() {
   cart.appendChild(msgBox);
 }
 
-
+/** Remove Informative message box from shopping cart if any **/
+function removeMessageBoxesFromCart () {
+  const emptyMessageBox = document.getElementById("empty-msg-box");
+  if (emptyMessageBox)
+    emptyMessageBox.remove();
+}
 
 /**
 # Add Items to the Cart
 **/
 function addItemToCart ({productNumber, name, price}) {
+
+  removeMessageBoxesFromCart();
+
   const cart = document.getElementById("cart");
 
   const itemsUpdated = updateExistingItemsInCart(productNumber, price);
@@ -282,7 +323,6 @@ function updateExistingItemsInCart (productNumber, price) {
 
   // get reference of cart dom
   const cart = document.getElementById("cart");
-
   // get qty element
   const existingItems = cart.querySelectorAll(`[data-qty-item-id="${productNumber}"]`);
 
@@ -296,7 +336,7 @@ function updateExistingItemsInCart (productNumber, price) {
 
     const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
 
-    (document.getElementById(`item-price-${productNumber}`)).innerHTML = `${2 * parseInt(priceTag)} ks`;
+    (document.getElementById(`item-price-${productNumber}`)).innerHTML = `${parseInt(price) + parseInt(priceTag)} ks`;
 
     // update total price for the cart
     totalPrice += price;
@@ -419,14 +459,14 @@ function updateShoppingCart (newItem, method) {
 
   // check if the new Item is already exists in the cart
   // if then increase the qty and price, otherwise add new
-  const item = shoppingCart.items.find( i => i.id === newItem.id);
+  const item = shoppingCart.items.find( i => i.productNumber === newItem.productNumber);
 
   if (item) {
     if (method === "add") {
       // increase the qty
       // re-calculate the price
       shoppingCart.items = shoppingCart.items.map (
-        i => i.id === newItem.id
+        i => i.productNumber === newItem.productNumber
         ? {
           ...i,
           qty: (i.qty + 1),
@@ -443,7 +483,7 @@ function updateShoppingCart (newItem, method) {
       if (currentQty > 1) {
         shoppingCart.items = shoppingCart.items.map (
           i =>
-          i.id === newItem.id
+          i.productNumber === newItem.productNumber
           ? {
             ...i,
             qty: (i.qty - 1),
@@ -455,7 +495,7 @@ function updateShoppingCart (newItem, method) {
       else {
         // remove item from array
         shoppingCart.items = shoppingCart.items.filter (
-          i => i.id !== newItem.id
+          i => i.productNumber !== newItem.productNumber
         );
       }
 
@@ -465,7 +505,7 @@ function updateShoppingCart (newItem, method) {
   else {
     // add new
     shoppingCart.items.push({
-      id: newItem.id,
+      productNumber: newItem.productNumber,
       name: newItem.name,
       qty: 1,
       price: parseInt(newItem.price)
@@ -495,7 +535,6 @@ function clearCart() {
   /** disable all actions buttons */
   toggleButtonState(checkoutBtn, enabled=false);
   toggleButtonState(printBtn, enabled=false);
-  toggleButtonState(payBtn, enabled=false);
   toggleButtonState(discardBtn, enabled=false);
 }
 

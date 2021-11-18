@@ -56,38 +56,6 @@ contextBridge.exposeInMainWorld("api", {
       else
         throw new Error (`Unknown IPC Channel, '${channel}' received at mainAPI.receive`);
     },
-    showNotification: ({type, data, method}) => {
-      // console.log('show notification', type, data, method);
-      if (type === 'user') {
-        if (method === 'CREATE') {
-          const NOTIFICATION_TITLE = 'New User Created';
-          const NOTIFICATION_BODY = `New User, username : ${data.username}.`
-
-          new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
-        }
-        else if (method === 'UPDATE') {
-          const NOTIFICATION_TITLE = 'User Successfully Updated';
-          const NOTIFICATION_BODY = `Updated User, username : ${data.username}.`
-
-          new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
-        }
-      }
-
-      else if(type === 'item') {
-        if (method === 'CREATE') {
-          const NOTIFICATION_TITLE = 'New Item Created';
-          const NOTIFICATION_BODY = `New Item, Description : ${data.description}.`
-
-          new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
-        }
-        else if (method === 'UPDATE') {
-          const NOTIFICATION_TITLE = 'Item Successfully Updated';
-          const NOTIFICATION_BODY = `Updated Item, Description : ${data.description}.`
-
-          new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
-        }
-      }
-    },
     removeListeners: () => {
       try {
         ALLOWED_RECEIVED_CHANNELS.forEach(
