@@ -93,15 +93,6 @@ exports.createInventoryWindow = function createInventoryWindow () {
       createInventoryExportWindow (win);
     });
 
-
-    // /**
-    // # Monitor Clean Up Events ** For Dev Env **
-    // **/
-    // ipcMain.on("clean-up", (e, args) => {
-    //   console.log(`[Inventory API] ${args} has been cleaned up.`);
-    // });
-
-
   });
 }
 

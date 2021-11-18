@@ -73,7 +73,7 @@ exports.createMainWindow = function createMainWindow () {
       IPC Messages
     */
     ipcMain.on("login", (e, from) => {
-      console.log("ipcMain.on('login')");
+      // console.log("ipcMain.on('login')");
       createLoginWindow(win, from);
     });
 
