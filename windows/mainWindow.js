@@ -15,6 +15,7 @@ const { createEditFormWindow } = require("./editFormWindow.js");
 
 const applicationMenu = Menu.buildFromTemplate(require('../applicationMenu.js'));
 const AppConfig = require("../config");
+const { createPageSelectionWindow } = require('./createPageSelectionWindow.js');
 
 let win
 
@@ -45,7 +46,7 @@ exports.createMainWindow = function createMainWindow () {
         /**
         # Always clean up the listeners and event emitters
         **/
-        removeListeners(["user-logout", "create-modal", "user-data", "user-logout", "logout", "request-ip"]);
+        removeListeners(["user-logout", "create-modal", "user-data", "user-logout", "logout", "request-ip","select-page"]);
         unregisterEmitters();
         win = null;
       }
@@ -61,6 +62,12 @@ exports.createMainWindow = function createMainWindow () {
       ipcMain.on("login", (e, from) => {
        
        createLoginWindow(win, from);
+  
+      });
+
+      ipcMain.on("select-page", (e,from) => {
+        console.log("create select page times!!");
+        createPageSelectionWindow(win, from);
       });
 
 
@@ -86,7 +93,7 @@ exports.createMainWindow = function createMainWindow () {
 
 
       ipcMain.on("app-config", (event, args) => {
-        console.log(args);
+        //console.log(args);
         event.sender.send("app-config-response", AppConfig.serverURL);
       });
 
@@ -123,6 +130,7 @@ function unregisterEmitters () {
     if (win) {
         win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
         ipcMain.removeHandler("request-ip");
+
     }
   }
   catch (error) {

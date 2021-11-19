@@ -19,7 +19,8 @@ const ALLOWED_SEND_CHANNELS = [
   "set-ip",
   "close-setting",
   "request-ip",
-  "app-config"
+  "app-config",
+  "select-page"
 ];
 
 const ALLOWED_RECEIVED_CHANNELS = [

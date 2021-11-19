@@ -18,7 +18,12 @@ if(contents) contents.style.display = 'none';
 // request for login window to go into new page
 function requestLoginWindow(pageName) {
   console.log("PageName", pageName);
+  if (pageName === 'register'){
+    window.api.send('select-page', pageName);
+  }
+  else{
   window.api.send('login', pageName);
+  }
 }
 
 function choosePage(selectedPage){
