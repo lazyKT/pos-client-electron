@@ -91,9 +91,18 @@ function toggleButtonState (button, status) {
 }
 
 
-function closeLoginModal(event) {
+function closeLoginModal (event) {
   event.preventDefault();
   loginModal.style.display="none";
+  clearInputs();
+}
+
+
+function clearInputs () {
+  const inputs = document.querySelectorAll("input");
+  inputs.forEach( i => {
+    i.value = "";
+  });
 }
 
 
