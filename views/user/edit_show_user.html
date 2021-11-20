@@ -23,17 +23,30 @@
           <form>
             <div class="mb-3">
               <label class="form-label">ID</label>
-              <input type="text" class="form-control" id="user-id" required>
+              <input type="text" class="form-control" id="user-id" readonly>
             </div>
             <div class="mb-3">
               <label class="form-label">Username</label>
               <input type="text" class="form-control" id="username" required>
             </div>
             <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input type="text" class="form-control" id="email" required>
+              <label class="form-label">FullName</label>
+              <input type="text" class="form-control" id="fName" required>
             </div>
-            <button type="submit" id="edit-user" class="btn btn-primary w-100 my-1">Edit</button>
+            <div class="mb-3">
+              <label class="form-label">Mobile</label>
+              <input type="text" class="form-control" id="mobile" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Account Level</label>
+              <select class="form-select" id="level">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+              </select>
+            </div>
+            <button type="submit" style="display: none;" id="edit-user" class="btn btn-primary w-100 my-1">Edit</button>
+            <a id="delete-user" style="display: none;" class="btn btn-outline-danger">Delete</a>
             <a id="dismiss-window" class="btn btn-outline-secondary w-100 my-1">Cancel</a>
           </form>
         </div>

@@ -44,7 +44,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
 
   win.loadFile(path.join(__dirname, "../views/inventory/inventory.html"));
-  win.openDevTools();
+  // win.openDevTools();
 
   win.once("ready-to-show", () => {
     win.show();
@@ -59,11 +59,6 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
 
   win.webContents.on("did-finish-load", () => {
-
-    /**
-    IPC Messages
-    **/
-    win.webContents.send("server-url", AppConfig.serverURL);
 
     /** LogOut **/
     ipcMain.on("logout", () => {
@@ -97,7 +92,6 @@ exports.createInventoryWindow = function createInventoryWindow () {
     ipcMain.on("open-export-options", (e, args) => {
       createInventoryExportWindow (win);
     });
-
 
   });
 }

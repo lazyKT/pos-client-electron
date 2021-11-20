@@ -7,95 +7,124 @@
 // const setting = document.getElementById("setting");
 // const view_inventory = document.getElementById("inventory")
 const logout = document.getElementById('logout');
-const contents = document.getElementById('contents');
+const loginModal = document.getElementById('login-modal-container');
 const mainPage = document.getElementById('main-container');
 
 let newNode = null;
 
-/* hide contents window on first load */
-if(contents) contents.style.display = 'none';
+
+window.onload = () => {
+  localStorage.setItem("serverUrl", "http://127.0.0.1:8080");
+  console.log("Local Storage Saved");
+  hideErrorMessage();
+};
+
+
+window.onUnload = () => window.api.removeListeners();
+
 
 // request for login window to go into new page
 function requestLoginWindow(pageName) {
-  console.log("PageName", pageName);
-  if (pageName === 'register'){
-    window.api.send('select-page', pageName);
+  //console.log("PageName", pageName);
+  if (pageName === "user") {
+    loginModal.style.display = "flex";
   }
-  else{
-  window.api.send('login', pageName);
+  else {
+    window.api.send('login', pageName);
   }
 }
 
-function choosePage(selectedPage){
-  console.log("selected page", selectedPage);
-}
 
-// // recieve ipc message from main process to allow redirect
-// window.api.receive('redirect-page', async pageName => {
-//   await redirectToNewPage(pageName)
-// });
-
-
-/*
- Redirect to New Page
- */
-async function redirectToNewPage(pageName) {
+async function loginUserToUserPannel(event) {
   try {
-    mainPage.style.display = 'none';
-    contents.style.display = 'block';
+    event.preventDefault();
+    toggleButtonState(event.target, "loading");
+    const username = document.getElementById("username")?.value;
+    const password = document.getElementById("password")?.value;
 
-    // IMPORTANT *** set new page filename as [pagename].html. for example inventory.html ***
+    if (!username || username === '' || !password || password === '') {
+      showErrorMessage("Invalid Credentials");
+      toggleButtonState(event.target, "done");
+      return;
+    }
 
-    // fetch HTML data related to the page name
-    const response = await fetch(`${pageName}/${pageName}.html`);
+    const response = await loginUserRequest({username, password});
 
-    const data = await response.text();
-
-    newNode = document.createElement('div');
-
-    // load newly fetched html and script inside into app content
-    setInnerHTML(newNode, data);
-    // console.log(newNode);
-    contents.appendChild(newNode);
-
+    if (response && response.ok) {
+      const emp = await response.json();
+      if (parseInt(emp.level) === 3) {
+        // success
+        closeLoginModal(event);
+        window.api.send("login-user", {name: emp.fullName, id: emp._id});
+      }
+      else {
+        // access denied
+        showErrorMessage("Error. Access Denied!");
+        return;
+      }
+    }
+    else {
+      const { message } = await response.json();
+      const errorMessage = message ? message : "Network Connection Error!";
+      showErrorMessage(errorMessage);
+    }
   }
   catch (error) {
     console.log(error);
+    showErrorMessage("Application Error. Please Contact the Developers!");
+  }
+  finally {
+    toggleButtonState(event.target, "done");
   }
 }
 
 
-// load newly fetched html and script inside into app content
-function setInnerHTML(elm, html) {
-  elm.innerHTML = html;
+function toggleButtonState (button, status) {
+  if (status === 'loading') {
+    button.innerHTML = "Loading ...";
+    button.setAttribute("disabled", true);
+  }
+  else if (status === 'done') {
+    button.innerHTML = "Login";
+    button.removeAttribute("disabled");
+  }
+}
 
-  // get the current script element from the newly fetched html content
-  Array.from(elm.querySelectorAll('script')).forEach( currentScript => {
-    // console.log(currentScript);
-    // create new script element
-    const newScript = document.createElement('script');
-    // get attributes from the current script
-    Array.from(currentScript.attributes).forEach( attribute => {
-      // set the current script attributes to new script
-      // console.log('old script attribute', attribute.name, attribute.value);
-      newScript.setAttribute(attribute.name, attribute.value);
+
+function closeLoginModal(event) {
+  event.preventDefault();
+  loginModal.style.display="none";
+}
+
+
+function showErrorMessage(message) {
+  const errorAlert = document.getElementById("error-alert");
+  errorAlert.style.display = "block";
+  errorAlert.innerHTML = message;
+}
+
+
+function hideErrorMessage() {
+  const errorAlert = document.getElementById("error-alert");
+  errorAlert.style.display = "none";
+}
+
+
+async function loginUserRequest (user) {
+  try {
+    const serverUrl = localStorage.getItem("serverUrl");
+    const response = await fetch(`${serverUrl}/api/employees/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept" : "application/json"
+      },
+      body: JSON.stringify(user)
     });
-    // import all functions and contents of current script into newly created script
-    newScript.appendChild(document.createTextNode(currentScript.innerHTML));
-    // replace the new script with current script (aka) load new script for new app content
-    (currentScript.parentNode).replaceChild(newScript, currentScript);
-  });
-}
 
-// logout
-function logoutToMainMenu() {
-  try {
-    contents.style.display = 'none';
-    newNode.remove();
-    newNode = null;
-    mainPage.style.display = 'flex';
+    return response;
   }
   catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }

@@ -19,7 +19,7 @@ let win
 
 exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, contents) {
 
-  if (!win || win === null) {
+  if (!win) {
    win = new BrowserWindow ({
      width: 1000,
      height: 800,
@@ -34,28 +34,28 @@ exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, c
      }
    });
 
-  }
+   win.loadFile(path.join(__dirname, "../views/inventory/item_detail.html"));
 
-  win.loadFile(path.join(__dirname, "../views/inventory/item_detail.html"));
+   win.once("ready-to-show", () => win.show());
 
-  win.once("ready-to-show", () => win.show());
+   win.on("close", () => {
+     if(win) {
+       removeListeners(["dismiss-form-window", "open-details"]);
+       unregisterEmitters();
+       win = null;
+     }
+   });
 
-  win.on("close", () => {
-    if(win) {
-      removeListeners(["dismiss-form-window", "open-details"]);
-      unregisterEmitters();
-      win = null;
-    }
-  });
+   win.webContents.on("did-finish-load", () => {
+     win.webContents.send("reload-data", contents);
 
-  win.webContents.on("did-finish-load", () => {
-    win.webContents.send("reload-data", contents);
+     ipcMain.on('dismiss-form-window', () => {
+       if(win) win.close();
+     });
 
-    ipcMain.on('dismiss-form-window', () => {
-      if(win) win.close();
     });
 
-   });
+  }
  }
 
  function removeListeners (listeners) {

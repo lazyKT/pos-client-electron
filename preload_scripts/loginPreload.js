@@ -14,12 +14,8 @@ const ALLOWED_SEND_CHANNELS = [
 
 
 const ALLOWED_RECEIVED_CHANNELS = [
-  "server-addr"
-]
-
-
-const ALLOWED_INVOKED_CHANNELS = [
-  "login-request"
+  "server-addr",
+  "access-denied"
 ]
 
 
@@ -37,18 +33,21 @@ contextBridge.exposeInMainWorld ( "loginAPI", {
     else
       throw new error ("Unknown IPC Channel detected at loginAPI.receive");
   },
-  invoke: async (channel, data) => {
+  removeListeners: () => {
     try {
-      if (ALLOWED_INVOKED_CHANNELS.includes(channel)) {
-        const response = await ipcRenderer.invoke (channel, data);
-
-        return response;
-      }
-      else
-        throw new Error ("Unauthorized IPC Channel Detected. Contact Application Admin!");
+      ALLOWED_RECEIVED_CHANNELS.forEach (
+        channel => {
+          const func = ipcRenderer.listeners(channel)[0];
+          console.log(channel, func);
+          if (func) {
+            ipcRenderer.removeListener(channel, func);
+            console.log(`${channel} removed from loginAPI`);
+          }
+        }
+      )
     }
     catch (error) {
-        throw new Error (error);
+      console.error("Error Removing Event Listeners from loginAPI\n", error);
     }
   }
 })

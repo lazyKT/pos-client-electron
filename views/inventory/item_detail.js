@@ -7,6 +7,12 @@ let serverURL;
 
 window.onload = function () {
     let status = "ready";
+
+    const mainContents = document.getElementById("main");
+    const loadingSpinner = document.getElementById("loading");
+
+    // onLoadPage(mainContents, loadingSpinner);
+
     const allDetails = document.getElementById("all-detail-item-contents");
     const medDetails = document.getElementById("med-details");
     const cancelButton = document.getElementById("dismiss-window");
@@ -27,19 +33,26 @@ window.onload = function () {
 
     medDetails.style.display = "none";
 
-    window.detailInventoryAPI.receive('reload-data', async data => {
-      console.log(data);
-      serverURL = data.url;
-      medTagId = data.id;
-      medTagName = data.name;
-      console.log(medTagName)
-      if (status === 'ready') {
-          status = 'reloading';
-          (document.getElementById("heading")).innerHTML = data.name;
-          await reloadData(data.id);
-          filtering = false;
-      }
-    });
+    serverURL = localStorage.getItem("serverUrl");
+    if (!serverURL || serverURL === null) {
+      showErrorMessage("Error: failed to get server url");
+    }
+    else {
+      window.detailInventoryAPI.receive('reload-data', async data => {
+        medTagId = data.id;
+        medTagName = data.name;
+        console.log(medTagName, status);
+        if (status === 'ready') {
+            status = 'reloading';
+            (document.getElementById("heading")).innerHTML = data.name;
+            await reloadData(data.id);
+            filtering = false;
+        }
+      });
+    }
+
+    onDidLoadedPage(mainContents, loadingSpinner);
+
 
     backButton.addEventListener("click", e => {
       e.preventDefault();
@@ -108,11 +121,16 @@ window.onload = function () {
     });
 }
 
+/**
+# Clean Up Event Listeners when the window is unloaded
+**/
+window.onUnload = () => window.detailInventoryAPI.removeListeners();
+
 
 function searchMedsKeyUp(event) {
   const cancelButton = document.getElementById('cancel-med-search');
   const inputValue = document.getElementById('search-input-med').value;
-
+  event.preventDefault();
   if(inputValue !== null){
     cancelButton.style.display = 'block';
   }
@@ -121,13 +139,16 @@ function searchMedsKeyUp(event) {
   }
 
   if (event.key === 'Enter')
-    filterMeds();
+    filterMeds(event);
 };
 
 
 /** search medcines **/
-async function filterMeds() {
+async function filterMeds(event) {
   try {
+
+    event.preventDefault();
+
     filtering = true;
     const q = document.getElementById("search-input-med").value;
 
@@ -287,11 +308,13 @@ async function reloadData(q) {
 
       // showAlertModal(errMessage, "Network Error!", "error");
       showErrorMessage(errMessage);
+      console.error(errMessage);
     }
 
     status = 'ready';
   }
   catch (error) {
+    console.error(error);
     showAlertModal("Cannot Fetch Medicine Details", "Network Error!", "error");
   }
 };
@@ -335,7 +358,7 @@ function displayMedInfo (med) {
   medExp.value = dateFormat.split("T")[0];
   medQty.value = parseInt(med.qty);
   medPrice.value = parseInt(med.price);
-  // medTag.value = med.category;
+  medTag.value = med.category;
   if (med.approve) {
     (document.getElementById("approve-yes")).setAttribute("selected", true);
     (document.getElementById("approve-no")).removeAttribute("selected");
@@ -483,6 +506,20 @@ function clearContainer () {
 
   removeMessageBoxes();
 }
+
+/***********************************************************************
+#################### Page Load/Unload States ###########################
+***********************************************************************/
+function onLoadPage (main, loading) {
+  main.style.display = "none";
+  loading.style.display = "flex";
+}
+
+function onDidLoadedPage (main, loading) {
+  main.style.display = "block";
+  loading.remove();
+}
+
 
 /***********************************************************************
 ####################### Network Requests ###############################

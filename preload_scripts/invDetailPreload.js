@@ -9,29 +9,14 @@ const {
 
 
   const ALLOWED_SEND_CHANNELS = [
-    /** write your allowed channels herer */
-    "item-details",
+    /** write your allowed channels here */
     "dismiss-form-window",
-    "item-detail-data",
-    "get-all-detail-items",
-    "item-details-edit",
-    "open-details"
-  ];
-
-  const ALLOWED_INVOKED_CHANNELS = [
-    /** write your allowed channels herer */
-    "get-all-detail-items",
-    "item-details-edit",
-    "request-med-id"
   ];
 
 
   const ALLOWED_RECEIVED_CHANNELS = [
-    /** write your allowed channels herer */
-    "reload-data",
-    "response-item-detail-data",
-    "response-subItem-detail-data",
-    "load-data"
+    /** write your allowed channels here */
+    "reload-data"
   ];
 
 
@@ -65,20 +50,18 @@ const {
       }
       else throw new Error("Unknown IPC Channels Detected in inventoryDetailPreload.recieve");
     },
-    /**
-    # Renderer will use this as ipcRenderer.on
-    **/
-    invoke: async (channel, data) => {
-      if (ALLOWED_INVOKED_CHANNELS.includes(channel)) {
-        try {
-          const response = await ipcRenderer.invoke(channel, data);
-
-          return response;
-        }
-        catch (error) {
-          console.log(error);
-        }
+    removeListeners: () => {
+      try {
+        ALLOWED_RECEIVED_CHANNELS.forEach(
+          channel => {
+            const func = ipcRenderer.listeners(channel)[0];
+            if (func)
+              ipcRenderer.removeListener(channel, func);
+          }
+        )
       }
-      else throw new Error("Unknown IPC Channels Detected in inventoryDetailPreload.invoke");
+      catch (error) {
+        console.error("Error Remove Event Listeners at detailInventoryAPI");
+      }
     }
   });

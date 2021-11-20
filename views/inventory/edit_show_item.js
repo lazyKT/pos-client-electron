@@ -10,17 +10,20 @@ if (editButton) editButton.style.display = 'none'; // hide the edit button on th
 
 window.editContentAPI.receive('response-edit-item-data', async data => {
 
-  // console.log("data", data);
-  const { method } = data;
-  serverURL = data.data.url;
-  console.log(data.data, method);
-  const itemId = document.getElementById('item-id');
-  const description = document.getElementById('description');
-  const dateAlert = document.getElementById('dateAlert');
-  const quantityAlert = document.getElementById('quantityAlert');
-  const location = document.getElementById('location');
-
   try {
+    const { method } = data;
+
+    serverURL = localStorage.getItem("serverUrl");
+    if (!serverURL || serverURL === null)
+      throw new Error ("Error: failed to get server url");
+
+    console.log(data.data, method);
+    const itemId = document.getElementById('item-id');
+    const description = document.getElementById('description');
+    const dateAlert = document.getElementById('dateAlert');
+    const quantityAlert = document.getElementById('quantityAlert');
+    const location = document.getElementById('location');
+
     const response = await getTagById(data.data.id);
 
     if (response.ok) {
@@ -58,7 +61,7 @@ window.editContentAPI.receive('response-edit-item-data', async data => {
     }
   }
   catch (error) {
-    alert ("Error Fetching Category Details. Code: null");
+    showErrorMessage(error);
   }
 });
 
@@ -104,17 +107,6 @@ editButton.addEventListener('click', async e => {
       else
         showErrorMessage("Internal Server Error");
     }
-
-    // const { status, data, error } = response;
-    //
-    // if ( data && status === 200) {
-    //   // update opreration successful
-    //   // inform the main process that new data update is done
-
-    // }
-    // else {
-    //   showErrorMessage(error);
-    // }
   }
   catch(error) {
     console.log('Error Fetching Update Item Response', error);
@@ -124,7 +116,14 @@ editButton.addEventListener('click', async e => {
 
 /* Show error message */
 function showErrorMessage(message) {
+
+  // remove existing error message
+  while (errorDiv.lastChild) {
+    errorDiv.removeChild(errorDiv.lastChild);
+  }
+
   let errorNode = document.createElement('div');
+
   errorNode.setAttribute('class', 'alert alert-danger');
   errorNode.setAttribute('role', 'alert');
   errorNode.innerHTML = message;

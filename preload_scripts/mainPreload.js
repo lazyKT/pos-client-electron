@@ -9,6 +9,8 @@ const {
 const ALLOWED_SEND_CHANNELS = [
   'toMain',
   'login',
+  'login-user',
+  'remove-login-event',
   'logout',
   'create-modal',
   'user-data',
@@ -16,11 +18,7 @@ const ALLOWED_SEND_CHANNELS = [
   'form-data-finish',
   'export-csv',
   'user-logout',
-  "set-ip",
   "close-setting",
-  "request-ip",
-  "app-config",
-  "select-page"
 ];
 
 const ALLOWED_RECEIVED_CHANNELS = [
@@ -28,13 +26,6 @@ const ALLOWED_RECEIVED_CHANNELS = [
   'redirect-page',
   'reload-data',
   "load-setting",
-  "server-addr",
-  "request-ip",
-  "app-config-response"
-];
-
-const ALLOWED_INVOKED_CHANNELS = [
-
 ];
 
 /*
@@ -65,52 +56,18 @@ contextBridge.exposeInMainWorld("api", {
       else
         throw new Error (`Unknown IPC Channel, '${channel}' received at mainAPI.receive`);
     },
-    invoke: async (channel, data) => {
+    removeListeners: () => {
       try {
-        if (ALLOWED_INVOKED_CHANNELS.includes(channel)) {
-          // console.log('channel', channel);
-          // console.log('data', data);
-          const response = await ipcRenderer.invoke(channel, data);
-
-          return response;
-        }
-        else
-          throw new Error (`Unknown IPC Channel, '${channel}' received at mainAPI.invoke`);
+        ALLOWED_RECEIVED_CHANNELS.forEach(
+          channel => {
+            const func = ipcRenderer.listeners(channel)[0];
+            if (func)
+              ipcRenderer.removeListener(channel, func);
+          }
+        )
       }
-      catch (error) {
-        console.log(`Error invoking @ channel: ${channel}`, error);
-      }
-    },
-    showNotification: ({type, data, method}) => {
-      // console.log('show notification', type, data, method);
-      if (type === 'user') {
-        if (method === 'CREATE') {
-          const NOTIFICATION_TITLE = 'New User Created';
-          const NOTIFICATION_BODY = `New User, username : ${data.username}.`
-
-          new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
-        }
-        else if (method === 'UPDATE') {
-          const NOTIFICATION_TITLE = 'User Successfully Updated';
-          const NOTIFICATION_BODY = `Updated User, username : ${data.username}.`
-
-          new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
-        }
-      }
-
-      else if(type === 'item') {
-        if (method === 'CREATE') {
-          const NOTIFICATION_TITLE = 'New Item Created';
-          const NOTIFICATION_BODY = `New Item, Description : ${data.description}.`
-
-          new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
-        }
-        else if (method === 'UPDATE') {
-          const NOTIFICATION_TITLE = 'Item Successfully Updated';
-          const NOTIFICATION_BODY = `Updated Item, Description : ${data.description}.`
-
-          new Notification(NOTIFICATION_TITLE, { body: NOTIFICATION_BODY});
-        }
+      catch(error) {
+        console.error("Error Removing Event Listeners from mainAPI\n", error);
       }
     }
   }
