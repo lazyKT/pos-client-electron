@@ -43,6 +43,11 @@ window.inventoryAPI.receive('reload-data', async data => {
 });
 
 
+function refreshPage () {
+  window.location.reload();
+}
+
+
 /**
 # Change Number of Items to show in one page
 **/
