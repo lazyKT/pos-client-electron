@@ -16,7 +16,7 @@
 
 exports.createReceiptWindow = function (parentWindow, invoice) {
 
-  if (!win || win === null) {
+  if (!win) {
     win = new BrowserWindow({
       width: 400,
       height: 500,
@@ -32,7 +32,7 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
     });
 
     win.loadFile(path.join(__dirname, "../views/cashier/receipt.html"));
-    // win.openDevTools();
+    win.openDevTools();
 
     // win.once("ready-to-show", () => win.show());
 
@@ -44,10 +44,14 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
       }
     });
 
-    console.log(invoice);
+    //console.log(invoice);
     win.webContents.on("did-finish-load", () => {
 
+      win.webContents.send("invoice", invoice);
+
       ipcMain.on("print", (event, doc) => {
+
+        console.log("Printing receipt");
         const options = {
           silent: true,
           // deviceName: ''
@@ -56,10 +60,12 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
         win.webContents.print(options, (success, errorType) => {
           if (!success)
             console.log(errorType)
+          win.close();
         });
 
         // const pdfPath = path.join(os.homedir(), 'Desktop', 'temp.pdf')
         // win.webContents.printToPDF({}).then(data => {
+        //   console.log("Writing PDF ...");
         //   fs.writeFile(pdfPath, data, (error) => {
         //     if (error) throw error
         //     console.log(`Wrote PDF successfully to ${pdfPath}`)

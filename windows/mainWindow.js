@@ -40,7 +40,7 @@ exports.createMainWindow = function createMainWindow () {
 
 
     win.loadFile(mainMenuURL);
-    //win.openDevTools();
+    win.openDevTools();
 
     win.once("ready-to-show", () => win.show() );
 
@@ -61,11 +61,24 @@ exports.createMainWindow = function createMainWindow () {
     # When the window changes the file to load page
     **/
     win.webContents.on("did-navigate", (event, url) => {
-
+      
+      let fileUrl = "";
+      
+      if (process.platform === "win32") {
+        // windows platform
+        const targetUrl = url.split(":///")[1];
+        fileUrl = targetUrl.replaceAll("/", "\\");
+      }
+      else {
+        // for mac and linux
+        fileUrl = url.split("://");
+      }
+      
       /** if the current page is Main Menu, listen for user login event and remove once done " **/
-      if (url.split("://")[1] === mainMenuURL) {
+      if (fileUrl === mainMenuURL) {
 
         ipcMain.once("login-user", (e, args) => {
+          console.log("main window user-login");
           win.loadFile(userMangementURL);
         });
       }
