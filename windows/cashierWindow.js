@@ -4,8 +4,7 @@ const {
   ipcMain
 } = require('electron');
 
-const AppConfig = require("../config");
-
+const { createReceiptWindow } = require("./receiptWindow");
 
 
 let win
@@ -35,7 +34,7 @@ exports.createCashierWindow = function createCashierWindow(name, id) {
 
     win.on('close', () => {
       if (win) {
-        removeEventListeners(["cashier-close"]);
+        removeEventListeners(["cashier-close", "show-receipt"]);
         removeEmitters(["dom-ready"]);
         win = null;
       }
@@ -56,8 +55,8 @@ exports.createCashierWindow = function createCashierWindow(name, id) {
       if (win) win.close();
     });
 
-    ipcMain.on("show-receipt", (e, from) => {
-      createCashierWindow(win, from);
+    ipcMain.on("show-receipt", (e, data) => {
+      createReceiptWindow(win, data);
     });
   }
 }

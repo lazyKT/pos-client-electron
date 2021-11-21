@@ -6,24 +6,24 @@ const {
     ipcRenderer,
     contextBridge
   } = require('electron');
-  
-  
-  
+
+
+
   const ALLOWED_SEND_CHANNELS = [
-    
+    "print"
   ];
-  
-  
+
+
   const ALLOWED_RECEIVED_CHANNELS = [
-    
+    "invoice"
   ];
-  
-  
-  
-  contextBridge.exposeInMainWorld('cashierAPI', {
+
+
+
+  contextBridge.exposeInMainWorld('receiptAPI', {
     send: (channel, data) => {
       if (ALLOWED_SEND_CHANNELS.includes(channel)) {
-  
+
         ipcRenderer.send(channel, data);
       }
       else throw new Error ("Unkown IPC Channels detected at chashierAPI.send");

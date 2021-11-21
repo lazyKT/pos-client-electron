@@ -265,43 +265,40 @@ checkoutBtn.addEventListener("click", async e => {
 
   const postPaymentLoadingDOM = document.getElementById("post-payment");
   showHidePostPaymentLoading(postPaymentLoadingDOM, "show");
-  console.log("show checkout page");
-
-  window.cashierAPI.send('show-receipt');
 
   try {
-    console.log(shoppingCart);
     const { error, message } = validateCheckOut();
 
     if (error) {
       displayCheckOutError(message);
       return;
     }
+    let invoice = createInvoice();
+    // window.cashierAPI.send("show-receipt", invoice);
+    // showHidePostPaymentLoading(postPaymentLoadingDOM, "hide");
 
     // validate cart items in server: check availability
     Promise.all(shoppingCart.items.map( async item => {
       const availabilityResponse = await validateCartItemsRequest(item);
 
-      if (availabilityResponse && availabilityResponse.ok) {
-
-      }
-      else {
+      if (!availabilityResponse || !availabilityResponse.ok) {
         const errorMessage = await getErrorMessageFromResponse(availabilityResponse);
-        console.log("Error Message", errorMessage);
+        // console.log("Error Message", errorMessage);
         throw new Error(errorMessage);
       }
     }))
       .then (async function () {
         let invoice = createInvoice();
-        console.log("invoice", invoice);
+        // console.log("invoice", invoice);
         // send checkout process network request
         const response = await checkoutRequest(invoice);
         if (response && response.ok) {
           // clear Cart
           invoice = await response.json();
-          console.log(invoice);
+          // console.log(invoice);
           showHidePostPaymentLoading(postPaymentLoadingDOM, "hide");
           clearShoppingCartAndUI();
+          window.cashierAPI.send("show-receipt", invoice);
         }
         else {
           const errorMessage = await getErrorMessageFromResponse(response);
@@ -831,7 +828,7 @@ function onDidLoadedPage (content, loading) {
 function clearCart() {
 
   const cart = document.getElementById("cart");
-  
+
   // remove all child nodes
   while (cart.lastChild) {
     cart.removeChild(cart.lastChild);
@@ -839,7 +836,7 @@ function clearCart() {
 
   //reload change due and given amount
   reloadAmount();
-  
+
 
   /** disable all actions buttons */
   toggleButtonState(checkoutBtn, enabled=false);
@@ -861,11 +858,11 @@ function reloadAmount() {
 
   var givenAmount = document.getElementById('given-amount');
   var changeDue = document.getElementById('change-return');
-  
+
   shoppingCart.total = 0;
   shoppingCart.payment = 0;
   shoppingCart.change = 0;
-  
+
   givenAmount.value = shoppingCart.payment;
   changeDue.innerHTML = shoppingCart.change;
   //console.log(givenAmount);

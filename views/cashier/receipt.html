@@ -13,19 +13,21 @@
   </head>
   <body class="bg-light">
     <div class="container mt-3">
-        
+
         <!-- clinic info-->
-        <p class="text-center"><b>Doh Myit Tar Clinic</b>
-            <br>No.1 Room 001/002, Hlaing Thiri Residence
-            <br>Hlaing Township
+        <p class="text-center"><b>ဒို့မေတ္တာ</b>
+            <br>အမှတ်(၁)၊ အခန်း ၀၀၁/၀၀၂၊ လှိုင်သီရိအိမ်ယာ၊
+            <br>လှိုင်မြို့နယ်
             <br>Phone: 09 972905031, 09 972835079
         </p>
+        <br>
+        <br>
 
-        <p class="text-start" id="invoice-no">Invoice No:&nbsp;</p>
-        <p class="text-start" id="cashier-name">Cashier:&nbsp;</p>
-        <p class="text-start" id="patient-name">Patient:&nbsp;</p>
-        <p class="text-start">Transaction Date:&nbsp;</p>
-        <p class="text-start">Transaction Time:&nbsp;</p>
+        <label id="invoice-no">Invoice No:&nbsp;</label><br>
+        <label id="cashier-name">Cashier:&nbsp;</label><br>
+        <label id="patient-name">Patient:&nbsp;</label><br>
+        <label id="transaction-date">Transaction Date:&nbsp;</label><br>
+        <label id="transaction-time">Transaction Time:&nbsp;</label><br>
 
         <!-- list of items and details-->
         <table>
@@ -39,39 +41,20 @@
                     <th class="text-center" colspan="3">---------------------------------------------------------------</p>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td class="item" style="width: 100px;" colspan="3">Lo Act Chat twe pyae sone fo bab ko tout kya soh</td>
-                </tr>
-                <tr>
-                    <td class="unit-price">3400</td>
-                    <td class="quantity">1</td>
-                    <td class="price">3400</td>
-                </tr>
-                <tr>
-                    <td class="item" colspan="3">Lo Act Chat twe pyae sone fo bab ko tout kya soh</td>
-                </tr>
-                <tr>
-                    <td class="unit-price">3400</td>
-                    <td class="quantity">1</td>
-                    <td class="price">3400</td>
-                </tr>
-                <tr>
-                    <td class="text-center" colspan="3">---------------------------------------------------------------</p>
-                </tr>
+            <tbody id="tbody">
+
             </tbody>
         </table>
-        <p class="text-end" id="total-amount"><b>Total Amount: 6800</b></p>
-        <p class="text-end" id="given-amount"><b>Given Amount: 7000</b></p>
-        <p class="text-end" id="change-due"><b>Change Due: 200</b></p>
-        <p class="text-center">Thank you! Get Well Soon!</p>
-
-        <div class="d-flex justify-content-end my-3">
-            <button class="btn btn-secondary mx-1" id="done-btn">Done</button:>
-            <button class="btn btn-primary mx-1" id="print-btn">Print</button:>
-        </div>
+        <br>
+        <hr>
+        <br>
+        <h6 class="text-end" id="total-amount"></h6>
+        <h6 class="text-end" id="given-amount"></h6>
+        <h6 class="text-end" id="change-due"></h6>
+        <p class="text-center mt-2 mb-3">Thank you! Get Well Soon!</p>
     </div>
- </body>
-    <script src="receipt.js" data-name="user">
+  </body>
+  <script src="receipt.js" data-name="user">
 
-    </script>
+  </script>
+</html>
