@@ -11,6 +11,7 @@ const { createCashierWindow } = require("./cashierWindow.js");
 const { createInventoryWindow } = require("./inventoryWindow.js");
 const { loginUser } = require("../models/user.js")
 const AppConfig = require("../config");
+const { closePageSelectionWindow } = require("./createPageSelectionWindow.js");
 
 let win, pageName
 
@@ -101,6 +102,7 @@ exports.createLoginWindow = function loginWindow(parentWindow, from) {
  Redirect Page after successful login
  **/
 function redirectPage (parent, name, _id) {
+  console.log(pageName);
   /* redirect page */
   switch(pageName) {
     case "cashier":
@@ -158,3 +160,33 @@ function removeEmitters () {
     console.error("Error Removing Event Emitters at loginWindow\n", error);
   }
 }
+
+
+// function removeListeners (listeners) {
+//   try {
+//     listeners.forEach (
+//       listener => {
+//         const func = ipcMain.listeners(listener)[0];
+//         if (func) {
+//           ipcMain.removeListener(listener, func);
+//         }
+//       }
+//     );
+//   }
+//   catch (error) {
+//     console.error("Error removing listeners from ItemEditWindow", error);
+//   }
+// }
+
+
+// function unregisterEmitters () {
+//   try {
+//     if (win) {
+//         win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
+                
+//     }
+//   }
+//   catch (error) {
+//     console.error("Error removing Emitters", error);
+//   }
+// }

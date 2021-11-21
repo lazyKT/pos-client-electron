@@ -55,6 +55,10 @@ exports.createCashierWindow = function createCashierWindow(name, id) {
     ipcMain.on("cashier-close", () => {
       if (win) win.close();
     });
+
+    ipcMain.on("show-receipt", (e, from) => {
+      createCashierWindow(win, from);
+    });
   }
 }
 

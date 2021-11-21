@@ -265,6 +265,9 @@ checkoutBtn.addEventListener("click", async e => {
 
   const postPaymentLoadingDOM = document.getElementById("post-payment");
   showHidePostPaymentLoading(postPaymentLoadingDOM, "show");
+  console.log("show checkout page");
+
+  window.cashierAPI.send('show-receipt');
 
   try {
     console.log(shoppingCart);
@@ -828,11 +831,15 @@ function onDidLoadedPage (content, loading) {
 function clearCart() {
 
   const cart = document.getElementById("cart");
-
+  
   // remove all child nodes
   while (cart.lastChild) {
     cart.removeChild(cart.lastChild);
   }
+
+  //reload change due and given amount
+  reloadAmount();
+  
 
   /** disable all actions buttons */
   toggleButtonState(checkoutBtn, enabled=false);
@@ -847,6 +854,23 @@ function resetShoppingCart () {
   shoppingCart.total = 0;
   shoppingCart.payment = 0;
   shoppingCart.change = 0;
+}
+
+//reload givenAmount, changeDue after cart is cleared
+function reloadAmount() {
+
+  var givenAmount = document.getElementById('given-amount');
+  var changeDue = document.getElementById('change-return');
+  
+  shoppingCart.total = 0;
+  shoppingCart.payment = 0;
+  shoppingCart.change = 0;
+  
+  givenAmount.value = shoppingCart.payment;
+  changeDue.innerHTML = shoppingCart.change;
+  //console.log(givenAmount);
+
+
 }
 
 
