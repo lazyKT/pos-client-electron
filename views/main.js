@@ -25,7 +25,7 @@ window.onUnload = () => window.api.removeListeners();
 
 // request for login window to go into new page
 function requestLoginWindow(pageName) {
-  console.log("PageName", pageName);
+  //console.log("PageName", pageName);
   if (pageName === "user") {
     loginModal.style.display = "flex";
   }
