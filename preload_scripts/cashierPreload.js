@@ -10,8 +10,6 @@ const {
 
 
 const ALLOWED_SEND_CHANNELS = [
-  "member-checkout-window",
-  "open-payment-summary",
   "cashier-close",
   "show-receipt"
 ];
@@ -26,7 +24,7 @@ const ALLOWED_RECEIVED_CHANNELS = [
 contextBridge.exposeInMainWorld('cashierAPI', {
   send: (channel, data) => {
     if (ALLOWED_SEND_CHANNELS.includes(channel)) {
-
+      
       ipcRenderer.send(channel, data);
     }
     else throw new Error ("Unkown IPC Channels detected at chashierAPI.send");

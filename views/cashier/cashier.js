@@ -5,9 +5,8 @@ let shoppingCart = {
   total: 0,
   payment: 0,
   change: 0
-  }
+}
 let serverUrl;
-let totalPrice = 0;
 
 // DOM Nodes
 const mainContents = document.getElementById("main");
@@ -21,11 +20,9 @@ const givenAmountInput = document.getElementById("given-amount");
 const checkoutBtn = document.getElementById("checkout-btn");
 const dismisCheckoutErrorButton = document.getElementById("dismiss-checkout-error");
 const discardBtn = document.getElementById("discard-btn");
-const printBtn = document.getElementById("print-btn");
 const checkoutModal = document.getElementById("checkout-modal");
 const errorProductScan = document.getElementById("product-scan-error");
 const errorSearchItem = document.getElementById("search-item-error");
-
 
 
 /**
@@ -37,7 +34,6 @@ showErrorMessage(errorProductScan, show=false);
 showErrorMessage(errorSearchItem, show=false);
 
 toggleButtonState(checkoutBtn, false);
-toggleButtonState(printBtn, false);
 toggleButtonState(discardBtn, false);
 
 
@@ -139,9 +135,7 @@ async function enterOrScanProductCode (value, button) {
       addItemToCart(product);
     }
     else {
-      const { message } = await response.json();
-
-      const errorMessage = message ? message : "Error: code 500!";
+      const errorMessage = await getErrorMessageFromResponse(response);
       showErrorMessage(errorProductScan, show=true, errorMessage);
     }
   }
@@ -184,8 +178,10 @@ searchBtn.addEventListener("click", async e => {
       displaySearchResults(products, searchInput.value);
     }
     else {
-      const { message } = await response.json();
-      const errorMessage = message ? message : "Error: Code 500!";
+      // const { message } = await response.json();
+      // const errorMessage = message ? message : "Error: Code 500!";
+      //
+      const errorMessage = await getErrorMessageFromResponse(response);
       showErrorMessage(errorSearchItem, show=true, errorMessage);
     }
 
@@ -245,44 +241,126 @@ function calculateReturnChange (givenAmount) {
 /**
 # Clear the cart when discard button is pressed
 **/
-discardBtn.addEventListener("click", e => {
+discardBtn.addEventListener("click", e => clearShoppingCartAndUI());
+
+
+/**
+# Clear Shopping Cart and UI
+**/
+function clearShoppingCartAndUI () {
   clearCart();
 
-  totalPrice = 0;
-  (document.getElementById("total-price")).innerHTML = totalPrice;
+  (document.getElementById("total-price")).innerHTML = shoppingCart.total;
+  givenAmountInput.value = shoppingCart.payment;
+  (document.getElementById("change-return")).innerHTML = shoppingCart.change;
 
   addEmptyMessageBox();
-});
+}
 
 
 /**
 # Checkout
 **/
-checkoutBtn.addEventListener("click", e => {
+checkoutBtn.addEventListener("click", async e => {
 
   const postPaymentLoadingDOM = document.getElementById("post-payment");
   showHidePostPaymentLoading(postPaymentLoadingDOM, "show");
-  console.log("show checkout page");
-
-  window.cashierAPI.send('show-receipt');
 
   try {
-    console.log(shoppingCart);
     const { error, message } = validateCheckOut();
 
     if (error) {
       displayCheckOutError(message);
       return;
     }
+    let invoice = createInvoice();
+    // window.cashierAPI.send("show-receipt", invoice);
+    // showHidePostPaymentLoading(postPaymentLoadingDOM, "hide");
 
-    // clear Cart
-    // send checkout process network request
-    showHidePostPaymentLoading(postPaymentLoadingDOM, "hide");
+    // validate cart items in server: check availability
+    Promise.all(shoppingCart.items.map( async item => {
+      const availabilityResponse = await validateCartItemsRequest(item);
+
+      if (!availabilityResponse || !availabilityResponse.ok) {
+        const errorMessage = await getErrorMessageFromResponse(availabilityResponse);
+        // console.log("Error Message", errorMessage);
+        throw new Error(errorMessage);
+      }
+    }))
+      .then (async function () {
+        let invoice = createInvoice();
+        // console.log("invoice", invoice);
+        // send checkout process network request
+        const response = await checkoutRequest(invoice);
+        if (response && response.ok) {
+          // clear Cart
+          invoice = await response.json();
+          // console.log(invoice);
+          showHidePostPaymentLoading(postPaymentLoadingDOM, "hide");
+          clearShoppingCartAndUI();
+          window.cashierAPI.send("show-receipt", invoice);
+        }
+        else {
+          const errorMessage = await getErrorMessageFromResponse(response);
+          throw new Error(errorMessage);
+        }
+      })
+      .catch(error => {
+        console.log(error);
+        displayCheckOutError(error.message);
+      });
   }
   catch (error) {
     console.error(error);
   }
 });
+
+
+/** create invoice object to make network request */
+function createInvoice () {
+
+  const invoiceNumber = generateInvoiceNumber(new Date());
+
+  return {
+    invoiceNumber,
+    employeeID: shoppingCart.employeeID,
+    cashier: shoppingCart.employee,
+    customerID: "Guest",
+    payableAmount: shoppingCart.total,
+    givenAmount: shoppingCart.payment,
+    changeAmount: shoppingCart.change,
+    cartItems: shoppingCart.items
+  };
+}
+
+
+/** Generate Invoice Number Base On Current Timestamps **/
+function generateInvoiceNumber (date) {
+  const year = date.getFullYear();
+  const month = zeroPadding(date.getMonth() + 1);
+  const day = zeroPadding(date.getDate());
+  const hr = zeroPadding(date.getHours());
+  const mm = zeroPadding(date.getMinutes());
+  const ss = zeroPadding(date.getSeconds());
+  const ms = zeroPadding(date.getMilliseconds());
+  return `${year}${month}${day}${hr}${mm}${ss}${ms}`;
+}
+
+
+/** add zero prefixs to the time values **/
+function zeroPadding (value, type) {
+  let strValue = value.toString();
+  if (type === "ms") {
+    while (strValue.length < 3)
+      strValue = '0' + strValue;
+  }
+  else {
+    while (strValue.length < 2)
+      strValue = '0' + strValue;
+  }
+  return strValue;
+}
+
 
 dismisCheckoutErrorButton.addEventListener("click", e => {
   const postPaymentLoadingDOM = document.getElementById("post-payment");
@@ -294,20 +372,20 @@ dismisCheckoutErrorButton.addEventListener("click", e => {
 /**
 # Add Items to the Cart
 **/
-function addItemToCart ({productNumber, name, price}) {
+function addItemToCart (item) {
 
   removeMessageBoxesFromCart();
 
   const cart = document.getElementById("cart");
 
-  const itemsUpdated = updateExistingItemsInCart(productNumber, price);
+  const itemsUpdated = updateExistingItemsInCart(item);
   // console.log(itemsUpdated);
 
   if (itemsUpdated == 0) {
     /** create new cart item */
     const cartItem = document.createElement("div");
     cartItem.setAttribute("class", "p-2 bg-light my-1 row");
-    cartItem.setAttribute("id", `data-item-${productNumber}`);
+    cartItem.setAttribute("id", `data-item-${item.productNumber}`);
 
     const quantityDiv = document.createElement("div");
     quantityDiv.setAttribute("id", "item-qty-div");
@@ -323,34 +401,34 @@ function addItemToCart ({productNumber, name, price}) {
     cartItem.appendChild(priceDiv);
 
     // item quantity
-    const itemQty = createQuantityDivision(1, productNumber, price);
+    const itemQty = createQuantityDivision(1, item);
     quantityDiv.appendChild(itemQty);
 
     // item name
     const itemName = document.createElement("h6");
     itemName.setAttribute("class", "text-muted mx-1 my-2");
-    itemName.innerHTML = name;
+    itemName.innerHTML = item.name;
     itemNameDiv.appendChild(itemName);
 
     // item price
     const itemPrice = document.createElement("h6");
     itemPrice.setAttribute("class", "text-muted mx-1 my-2");
-    itemPrice.setAttribute("id", `item-price-${productNumber}`);
-    itemPrice.setAttribute("data-price-item-id", productNumber);
-    itemPrice.innerHTML = `${price} ks`;
+    itemPrice.setAttribute("id", `item-price-${item.productNumber}`);
+    itemPrice.setAttribute("data-price-item-id", item.productNumber);
+    itemPrice.innerHTML = `${item.price} ks`;
     priceDiv.appendChild(itemPrice);
+
+    /* update the shopping cart object */
+    updateShoppingCart(item, "add");
 
     cart.appendChild(cartItem);
 
-    totalPrice += parseInt(price);
-    (document.getElementById("total-price")).innerHTML = totalPrice;
+    // shoppingCart.total = parseInt(shoppingCart.total) + parseInt(price);
+    (document.getElementById("total-price")).innerHTML = shoppingCart.total;
 
     /** Enable Pay and Discard Button once there is at least one item in the cart */
     toggleButtonState(checkoutBtn, true);
     toggleButtonState(discardBtn, true);
-
-    /* update the shopping cart object */
-    updateShoppingCart({productNumber, name, price}, "add");
   }
 }
 
@@ -361,12 +439,12 @@ function addItemToCart ({productNumber, name, price}) {
 # return int -> 0 if there is no existing item, non-zero positive number if the item exists and successfully updated
 # return -> number of updated existing items
 **/
-function updateExistingItemsInCart (productNumber, price) {
+function updateExistingItemsInCart (item) {
 
   // get reference of cart dom
   const cart = document.getElementById("cart");
   // get qty element
-  const existingItems = cart.querySelectorAll(`[data-qty-item-id="${productNumber}"]`);
+  const existingItems = cart.querySelectorAll(`[data-qty-item-id="${item.productNumber}"]`);
 
   if (existingItems.length > 0) {
     const currentQty = existingItems[0].innerHTML;
@@ -374,18 +452,18 @@ function updateExistingItemsInCart (productNumber, price) {
     existingItems[0].innerHTML = parseInt(currentQty) + 1;
 
     // update price for the cart item
-    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${productNumber}"]`)[0].innerHTML;
+    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${item.productNumber}"]`)[0].innerHTML;
 
     const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
 
-    (document.getElementById(`item-price-${productNumber}`)).innerHTML = `${parseInt(price) + parseInt(priceTag)} ks`;
-
-    // update total price for the cart
-    totalPrice += price;
-    (document.getElementById("total-price")).innerHTML = totalPrice;
+    (document.getElementById(`item-price-${item.productNumber}`)).innerHTML = `${parseInt(item.price) + parseInt(priceTag)} ks`;
 
     /* update the shopping cart object */
-    updateShoppingCart({productNumber, price}, "add");
+    updateShoppingCart(item, "add");
+
+    // update total price for the cart
+    // shoppingCart.total = parseInt(shoppingCart.total) + parseInt(price);
+    (document.getElementById("total-price")).innerHTML = shoppingCart.total;
 
     return parseInt(currentQty);
   }
@@ -397,20 +475,20 @@ function updateExistingItemsInCart (productNumber, price) {
 /**
 # Create Quantity Division with increment/decrement actions
 **/
-function createQuantityDivision (qty, productNumber, price) {
+function createQuantityDivision (qty, item) {
 
   const div = document.createElement("div");
   div.setAttribute("class", "d-flex justify-content-between align-items-center");
 
   const decrementButton = document.createElement("button");
   decrementButton.setAttribute("class", "btn btn-secondary text-white");
-  decrementButton.setAttribute("onclick", reduceQuantityInCart());
+  // decrementButton.setAttribute("onclick", reduceQuantityInCart());
   decrementButton.innerHTML = `<i class="fas fa-minus"></i>`;
   div.appendChild(decrementButton);
 
   const qtyText = document.createElement("h6");
   qtyText.setAttribute("class", "px-2 text-muted");
-  qtyText.setAttribute("data-qty-item-id", productNumber);
+  qtyText.setAttribute("data-qty-item-id", item.productNumber);
   qtyText.innerHTML = qty;
   div.appendChild(qtyText);
 
@@ -422,12 +500,12 @@ function createQuantityDivision (qty, productNumber, price) {
 
 
   incrementButton.addEventListener("click", e => {
-    increaseQuantityInCart(productNumber, price);
+    increaseQuantityInCart(item);
   });
 
 
   decrementButton.addEventListener("click", e => {
-    reduceQuantityInCart(productNumber, price);
+    reduceQuantityInCart(item);
   })
 
   return div;
@@ -437,8 +515,8 @@ function createQuantityDivision (qty, productNumber, price) {
 /**
 # Reduce Item Quantity in cart
 **/
-function reduceQuantityInCart (productNumber, price) {
-  const existingItems = cart.querySelectorAll(`[data-qty-item-id="${productNumber}"]`);
+function reduceQuantityInCart (item) {
+  const existingItems = cart.querySelectorAll(`[data-qty-item-id="${item.productNumber}"]`);
 
   if (existingItems.length > 0) {
     const currentQty = existingItems[0].innerHTML;
@@ -447,22 +525,22 @@ function reduceQuantityInCart (productNumber, price) {
 
     if ((currentQty - 1) === 0) {
       // remove product from cart
-      const cartItem = document.getElementById(`data-item-${productNumber}`);
+      const cartItem = document.getElementById(`data-item-${item.productNumber}`);
       if (cartItem) cartItem.remove();
     }
     else {
       // update price for the cart item
-      const priceDOM = cart.querySelectorAll(`[data-price-item-id="${productNumber}"]`)[0].innerHTML;
+      const priceDOM = cart.querySelectorAll(`[data-price-item-id="${item.productNumber}"]`)[0].innerHTML;
 
       const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
 
-      (document.getElementById(`item-price-${productNumber}`)).innerHTML = `${parseInt(priceTag) - price} ks`;
+      (document.getElementById(`item-price-${item.productNumber}`)).innerHTML = `${parseInt(priceTag) - parseInt(item.price)} ks`;
     }
 
-    updateShoppingCart({productNumber, price}, "remove");
+    updateShoppingCart(item, "remove");
 
-    totalPrice -= price;
-    (document.getElementById("total-price")).innerHTML = totalPrice;
+    // totalPrice -= price;
+    (document.getElementById("total-price")).innerHTML = shoppingCart.total;
   }
 }
 
@@ -470,8 +548,8 @@ function reduceQuantityInCart (productNumber, price) {
 /**
 # Increase Item Quantity in cart
 **/
-function increaseQuantityInCart (productNumber, price) {
-  const existingItems = cart.querySelectorAll(`[data-qty-item-id="${productNumber}"]`);
+function increaseQuantityInCart (item) {
+  const existingItems = cart.querySelectorAll(`[data-qty-item-id="${item.productNumber}"]`);
 
   if (existingItems.length > 0) {
     const currentQty = existingItems[0].innerHTML;
@@ -479,16 +557,16 @@ function increaseQuantityInCart (productNumber, price) {
     existingItems[0].innerHTML = parseInt(currentQty) + 1;
 
     // update price for the cart item
-    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${productNumber}"]`)[0].innerHTML;
+    const priceDOM = cart.querySelectorAll(`[data-price-item-id="${item.productNumber}"]`)[0].innerHTML;
 
     const priceTag = (priceDOM.split('').slice(0, priceDOM.length - 3)).join('');
 
-    (document.getElementById(`item-price-${productNumber}`)).innerHTML = `${parseInt(priceTag) + price} ks`;
+    (document.getElementById(`item-price-${item.productNumber}`)).innerHTML = `${parseInt(priceTag) + parseInt(item.price)} ks`;
 
-    updateShoppingCart({productNumber, price}, "add");
+    updateShoppingCart(item, "add");
 
-    totalPrice += price;
-    (document.getElementById("total-price")).innerHTML = totalPrice;
+    // totalPrice += price;
+    (document.getElementById("total-price")).innerHTML = shoppingCart.total;
   }
 }
 
@@ -512,7 +590,7 @@ function updateShoppingCart (newItem, method) {
         ? {
           ...i,
           qty: (i.qty + 1),
-          price: (i.price + newItem.price)
+          totalPrice: (i.totalPrice + newItem.price) // update cart item total price
         }
         : i
       );
@@ -529,7 +607,7 @@ function updateShoppingCart (newItem, method) {
           ? {
             ...i,
             qty: (i.qty - 1),
-            price: (i.price - newItem.price)
+            totalPrice: (i.totalPrice - newItem.price) // update cart item total price
           }
           : i
         );
@@ -548,13 +626,16 @@ function updateShoppingCart (newItem, method) {
     // add new
     shoppingCart.items.push({
       productNumber: newItem.productNumber,
-      name: newItem.name,
+      productName: newItem.name,
+      tagId: newItem.tag[0],
+      productId: newItem._id,
       qty: 1,
-      price: parseInt(newItem.price)
+      price: parseInt(newItem.price),
+      totalPrice: parseInt(newItem.price) // update cart item total price
     });
   }
 
-  // update total
+  // update cart total price
   if (method === "add")
     shoppingCart.total += parseInt(newItem.price);
   else
@@ -747,7 +828,7 @@ function onDidLoadedPage (content, loading) {
 function clearCart() {
 
   const cart = document.getElementById("cart");
-  
+
   // remove all child nodes
   while (cart.lastChild) {
     cart.removeChild(cart.lastChild);
@@ -755,12 +836,21 @@ function clearCart() {
 
   //reload change due and given amount
   reloadAmount();
-  
+
 
   /** disable all actions buttons */
   toggleButtonState(checkoutBtn, enabled=false);
-  toggleButtonState(printBtn, enabled=false);
   toggleButtonState(discardBtn, enabled=false);
+
+  resetShoppingCart();
+}
+
+
+function resetShoppingCart () {
+  shoppingCart.items = [];
+  shoppingCart.total = 0;
+  shoppingCart.payment = 0;
+  shoppingCart.change = 0;
 }
 
 //reload givenAmount, changeDue after cart is cleared
@@ -768,11 +858,11 @@ function reloadAmount() {
 
   var givenAmount = document.getElementById('given-amount');
   var changeDue = document.getElementById('change-return');
-  
+
   shoppingCart.total = 0;
   shoppingCart.payment = 0;
   shoppingCart.change = 0;
-  
+
   givenAmount.value = shoppingCart.payment;
   changeDue.innerHTML = shoppingCart.change;
   //console.log(givenAmount);
@@ -882,6 +972,84 @@ async function searchProducts (q) {
     console.error("Error searching items", error);
   }
 }
+
+
+// validate checkout items request
+async function validateCartItemsRequest (item) {
+  try {
+    const response = await fetch(`${serverUrl}/api/meds/checkout`, {
+      method: "PUT",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      },
+      body: JSON.stringify({
+        tagId: item.tagId,
+        medId: item.productId,
+        qty: item.qty
+      })
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error("Error validating items", error);
+  }
+}
+
+
+// checkout products
+async function checkoutRequest (invoice) {
+  try {
+    const response = await fetch(`${serverUrl}/api/pharmacy/invoices`, {
+      method: "POST",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      },
+      body: JSON.stringify(invoice)
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
+
+
+
+/*=============================================================
+======================== Error Handling =======================
+=============================================================*/
+
+/** show appropriate error base on network response status **/
+async function getErrorMessageFromResponse (response) {
+  let errorMessage = "";
+  try {
+    switch (response.status) {
+      case 400:
+        const { message } = await response.json();
+        errorMessage = message;
+        break;
+      case 404:
+        errorMessage = "Server EndPoint Not Found!";
+        break;
+      case 500:
+        errorMessage = "Internal Server Error";
+        break;
+      default:
+        errorMessage = "Network Connection Error";
+    }
+  }
+  catch (error) {
+    console.error("getErrorMessageFromResponse()", error);
+    errorMessage = "Application Error. Contact Administrator.";
+  }
+
+  return errorMessage;
+}
+
 
 
 /*=============================================================
