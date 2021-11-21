@@ -7,7 +7,7 @@ let shoppingCart = {
   change: 0
   }
 let serverUrl;
-let totalPrice = 0;
+// let totalPrice = 0;
 
 // DOM Nodes
 const mainContents = document.getElementById("main");
@@ -248,8 +248,9 @@ function calculateReturnChange (givenAmount) {
 discardBtn.addEventListener("click", e => {
   clearCart();
 
-  totalPrice = 0;
-  (document.getElementById("total-price")).innerHTML = totalPrice;
+  (document.getElementById("total-price")).innerHTML = shoppingCart.total;
+  givenAmountInput.value = shoppingCart.payment;
+  (document.getElementById("change-return")).innerHTML = shoppingCart.change;
 
   addEmptyMessageBox();
 });
@@ -337,17 +338,17 @@ function addItemToCart ({productNumber, name, price}) {
     itemPrice.innerHTML = `${price} ks`;
     priceDiv.appendChild(itemPrice);
 
+    /* update the shopping cart object */
+    updateShoppingCart({productNumber, name, price}, "add");
+
     cart.appendChild(cartItem);
 
-    totalPrice += parseInt(price);
-    (document.getElementById("total-price")).innerHTML = totalPrice;
+    // shoppingCart.total = parseInt(shoppingCart.total) + parseInt(price);
+    (document.getElementById("total-price")).innerHTML = shoppingCart.total;
 
     /** Enable Pay and Discard Button once there is at least one item in the cart */
     toggleButtonState(checkoutBtn, true);
     toggleButtonState(discardBtn, true);
-
-    /* update the shopping cart object */
-    updateShoppingCart({productNumber, name, price}, "add");
   }
 }
 
@@ -377,12 +378,12 @@ function updateExistingItemsInCart (productNumber, price) {
 
     (document.getElementById(`item-price-${productNumber}`)).innerHTML = `${parseInt(price) + parseInt(priceTag)} ks`;
 
-    // update total price for the cart
-    totalPrice += price;
-    (document.getElementById("total-price")).innerHTML = totalPrice;
-
     /* update the shopping cart object */
     updateShoppingCart({productNumber, price}, "add");
+
+    // update total price for the cart
+    // shoppingCart.total = parseInt(shoppingCart.total) + parseInt(price);
+    (document.getElementById("total-price")).innerHTML = shoppingCart.total;
 
     return parseInt(currentQty);
   }
@@ -458,8 +459,8 @@ function reduceQuantityInCart (productNumber, price) {
 
     updateShoppingCart({productNumber, price}, "remove");
 
-    totalPrice -= price;
-    (document.getElementById("total-price")).innerHTML = totalPrice;
+    // totalPrice -= price;
+    (document.getElementById("total-price")).innerHTML = shoppingCart.total;
   }
 }
 
@@ -484,8 +485,8 @@ function increaseQuantityInCart (productNumber, price) {
 
     updateShoppingCart({productNumber, price}, "add");
 
-    totalPrice += price;
-    (document.getElementById("total-price")).innerHTML = totalPrice;
+    // totalPrice += price;
+    (document.getElementById("total-price")).innerHTML = shoppingCart.total;
   }
 }
 
@@ -754,6 +755,16 @@ function clearCart() {
   toggleButtonState(checkoutBtn, enabled=false);
   toggleButtonState(printBtn, enabled=false);
   toggleButtonState(discardBtn, enabled=false);
+
+  resetShoppingCart();
+}
+
+
+function resetShoppingCart () {
+  shoppingCart.items = [];
+  shoppingCart.total = 0;
+  shoppingCart.payment = 0;
+  shoppingCart.change = 0;
 }
 
 
