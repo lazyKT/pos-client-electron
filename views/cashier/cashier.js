@@ -135,9 +135,7 @@ async function enterOrScanProductCode (value, button) {
       addItemToCart(product);
     }
     else {
-      const { message } = await response.json();
-
-      const errorMessage = message ? message : "Error: code 500!";
+      const errorMessage = await getErrorMessageFromResponse(response);
       showErrorMessage(errorProductScan, show=true, errorMessage);
     }
   }
