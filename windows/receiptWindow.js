@@ -47,15 +47,19 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
     console.log(invoice);
     win.webContents.on("did-finish-load", () => {
 
-      ipcMain.on("print", (event, doc) => {
+      win.webContents.send("invoice", invoice);
+
+      ipcMain.on("print", (event, printer) => {
+        // console.log(printer);
         const options = {
           silent: true,
-          // deviceName: ''
+          // deviceName: printer
         }
 
         win.webContents.print(options, (success, errorType) => {
           if (!success)
             console.log(errorType)
+          win.close();
         });
 
         // const pdfPath = path.join(os.homedir(), 'Desktop', 'temp.pdf')

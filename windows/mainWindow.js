@@ -62,8 +62,20 @@ exports.createMainWindow = function createMainWindow () {
     **/
     win.webContents.on("did-navigate", (event, url) => {
 
+      let fileUrl = "";
+
+      if (process.platform === "win32") {
+        // for windows system
+        const targetFileUrl = url.split(":///")[1];
+        fileUrl = targetFileUrl.replaceAll("/", "\\");
+      }
+      else {
+        // for mac and linux
+        fileUrl = url.split("://")[1];
+      }
+
       /** if the current page is Main Menu, listen for user login event and remove once done " **/
-      if (url.split("://")[1] === mainMenuURL) {
+      if (fileUrl === mainMenuURL) {
 
         ipcMain.once("login-user", (e, args) => {
           win.loadFile(userMangementURL);
