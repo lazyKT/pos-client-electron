@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Receipt Preview</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous">
+      <link rel="stylesheet" href="cashier.css">
+  </head>
+  <body class="bg-light">
+    <div class="container mt-3">
+        
+        <!-- clinic info-->
+        <p class="text-center"><b>Doh Myit Tar Clinic</b>
+            <br>No.1 Room 001/002, Hlaing Thiri Residence
+            <br>Hlaing Township
+            <br>Phone: 09 972905031, 09 972835079
+        </p>
+
+        <p class="text-start" id="invoice-no">Invoice No:&nbsp;</p>
+        <p class="text-start" id="cashier-name">Cashier:&nbsp;</p>
+        <p class="text-start" id="patient-name">Patient:&nbsp;</p>
+        <p class="text-start">Transaction Date:&nbsp;</p>
+        <p class="text-start">Transaction Time:&nbsp;</p>
+
+        <!-- list of items and details-->
+        <table>
+            <thead>
+                <tr>
+                    <th class="item">Description</th>
+                    <th class="quantity">Qty</th>
+                    <th class="total-price">Total</th>
+                </tr>
+                <tr>
+                    <th class="text-center" colspan="3">---------------------------------------------------------------</p>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="item" style="width: 100px;" colspan="3">Lo Act Chat twe pyae sone fo bab ko tout kya soh</td>
+                </tr>
+                <tr>
+                    <td class="unit-price">3400</td>
+                    <td class="quantity">1</td>
+                    <td class="price">3400</td>
+                </tr>
+                <tr>
+                    <td class="item" colspan="3">Lo Act Chat twe pyae sone fo bab ko tout kya soh</td>
+                </tr>
+                <tr>
+                    <td class="unit-price">3400</td>
+                    <td class="quantity">1</td>
+                    <td class="price">3400</td>
+                </tr>
+                <tr>
+                    <td class="text-center" colspan="3">---------------------------------------------------------------</p>
+                </tr>
+            </tbody>
+        </table>
+        <p class="text-end" id="total-amount"><b>Total Amount: 6800</b></p>
+        <p class="text-end" id="given-amount"><b>Given Amount: 7000</b></p>
+        <p class="text-end" id="change-due"><b>Change Due: 200</b></p>
+        <p class="text-center">Thank you! Get Well Soon!</p>
+
+        <div class="d-flex justify-content-end my-3">
+            <button class="btn btn-secondary mx-1" id="done-btn">Done</button:>
+            <button class="btn btn-primary mx-1" id="print-btn">Print</button:>
+        </div>
+    </div>
+ </body>
+    <script src="receipt.js" data-name="user">
+
+    </script>

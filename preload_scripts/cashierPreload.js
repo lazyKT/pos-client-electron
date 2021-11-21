@@ -12,7 +12,8 @@ const {
 const ALLOWED_SEND_CHANNELS = [
   "member-checkout-window",
   "open-payment-summary",
-  "cashier-close"
+  "cashier-close",
+  "show-receipt"
 ];
 
 

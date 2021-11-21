@@ -264,6 +264,8 @@ checkoutBtn.addEventListener("click", e => {
   showHidePostPaymentLoading(postPaymentLoadingDOM, "show");
   console.log("show checkout page");
 
+  window.cashierAPI.send('show-receipt');
+
   try {
     console.log(shoppingCart);
     const { error, message } = validateCheckOut();
