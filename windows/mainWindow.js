@@ -16,6 +16,7 @@ const { createEditFormWindow } = require("./editFormWindow.js");
 
 const applicationMenu = Menu.buildFromTemplate(require('../applicationMenu.js'));
 const AppConfig = require("../config");
+const { createPageSelectionWindow } = require('./createPageSelectionWindow.js');
 
 let win
 
@@ -39,6 +40,7 @@ exports.createMainWindow = function createMainWindow () {
 
 
     win.loadFile(mainMenuURL);
+    //win.openDevTools();
 
     win.once("ready-to-show", () => win.show() );
 
@@ -73,7 +75,6 @@ exports.createMainWindow = function createMainWindow () {
       IPC Messages
     */
     ipcMain.on("login", (e, from) => {
-      // console.log("ipcMain.on('login')");
       createLoginWindow(win, from);
     });
 

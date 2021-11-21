@@ -42,7 +42,7 @@ exports.createFormWindow = function createFormWindow(parentWindow, content) {
 
     win.on("close", () => {
       if (win) {
-        removeListeners(["form-data-finish", "dismiss-form-window"]);
+        removeListeners(["form-data-finish", "dismiss-form-window", "select-page"]);
         unregisterEmitters();
         win = null;
       }
