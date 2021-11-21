@@ -29,7 +29,9 @@ window.receiptAPI.receive("invoice", invoice => {
   loadPrice(givenAmount, "Given Amount", invoice.givenAmount);
   loadPrice(changeAmount, "Change Amount", invoice.changeAmount);
 
-  window.receiptAPI.send("print");
+  const printerName = window.localStorage.getItem("printerName");
+
+  window.receiptAPI.send("print", printerName);
 });
 
 
