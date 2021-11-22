@@ -51,44 +51,46 @@ exports.createMainWindow = function createMainWindow () {
         # Always clean up the listeners and event emitters
         **/
         removeListeners(["login", "login-user", "user-logout", "create-modal", "user-data", "user-logout", "logout"]);
-        unregisterEmitters();
+        //unregisterEmitters();
         win = null;
       }
     });
 
 
-    /**
-    # When the window changes the file to load page
-    **/
-    win.webContents.on("did-navigate", (event, url) => {
+    // /**
+    // # When the window changes the file to load page
+    // **/
+    // win.webContents.on("did-navigate", (event, url) => {
 
-      let fileUrl = "";
+    //   let fileUrl = "";
 
-      if (process.platform === "win32") {
-        // for windows system
-        const targetFileUrl = url.split(":///")[1];
-        fileUrl = targetFileUrl.replaceAll("/", "\\");
-      }
-      else {
-        // for mac and linux
-        fileUrl = url.split("://")[1];
-      }
+    //   if (process.platform === "win32") {
+    //     // for windows system
+    //     const targetFileUrl = url.split(":///")[1];
+    //     fileUrl = targetFileUrl.replaceAll("/", "\\");
+    //   }
+    //   else {
+    //     // for mac and linux
+    //     fileUrl = url.split("://")[1];
+    //   }
 
-      /** if the current page is Main Menu, listen for user login event and remove once done " **/
-      if (fileUrl === mainMenuURL) {
+    //   /** if the current page is Main Menu, listen for user login event and remove once done " **/
+    //   if (fileUrl === mainMenuURL) {
 
-        ipcMain.once("login-user", (e, args) => {
-          console.log("main window user-login");
-          win.loadFile(userMangementURL);
-        });
-      }
-    });
+        
+    //   }
+    // });
 
     /**
       IPC Messages
     */
     ipcMain.on("login", (e, from) => {
       createLoginWindow(win, from);
+    });
+
+    ipcMain.on("login-user", (e, args) => {
+      console.log("main window user-login");
+      win.loadFile(userMangementURL);
     });
 
 
