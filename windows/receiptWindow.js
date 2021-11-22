@@ -5,7 +5,8 @@
  const path = require("path");
  const {
    BrowserWindow,
-   ipcMain
+   ipcMain,
+   dialog
  } = require("electron");
  const fs = require("fs");
  const os = require("os");
@@ -16,12 +17,11 @@
 
 exports.createReceiptWindow = function (parentWindow, invoice) {
 
-  if (!win || win === null) {
+  if (!win) {
     win = new BrowserWindow({
       width: 400,
       height: 500,
       parent: parentWindow,
-      modal: true,
       show: false,
       frame: false,
       webPreferences: {
@@ -44,26 +44,50 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
       }
     });
 
-    console.log(invoice);
+    //console.log(invoice);
     win.webContents.on("did-finish-load", () => {
 
       win.webContents.send("invoice", invoice);
 
       ipcMain.on("print", (event, printer) => {
-        // console.log(printer);
-        const options = {
-          silent: true,
-          // deviceName: printer
-        }
+        console.log("printer", printer);
+        console.log(win.webContents.getPrinters());
 
-        win.webContents.print(options, (success, errorType) => {
-          if (!success)
-            console.log(errorType)
-          win.close();
-        });
+        if ((findPrinters(win.webContents.getPrinters(), printer)).length > 0) {
+          console.log('printer found', printer);
+          const options = {
+            silent: true,
+            deviceName: printer
+          }
+
+          win.webContents.print(options, (success, errorType) => {
+            if (!success) {
+              console.error("Printing Erorr:", errorType);
+              dialog.showMessageBox({
+                  title : "Printing Receipt",
+                  message: `Error: ${errorType}`
+              })
+                .then (() => {
+                  win.close();
+                });
+            }
+            else  
+              win.close();
+          });
+        }
+        else {
+          dialog.showMessageBox({
+            title : "Printing Receipt",
+            message: `Error: Printer, ${printer} not found!`
+        })
+          .then (() => {
+            win.close();
+          });
+        }
 
         // const pdfPath = path.join(os.homedir(), 'Desktop', 'temp.pdf')
         // win.webContents.printToPDF({}).then(data => {
+        //   console.log("Writing PDF ...");
         //   fs.writeFile(pdfPath, data, (error) => {
         //     if (error) throw error
         //     console.log(`Wrote PDF successfully to ${pdfPath}`)
@@ -75,6 +99,14 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
       });
     });
   }
+}
+
+
+
+function findPrinters (printerList, receiptPrinterName) {
+  const printers = printerList.filter(p => p.name === receiptPrinterName);
+
+  return printers;
 }
 
 

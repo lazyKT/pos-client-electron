@@ -40,7 +40,7 @@ exports.createMainWindow = function createMainWindow () {
 
 
     win.loadFile(mainMenuURL);
-    //win.openDevTools();
+    // win.openDevTools();
 
     win.once("ready-to-show", () => win.show() );
 
@@ -78,6 +78,7 @@ exports.createMainWindow = function createMainWindow () {
       if (fileUrl === mainMenuURL) {
 
         ipcMain.once("login-user", (e, args) => {
+          console.log("main window user-login");
           win.loadFile(userMangementURL);
         });
       }

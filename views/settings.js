@@ -6,11 +6,15 @@ window.onload = () => {
   const appConfig = {};
 
   const serverUrl = localStorage.getItem("serverUrl");
+  const printerName = localStorage.getItem("printerName");
   if (serverUrl) {
     const ipAddrInput = document.getElementById("server-addr");
+    const printerNameDOM = document.getElementById("printer");
 
     ipAddrInput.value = serverUrl;
     appConfig.serverURL = serverUrl;
+
+    printerNameDOM.value = printerName ? printerName : "";
   }
   else {
     throw new Error ("Server Url not found in Local Storage");
