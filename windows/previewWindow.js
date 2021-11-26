@@ -31,7 +31,7 @@ exports.createPreviewWindow = function (parent, data) {
     });
 
     win.loadFile(path.join(__dirname, "../views/inventory/preview.html"));
-    win.openDevTools();
+    //win.openDevTools();
 
     win.on("ready-to-show", () => win.show());
 

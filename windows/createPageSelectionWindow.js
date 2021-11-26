@@ -31,7 +31,7 @@ exports.createPageSelectionWindow = function pageSelectionWindow(parentWindow, f
     pageName = from
 
     win.loadFile(path.join(__dirname, "../views/selectPage.html"));
-    win.openDevTools();
+    //win.openDevTools();
 
     win.once("ready-to-show", () => win.show());
 
