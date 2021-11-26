@@ -31,7 +31,7 @@ exports.createPreviewWindow = function (parent, data) {
     });
 
     win.loadFile(path.join(__dirname, "../views/inventory/preview.html"));
-    win.openDevTools();
+    //win.openDevTools();
 
     win.on("ready-to-show", () => win.show());
 
@@ -45,49 +45,49 @@ exports.createPreviewWindow = function (parent, data) {
 
     win.webContents.on("did-finish-load", () => {
       win.webContents.send("preview-data", data);
+    });
 
-      ipcMain.on("export-data-after-preview", async (event, args) => {
-        try {
+    ipcMain.on("export-data-after-preview", async (event, args) => {
+      try {
 
-          if (exporting)
-            return;
+        if (exporting)
+          return;
 
-          console.log("export-data-after-preview", exporting);
-          exporting = true;
-          const dest = await dialog.showSaveDialog({
-            filters: [
-              { name: 'CSV files', extensions: ['csv']}
-            ]
-          });
+        console.log("export-data-after-preview", exporting);
+        exporting = true;
+        const dest = await dialog.showSaveDialog({
+          filters: [
+            { name: 'CSV files', extensions: ['csv']}
+          ]
+        });
 
-          if (dest.canceled) {
-            if(win) win.close();
-            return;
-          }
+        if (dest.canceled) {
+          if(win) win.close();
+          return;
+        }
 
-          exportCSV(dest.filePath, args)
-            .then(() => {
-              // show info dialog after successful export
-              dialog.showMessageBox ({
-                title: 'CSV File Exported',
-                message: `File saved in ${dest.filePath}`
-              });
+        exportCSV(dest.filePath, args)
+          .then(() => {
+            // show info dialog after successful export
+            dialog.showMessageBox ({
+              title: 'CSV File Exported',
+              message: `File saved in ${dest.filePath}`
+            });
+            if (win) win.close();
+            exporting = false;
+          })
+          .catch(
+            erorr => {
+              console.log('Error Exporting csv file ->', error);
+              alert(`Error exporting data. ${error}`);
               if (win) win.close();
               exporting = false;
-            })
-            .catch(
-              erorr => {
-                console.log('Error Exporting csv file ->', error);
-                alert(`Error exporting data. ${error}`);
-                if (win) win.close();
-                exporting = false;
-              }
-            );
-        }
-        catch(error) {
-          console.log('Error Exporting csv file ->', error);
-        }
-      });
+            }
+          );
+      }
+      catch(error) {
+        console.log('Error Exporting csv file ->', error);
+      }
     });
   }
 }

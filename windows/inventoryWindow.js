@@ -47,6 +47,7 @@ exports.createInventoryWindow = function createInventoryWindow () {
   // win.openDevTools();
 
   win.once("ready-to-show", () => {
+    win.maximize();
     win.show();
   });
 

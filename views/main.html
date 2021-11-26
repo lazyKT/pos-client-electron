@@ -23,8 +23,8 @@
             id="user"
             onclick="requestLoginWindow('user')">
             <div class="card-body">
-              <i class="fas fa-key"></i>
-              <p>Register</p>
+              <i class="fas fa-user-friends"></i>
+              <p>Users Management</p>
             </div>
           </div>
           <div
@@ -36,23 +36,40 @@
               <p>Inventory</p>
             </div>
           </div>
+          <div
+            class="col menu-item card mx-1"
+            id="inventory"
+            onclick="requestLoginWindow('service')">
+            <div class="card-body">
+              <i class="fas fa-file-medical-alt"></i>
+              <p>Services</p>
+            </div>
+          </div>
         </div>
         <div class="row my-1">
+          <div
+            class="col order-1 menu-item card mx-1"
+            id="setting"
+            onclick="requestLoginWindow('bookings')">
+            <div class="card-body">
+              <i class="fas fa-clipboard-list"></i>
+              <p>Bookings</p>
+            </div>
+          </div>
+          <div class="col order-5 menu-item card mx-1"
+          id="setting"
+          onclick="requestLoginWindow('sales')">
+            <div class="card-body">
+              <i class="fas fa-chart-line"></i>
+              <p>Sales</p>
+            </div>
+          </div>
           <div class="col order-5 menu-item card mx-1"
           id="setting"
           onclick="requestLoginWindow('cashier')">
             <div class="card-body">
               <i class="fas fa-cash-register"></i>
               <p>Cashier</p>
-            </div>
-          </div>
-          <div
-            class="col order-1 menu-item card mx-1"
-            id="setting"
-            onclick="alert('coming soon')">
-            <div class="card-body">
-              <i class="fas fa-hospital-user"></i>
-              <p>Patients</p>
             </div>
           </div>
         </div>
@@ -64,9 +81,15 @@
       <div class="login-modal">
         <h5 class="mb-2">Login</h5>
         <div class="alert alert-danger mb-1" id="error-alert">
-          
+
         </div>
         <form>
+          <div class="mb-3">
+            <label class="form-label">Log into :</label>
+            <select class="form-control" id="content-selection">
+              <option value="" selected>Please Choose The Page</option>
+            </select>
+          </div>
           <div class="mb-3">
             <label class="form-label">Username</label>
             <input type="text" class="form-control" id="username">

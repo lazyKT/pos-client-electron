@@ -10,7 +10,8 @@ const {
   session
 } = require('electron');
 
-const { createLoginWindow } = require("./loginWindow.js");
+const { createCashierWindow } = require("./cashierWindow.js");
+const { createInventoryWindow } = require("./inventoryWindow.js");
 const { createFormWindow } = require("./formWindow.js");
 const { createEditFormWindow } = require("./editFormWindow.js");
 
@@ -40,7 +41,7 @@ exports.createMainWindow = function createMainWindow () {
 
 
     win.loadFile(mainMenuURL);
-    //win.openDevTools();
+    win.openDevTools();
 
     win.once("ready-to-show", () => win.show() );
 
@@ -58,8 +59,8 @@ exports.createMainWindow = function createMainWindow () {
     /**
       IPC Messages
     */
-    ipcMain.on("login", (e, from) => {
-      createLoginWindow(win, from);
+    ipcMain.on("login", (e, args) => {
+      openWindow(args);
     });
 
 
@@ -97,6 +98,23 @@ exports.createMainWindow = function createMainWindow () {
     Menu.setApplicationMenu(applicationMenu);
 
 
+  }
+}
+
+
+function openWindow ({name, _id, page}) {
+  switch (page) {
+    case 'Pharmacy' :
+      createCashierWindow(name, _id);
+      break;
+    case 'Clinic' :
+      createCashierWindow(name, _id);
+      break;
+    case 'Inventory' :
+      createInventoryWindow(name, _id);
+      break;
+    default :
+      throw new Error ('Unknown Page Name!');
   }
 }
 

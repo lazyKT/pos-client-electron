@@ -26,12 +26,8 @@ window.onUnload = () => window.api.removeListeners();
 // request for login window to go into new page
 function requestLoginWindow(pageName) {
   //console.log("PageName", pageName);
-  if (pageName === "user") {
-    loginModal.style.display = "flex";
-  }
-  else {
-    window.api.send('login', pageName);
-  }
+
+  showLoginModal(pageName);
 }
 
 
@@ -39,10 +35,11 @@ async function loginUserToUserPannel(event) {
   try {
     event.preventDefault();
     toggleButtonState(event.target, "loading");
+    const pageSelection = document.getElementById("content-selection")?.value;
     const username = document.getElementById("username")?.value;
     const password = document.getElementById("password")?.value;
-
-    if (!username || username === '' || !password || password === '') {
+    console.log('page selection', pageSelection);
+    if (!username || username === '' || !password || password === '' || !pageSelection || pageSelection === '') {
       showErrorMessage("Invalid Credentials");
       toggleButtonState(event.target, "done");
       return;
@@ -52,16 +49,7 @@ async function loginUserToUserPannel(event) {
 
     if (response && response.ok) {
       const emp = await response.json();
-      if (parseInt(emp.level) === 3) {
-        // success
-        closeLoginModal(event);
-        window.api.send("login-user", {name: emp.fullName, id: emp._id});
-      }
-      else {
-        // access denied
-        showErrorMessage("Error. Access Denied!");
-        return;
-      }
+      handleRoutesAfterLogin(event, pageSelection, emp);
     }
     else {
       const { message } = await response.json();
@@ -75,6 +63,105 @@ async function loginUserToUserPannel(event) {
   }
   finally {
     toggleButtonState(event.target, "done");
+  }
+}
+
+
+async function handleRoutesAfterLogin (event, pageName, employee) {
+  try {
+    if (pageName === 'Employee' || pageName === 'Doctor' || pageName === 'Patient') {
+      if (parseInt(employee.level) === 3) {
+        closeLoginModal(event);
+        window.api.send("login-user", {name: employee.fullName, _id: employee._id});
+      }
+      else
+        showErrorMessage("Error. Access Denied!");
+    }
+    else if (pageName === 'Inventory') {
+      if (parseInt(employee.level) === 2 || parseInt(employee.level) === 3) {
+        closeLoginModal(event);
+        window.api.send("login", {name: employee.name, _id: employee._id, page: pageName});
+      }
+      else
+        showErrorMessage("Error. Access Denied!");
+    }
+    else {
+      window.api.send("login", {name: employee.name, _id: employee._id, page: pageName});
+    }
+  }
+  catch (error) {
+    throw new Error(error);
+  }
+}
+
+
+/**
+# Open Login Modal
+**/
+function showLoginModal (pageName) {
+  loginModal.style.display = "flex";
+  // populate content selection tag based on pageName
+  populatePageSelection (pageName);
+}
+
+
+/**
+# Populate Page-Selection Select Tag based on pageName
+**/
+function populatePageSelection (pageName) {
+  try {
+    const pageSelectionSelect = document.getElementById("content-selection");
+    switch (pageName) {
+      case "user":
+        syncOptionsForPageSelection (pageSelectionSelect, ["Doctor", "Employee", "Patient"]);
+        break;
+      case "bookings":
+        syncOptionsForPageSelection (pageSelectionSelect, ["Bookings"]);
+        break;
+      case "sales":
+        syncOptionsForPageSelection (pageSelectionSelect, ["Sales"]);
+        break;
+      case "cashier":
+        syncOptionsForPageSelection (pageSelectionSelect, ["Clinic", "Pharmacy"]);
+        break;
+      case "service":
+        syncOptionsForPageSelection (pageSelectionSelect, ["Medical Services"]);
+        break;
+      case "inventory":
+        syncOptionsForPageSelection (pageSelectionSelect, ["Inventory"]);
+        break;
+      default:
+        throw new Error ("Invalid Page Selection");
+    }
+  }
+  catch (error) {
+
+  }
+}
+
+
+/**
+# Fill Contents options to Page Selection Tag
+**/
+function syncOptionsForPageSelection (parentDom, selections) {
+  removeOptionsFromPageSelection (parentDom);
+  selections.forEach (
+    selection => {
+      const option = document.createElement('option');
+      option.setAttribute("value", selection);
+      option.innerHTML = selection;
+      parentDom.appendChild(option);
+    }
+  );
+}
+
+
+/**
+# Remove Current Options from Page-Selection Select Tag
+**/
+function removeOptionsFromPageSelection (selectDOM) {
+  while (selectDOM.childElementCount > 1) {
+    selectDOM.removeChild(selectDOM.lastChild);
   }
 }
 

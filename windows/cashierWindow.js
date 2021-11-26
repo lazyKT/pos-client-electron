@@ -26,9 +26,10 @@ exports.createCashierWindow = function createCashierWindow(name, id) {
 
     win.loadFile(path.join(__dirname, "../views/cashier/cashier.html"));
 
-    win.openDevTools();
+    //win.openDevTools();
 
     win.once('ready-to-show', () => {
+      win.maximize();
       win.show();
     });
 
