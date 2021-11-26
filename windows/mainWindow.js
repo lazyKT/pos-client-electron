@@ -51,35 +51,7 @@ exports.createMainWindow = function createMainWindow () {
         # Always clean up the listeners and event emitters
         **/
         removeListeners(["login", "login-user", "user-logout", "create-modal", "user-data", "user-logout", "logout"]);
-        unregisterEmitters();
         win = null;
-      }
-    });
-
-
-    /**
-    # When the window changes the file to load page
-    **/
-    win.webContents.on("did-navigate", (event, url) => {
-
-      let fileUrl = "";
-
-      if (process.platform === "win32") {
-        // for windows system
-        const targetFileUrl = url.split(":///")[1];
-        fileUrl = targetFileUrl.replaceAll("/", "\\");
-      }
-      else {
-        // for mac and linux
-        fileUrl = url.split("://")[1];
-      }
-
-      /** if the current page is Main Menu, listen for user login event and remove once done " **/
-      if (fileUrl === mainMenuURL) {
-
-        ipcMain.once("login-user", (e, args) => {
-          win.loadFile(userMangementURL);
-        });
       }
     });
 
@@ -88,6 +60,11 @@ exports.createMainWindow = function createMainWindow () {
     */
     ipcMain.on("login", (e, from) => {
       createLoginWindow(win, from);
+    });
+
+
+    ipcMain.on("login-user", (e, args) => {
+      win.loadFile(userMangementURL);
     });
 
 
@@ -134,17 +111,5 @@ function removeListeners (listeners) {
   }
   catch (error) {
     console.error("Error removing listeners from ItemEditWindow", error);
-  }
-}
-
-
-function unregisterEmitters () {
-  try {
-    if (win) {
-        win.webContents.removeListener("did-navigate", win.webContents.listeners("did-navigate")[0]);
-    }
-  }
-  catch (error) {
-    console.error("Error removing Emitters", error);
   }
 }
