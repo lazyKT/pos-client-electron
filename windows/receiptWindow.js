@@ -50,11 +50,11 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
       win.webContents.send("invoice", invoice);
 
       ipcMain.on("print", (event, printer) => {
-        console.log("printer", printer);
-        console.log(win.webContents.getPrinters());
+        // console.log("printer", printer);
+        // console.log(win.webContents.getPrinters());
 
         if ((findPrinters(win.webContents.getPrinters(), printer)).length > 0) {
-          console.log('printer found', printer);
+          // console.log('printer found', printer);
           const options = {
             silent: true,
             deviceName: printer
