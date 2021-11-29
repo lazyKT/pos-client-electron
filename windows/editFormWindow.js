@@ -19,8 +19,8 @@ exports.createEditFormWindow = function createEditFormWindow(parentWindow, type,
 
   if (!win || win === null) {
     win = new BrowserWindow ({
-      width: 600,
-      height: 800,
+      width: 550,
+      height: 700,
       parent: parentWindow,
       modal: true,
       show: false,

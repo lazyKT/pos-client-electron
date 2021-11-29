@@ -61,6 +61,7 @@ async function loginUserToUserPannel(event) {
       const { message } = await response.json();
       const errorMessage = message ? message : "Network Connection Error!";
       showErrorMessage(errorMessage);
+      (document.getElementById("password")).value = "";
     }
   }
   catch (error) {
@@ -78,7 +79,8 @@ async function handleRoutesAfterLogin (event, pageName, employee) {
     if (pageName === 'Employee' || pageName === 'Doctor' || pageName === 'Patient') {
       if (parseInt(employee.level) === 3) {
         closeLoginModal(event);
-        window.api.send("login-user", {name: employee.fullName, _id: employee._id});
+        saveInLocalStorage({name: employee.fullName, _id: employee._id});
+        window.api.send("login-user");
       }
       else
         showErrorMessage("Error. Access Denied!");
@@ -99,6 +101,14 @@ async function handleRoutesAfterLogin (event, pageName, employee) {
   catch (error) {
     throw new Error(error);
   }
+}
+
+
+/**
+# Save User Auth Details at LocalStorage
+**/
+function saveInLocalStorage (user) {
+  localStorage.setItem("user", JSON.stringify(user));
 }
 
 

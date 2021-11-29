@@ -23,7 +23,7 @@ exports.createFormWindow = function createFormWindow(parentWindow, content) {
 
     win = new BrowserWindow({
       width: 500,
-      height: 700,
+      height: 600,
       parent: parentWindow,
       modal: true,
       show: false,

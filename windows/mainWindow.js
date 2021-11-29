@@ -68,11 +68,6 @@ exports.createMainWindow = function createMainWindow () {
       win.loadFile(userMangementURL);
     });
 
-    ipcMain.on("login-user", (e, args) => {
-      console.log("main window user-login");
-      win.loadFile(userMangementURL);
-    });
-
 
     // logout request from Renderer
     ipcMain.on('logout', (e, response) => {
