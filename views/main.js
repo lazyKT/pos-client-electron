@@ -39,7 +39,13 @@ async function loginUserToUserPannel(event) {
     const username = document.getElementById("username")?.value;
     const password = document.getElementById("password")?.value;
     console.log('page selection', pageSelection);
-    if (!username || username === '' || !password || password === '' || !pageSelection || pageSelection === '') {
+
+    if (!pageSelection || pageSelection === '') {
+      showErrorMessage("Please Choose Valid Page to Log in");
+      return;
+    }
+
+    if (!username || username === '' || !password || password === '') {
       showErrorMessage("Invalid Credentials");
       toggleButtonState(event.target, "done");
       return;
@@ -80,13 +86,14 @@ async function handleRoutesAfterLogin (event, pageName, employee) {
     else if (pageName === 'Inventory') {
       if (parseInt(employee.level) === 2 || parseInt(employee.level) === 3) {
         closeLoginModal(event);
-        window.api.send("login", {name: employee.name, _id: employee._id, page: pageName});
+        window.api.send("login", {name: employee.fullName, _id: employee._id, page: pageName});
       }
       else
         showErrorMessage("Error. Access Denied!");
     }
     else {
-      window.api.send("login", {name: employee.name, _id: employee._id, page: pageName});
+      closeLoginModal(event);
+      window.api.send("login", {name: employee.fullName, _id: employee._id, page: pageName});
     }
   }
   catch (error) {

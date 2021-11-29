@@ -81,7 +81,14 @@
               <!-- contents -->
               <table class="table table-hover mt-3" id="item-details-table">
                   <thead>
-                    <tr>
+                    <col style="width: 25%;"/>
+                    <col style="width: 25%;"/>
+                    <col style="width: 10%;"/>
+                    <col style="width: 5%">
+                    <col style="width: 10%;"/>
+                    <col style="width: 5%;"/>
+                    <col style="width: 20%;"/>
+                    <tr class="bg-primary text-white p-1">
                       <th scope="col">Product ID</th>
                       <th scope="col">Description</th>
                       <th scope='col'>Expiry Date</th>
@@ -198,8 +205,8 @@
                     <label class="form-label">Approved By Doctor</label>
                     <select class="form-select" disabled id="medApprove" required>
                       <option selected>Open this select menu</option>
-                      <option value="1" id="approve-yes">Yes</option>
-                      <option value="2" id="approve-no">No</option>
+                      <option value="Yes" id="approve-yes">Yes</option>
+                      <option value="No" id="approve-no">No</option>
                     </select>
                   </div>
                   <div class="col">
