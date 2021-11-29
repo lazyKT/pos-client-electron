@@ -182,6 +182,7 @@ function closeLoginModal (event) {
   event.preventDefault();
   loginModal.style.display="none";
   clearInputs();
+  hideErrorMessage();
 }
 
 
