@@ -11,7 +11,8 @@ const {
   createNewUser,
   getAllUsers,
 } = require("../models/user.js");
-const AppConfig = require("../config");
+
+const { removeEventListeners } = require("../ipcHelper.js");
 
 let win
 
@@ -42,63 +43,24 @@ exports.createFormWindow = function createFormWindow(parentWindow, content) {
 
     win.on("close", () => {
       if (win) {
-        removeListeners(["form-data-finish", "dismiss-form-window", "select-page"]);
-        unregisterEmitters();
+        removeEventListeners(ipcMain, ["form-data-finish", "dismiss-form-window", "select-page"]);
         win = null;
       }
     });
 
+    /**
+    IPC Messages
+    **/
+    // close create data window
+    ipcMain.on ('dismiss-form-window', () => {
 
-    win.webContents.on("did-finish-load", () => {
-
-      /**
-      IPC Messages
-      **/
-      win.webContents.send("app-config", AppConfig.serverURL);
-
-      // close create data window
-      ipcMain.on ('dismiss-form-window', () => {
-
-        if(win) win.close();
-      });
-
-      ipcMain.on ("form-data-finish", (event, args) => {
-        if (win) win.close();
-        // reload user
-        parentWindow.webContents.send("reload-data", "");
-      });
-
+      if(win) win.close();
     });
-  }
 
-}
-
-
-function removeListeners (listeners) {
-  try {
-    listeners.forEach (
-      listener => {
-        const func = ipcMain.listeners(listener)[0];
-        if (func) {
-          ipcMain.removeListener(listener, func);
-        }
-      }
-    );
-  }
-  catch (error) {
-    console.error("Error removing listeners from ItemEditWindow", error);
-  }
-}
-
-
-function unregisterEmitters () {
-  try {
-    if (win) {
-        win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
-        ipcMain.removeHandler("request-ip");
-    }
-  }
-  catch (error) {
-    console.error("Error removing Emitters", error);
+    ipcMain.on ("form-data-finish", (event, args) => {
+      if (win) win.close();
+      // reload user
+      parentWindow.webContents.send("reload-data", "");
+    });
   }
 }

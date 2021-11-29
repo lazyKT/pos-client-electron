@@ -11,6 +11,8 @@ const {
   getAllUsers,
 } = require("../models/user.js");
 
+const { removeEventListeners } = require("../ipcHelper.js");
+
 
 let win
 
@@ -19,8 +21,8 @@ exports.createEditFormWindow = function createEditFormWindow(parentWindow, type,
 
   if (!win || win === null) {
     win = new BrowserWindow ({
-      width: 600,
-      height: 800,
+      width: 550,
+      height: 700,
       parent: parentWindow,
       modal: true,
       show: false,
@@ -40,68 +42,32 @@ exports.createEditFormWindow = function createEditFormWindow(parentWindow, type,
 
     win.on("close", () => {
       if(win) {
-        removeEventListeners(["dismiss-form-window", "from-data-finish"]);
-        removeEventEmitters(["did-finish-load"]);
+        removeEventListeners(ipcMain, ["dismiss-form-window", "from-data-finish"]);
+        removeEventListeners(win.webContents, ["did-finish-load"]);
         win = null;
       }
     })
 
     win.webContents.on("did-finish-load", () => {
-
       win.webContents.send("response-user-data", {_id: contents, method: type});
-
-      /**
-      IPC Messages
-      **/
-
-      /* Dimiss Window */
-      ipcMain.on("dismiss-form-window", (event, args) => {
-        if(win) win.close();
-        ipcMain.removeHandler("edit-user"); // remove existing handler
-      })
-
-      /* close form when the renderer process informs that the edit process is finished */
-      ipcMain.on("form-data-finish", (event, args) => {
-        if(win) win.close();
-        parentWindow.webContents.send("reload-data");
-      });
-
     });
 
+
+    /**
+    IPC Messages
+    **/
+
+    /* Dimiss Window */
+    ipcMain.on("dismiss-form-window", (event, args) => {
+      if(win) win.close();
+      ipcMain.removeHandler("edit-user"); // remove existing handler
+    })
+
+    /* close form when the renderer process informs that the edit process is finished */
+    ipcMain.on("form-data-finish", (event, args) => {
+      if(win) win.close();
+      parentWindow.webContents.send("reload-data");
+    });
   }
 
-}
-
-
-function removeEventListeners (listeners) {
-  try {
-    listeners.forEach(
-      listener => {
-        const func = ipcMain.listeners(listener)[0];
-        if (func)
-          ipcMain.removeListener(listener, func);
-      }
-    )
-  }
-  catch (error) {
-    console.error("Erorr Removing Event Listeners from editFormWindow.\n", error);
-  }
-}
-
-
-function removeEventEmitters (emitters) {
-  try {
-    emitters.forEach(
-      emitter => {
-        if (win) {
-          const func = win.webContents.listeners(emitter)[0];
-          if (func)
-            win.webContents.removeListener(emitter, func);
-        }
-      }
-    )
-  }
-  catch (error) {
-    console.error("Erorr Removing Event Emitters from editFormWindow.\n", error);
-  }
 }

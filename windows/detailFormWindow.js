@@ -13,6 +13,7 @@
    getDetailItemById,
    getSubItemDetailById
  } = require("../models/item.js");
+ const { removeEventListeners } = require("../ipcHelper.js");
 
 let win
 
@@ -41,48 +42,34 @@ exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, c
 
    win.on("close", () => {
      if(win) {
-       removeListeners(["dismiss-form-window", "open-details"]);
-       unregisterEmitters();
+       removeEventListeners(ipcMain, ["dismiss-form-window", "open-details"]);
+       removeEventListeners(win.webContents, ["did-finish-load"]);
        win = null;
      }
    });
 
    win.webContents.on("did-finish-load", () => {
      win.webContents.send("reload-data", contents);
+   });
 
-     ipcMain.on('dismiss-form-window', () => {
-       if(win) win.close();
-     });
-
-    });
+   ipcMain.on('dismiss-form-window', () => {
+     if(win) win.close();
+   });
 
   }
- }
+}
 
- function removeListeners (listeners) {
-   try {
-     listeners.forEach (
-       listener => {
-         const func = ipcMain.listeners(listener)[0];
-         if (func) {
-           ipcMain.removeListener(listener, func);
-         }
-       }
-     );
-   }
-   catch (error) {
-     console.error("Error removing listeners from ItemEditWindow", error);
-   }
- }
-
-
- function unregisterEmitters () {
-   try {
-     if (win) {
-         win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
-     }
-   }
-   catch (error) {
-     console.error("Error removing Emitters", error);
-   }
- }
+ // function removeEventListeners (listener, channels) {
+ //   try {
+ //     channels.forEach(
+ //       channel => {
+ //         const func = listener.listeners(channel)[0];
+ //         if (func)  listener.removeListener(channel, func);
+ //         console.log(`${channel} removed from detailFormWindow`);
+ //       }
+ //     );
+ //   }
+ //   catch (error) {
+ //     console.error("Error removing Event Listeners at detailFormWindow", error);
+ //   }
+ // }

@@ -11,8 +11,9 @@
    getAllItems,
  } = require("../models/item.js");
 
+const { removeEventListeners } = require("../ipcHelper.js");
 
- let win, listener
+let win
 
 
  exports.createEditFormWindow = function createEditFormWindow(parentWindow, type, contents) {
@@ -38,8 +39,8 @@
 
      win.on("close", () => {
        if(win) {
-         removeListeners(["dismiss-edit-item-form-window", "item-form-data-finish"]);
-         unregisterEmitters();
+         removeEventListeners(ipcMain, ["dismiss-edit-item-form-window", "item-form-data-finish"]);
+         removeEventListeners(win.webContents, ["did-finish-load"]);
          win = null;
        }
      })
@@ -63,29 +64,4 @@
 
    }
 
-}
-
-function removeListeners (listeners) {
-  try {
-    listeners.forEach (
-      listener => {
-        ipcMain.removeListener(listener, ipcMain.listeners(listener)[0]);
-      }
-    );
-  }
-  catch (error) {
-    console.error("Error removing listeners from ItemEditWindow", error);
-  }
-}
-
-
-function unregisterEmitters () {
-  try {
-    if (win) {
-        win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
-    }
-  }
-  catch (error) {
-    console.error("Error removing Emitters", error);
-  }
 }

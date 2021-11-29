@@ -16,9 +16,10 @@ const loading = document.getElementById("loading");
 window.onUnload = () => window.exportAPI.removeListeners();
 
 
-window.exportAPI.receive("server-addr", async addr => {
+window.onload = async addr => {
   try {
-    serverURL = addr;
+    getServerUrl();
+    
     const response = await fetchTags();
 
     if (response.ok) {
@@ -38,7 +39,14 @@ window.exportAPI.receive("server-addr", async addr => {
   catch (error) {
     alert("Error fetching categories data. code null");
   }
-});
+};
+
+
+function getServerUrl () {
+  serverURL = localStorage.getItem("serverUrl");
+  if (!serverURL || serverURL === null)
+    throw new Error ("Application Error: Failed to get Server URL.");
+}
 
 
 closeBtn.addEventListener("click", e => {

@@ -68,11 +68,6 @@ exports.createMainWindow = function createMainWindow () {
       win.loadFile(userMangementURL);
     });
 
-    ipcMain.on("login-user", (e, args) => {
-      console.log("main window user-login");
-      win.loadFile(userMangementURL);
-    });
-
 
     // logout request from Renderer
     ipcMain.on('logout', (e, response) => {
@@ -116,7 +111,7 @@ function openWindow ({name, _id, page}) {
       createCashierWindow(name, _id);
       break;
     case 'Inventory' :
-      createInventoryWindow(name, _id);
+      createInventoryWindow();
       break;
     default :
       throw new Error ('Unknown Page Name!');

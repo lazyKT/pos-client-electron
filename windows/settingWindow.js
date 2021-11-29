@@ -10,6 +10,8 @@ const Store = require("electron-store");
 
 const AppConfig = require("../config");
 
+const { removeEventListeners } = require("../ipcHelper.js");
+
 
 let win
 
@@ -37,46 +39,15 @@ exports.createSettingWindow = function () {
 
     win.on("close", () => {
       if (win) {
-        removeListeners(["close-setting"]);
-        unregisterEmitters();
+        removeEventListeners(ipcMain, ["close-setting"]);
         win = null
       }
     });
 
 
-    win.webContents.on("did-finish-load", () => {
-
-    });
-
     ipcMain.on("close-setting", (event, args) => {
       if (win)
         win.close();
     });
-  }
-}
-
-
-function removeListeners (listeners) {
-  try {
-    listeners.forEach(
-      listener => {
-        let func = ipcMain.listeners(listener)[0];
-        if (func)
-          ipcMain.removeListener(listener, func);
-      }
-    )
-  }
-  catch (error) {
-    console.error(`Error Removing Listeners at setting: ${error}`);
-  }
-}
-
-function unregisterEmitters () {
-  try {
-    if (win)
-      win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
-  }
-  catch (error) {
-    console.error(`Error Unregistering Emitters at setting: ${error}`);
   }
 }

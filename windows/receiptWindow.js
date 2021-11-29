@@ -11,6 +11,8 @@
  const fs = require("fs");
  const os = require("os");
 
+ const { removeEventListeners } = require("../ipcHelper.js");
+
 
  let win
 
@@ -38,8 +40,8 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
 
     win.on("close", () => {
       if (win) {
-        removeEventListenersFromWebContents();
-        removeIPCMainListeners(["print"])
+        removeEventListeners(win.webContents, ["did-finish-load"]);
+        removeEventListeners(ipcMain, ["print"])
         win = null;
       }
     });
@@ -71,7 +73,7 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
                   win.close();
                 });
             }
-            else  
+            else
               win.close();
           });
         }
@@ -107,28 +109,4 @@ function findPrinters (printerList, receiptPrinterName) {
   const printers = printerList.filter(p => p.name === receiptPrinterName);
 
   return printers;
-}
-
-
-function removeEventListenersFromWebContents () {
-  try {
-    if (win) {
-        win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
-    }
-  }
-  catch (error) {
-    console.error(`Error Removing Listeners from ReceiptWindow.\n ${error}`);
-  }
-}
-
-
-function removeIPCMainListeners (listeners) {
-  try {
-    listeners.forEach(
-      listener => ipcMain.removeAllListeners(listener)
-    );
-  }
-  catch (error) {
-    console.error(`Error Removing Emitters `)
-  }
 }

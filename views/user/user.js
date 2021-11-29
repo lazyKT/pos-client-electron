@@ -1,5 +1,5 @@
 const loadingSpinner = document.getElementById("loading-spinner");
-let serverUrl
+let serverUrl, empName
 let reloadStatus = "ready";
 
 
@@ -10,10 +10,8 @@ window.onload = async () => {
 
     window.api.send("remove-login-event");
 
-    serverUrl = localStorage.getItem("serverUrl");
-
-    if (!serverUrl || serverUrl === null)
-      throw new Error("Error: failed to get server url");
+    loadDataFromLocalStorage();
+    displayLoginInformation();
 
     await reloadData();
   }
@@ -24,6 +22,35 @@ window.onload = async () => {
   finally {
     loadingSpinner.style.display = "none";
   }
+}
+
+
+/**
+# Load Datasource From LocalStorage
+**/
+function loadDataFromLocalStorage () {
+  // get server URL
+  serverUrl = localStorage.getItem("serverUrl");
+  if (!serverUrl || serverUrl === null)
+    throw new Error ("Application Error: Failed to get Server URL.");
+
+  const emp = JSON.parse(localStorage.getItem("user"));
+  if (!emp || emp === null || !emp.name || emp.name === null)
+    throw new Error ("Application Error: Failed to fetch Login User!");
+  empName = emp.name;
+}
+
+
+/**
+# Display Header Infomation: Login Name & Login Time
+**/
+function displayLoginInformation () {
+  const loginName = document.getElementById("login-name");
+  loginName.innerHTML = empName;
+
+  const loginTime = document.getElementById("login-time");
+  const now = new Date();
+  loginTime.innerHTML = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
 }
 
 
@@ -45,7 +72,12 @@ const createUser = () => {
 
 
 const logout = () => {
+  clearUserLocalStorageData();
   window.api.send('user-logout');
+}
+
+function clearUserLocalStorageData () {
+  localStorage.removeItem("user");
 }
 
 async function reloadData() {
