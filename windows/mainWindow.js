@@ -111,7 +111,7 @@ function openWindow ({name, _id, page}) {
       createCashierWindow(name, _id);
       break;
     case 'Inventory' :
-      createInventoryWindow(name, _id);
+      createInventoryWindow();
       break;
     default :
       throw new Error ('Unknown Page Name!');

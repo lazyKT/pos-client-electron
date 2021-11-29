@@ -88,6 +88,7 @@ async function handleRoutesAfterLogin (event, pageName, employee) {
     else if (pageName === 'Inventory') {
       if (parseInt(employee.level) === 2 || parseInt(employee.level) === 3) {
         closeLoginModal(event);
+        saveInLocalStorage({name: employee.fullName, _id: employee._id});
         window.api.send("login", {name: employee.fullName, _id: employee._id, page: pageName});
       }
       else

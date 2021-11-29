@@ -20,7 +20,7 @@ const {
   createInventoryExportWindow
 } = require("./inventoryExportWindow.js");
 
-const AppConfig = require("../config.js");
+const { removeEventListeners } = require("../ipcHelper.js");
 
 
 let win
@@ -53,47 +53,41 @@ exports.createInventoryWindow = function createInventoryWindow () {
 
 
   win.on("close", () => {
-    removeListeners(["logout", "item-data", "item-details", "export-data"]);
-    unregisterEmitters();
+    removeEventListeners(ipcMain, ["logout", "item-data", "item-details", "export-data"]);
     if (win) win = null;
   });
 
-
-  win.webContents.on("did-finish-load", () => {
-
-    /** LogOut **/
-    ipcMain.on("logout", () => {
+  /** LogOut **/
+  ipcMain.on("logout", () => {
+    ipcMain.removeHandler("get-all-items");
+    if (win)
+      win.close();
       ipcMain.removeHandler("get-all-items");
-      if (win)
-        win.close();
-        ipcMain.removeHandler("get-all-items");
-        ipcMain.removeHandler("edit-item");
-    });
+      ipcMain.removeHandler("edit-item");
+  });
 
 
 
-    /**
-    # See Med Tag
-    **/
-    ipcMain.on('item-data', (e, req) => {
-      createEditFormWindow(win, req.type, req.data);
-    });
+  /**
+  # See Med Tag
+  **/
+  ipcMain.on('item-data', (e, req) => {
+    createEditFormWindow(win, req.type, req.data);
+  });
 
-    /**
-    # See Medicines
-    **/
-    ipcMain.on('item-details', (e, req) => {
-      createDetailFormWindow(win, req);
-    });
+  /**
+  # See Medicines
+  **/
+  ipcMain.on('item-details', (e, req) => {
+    createDetailFormWindow(win, req);
+  });
 
 
-    /**
-    # Open Export Options Window
-    **/
-    ipcMain.on("open-export-options", (e, args) => {
-      createInventoryExportWindow (win);
-    });
-
+  /**
+  # Open Export Options Window
+  **/
+  ipcMain.on("open-export-options", (e, args) => {
+    createInventoryExportWindow (win);
   });
 }
 
@@ -113,18 +107,5 @@ function removeListeners (listeners) {
   }
   catch (error) {
     console.error("Error Removing Listeners from inventoryExportWindow");
-  }
-}
-
-
-function unregisterEmitters () {
-  try {
-    if (win) {
-        win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
-        // win.webContents.removeListener()
-    }
-  }
-  catch (error) {
-    console.error("Error removing Emitters", error);
   }
 }

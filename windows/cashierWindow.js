@@ -5,7 +5,7 @@ const {
 } = require('electron');
 
 const { createReceiptWindow } = require("./receiptWindow");
-
+const { removeEventListeners } = require("../ipcHelper.js");
 
 let win
 
@@ -35,8 +35,8 @@ exports.createCashierWindow = function createCashierWindow(name, id) {
 
     win.on('close', () => {
       if (win) {
-        removeEventListeners(["cashier-close", "show-receipt"]);
-        removeEmitters(["dom-ready"]);
+        removeEventListeners(ipcMain, ["cashier-close", "show-receipt"]);
+        removeEventListeners(win.webContents, ["dom-ready"]);
         win = null;
       }
     });
@@ -59,39 +59,5 @@ exports.createCashierWindow = function createCashierWindow(name, id) {
     ipcMain.on("show-receipt", (e, data) => {
       createReceiptWindow(win, data);
     });
-  }
-}
-
-
-function removeEventListeners (listeners) {
-  try {
-    listeners.forEach(
-      listener => {
-        const func = ipcMain.listeners(listener)[0];
-        if (func)
-          ipcMain.removeListener(listener, func);
-      }
-    )
-  }
-  catch (error) {
-    console.error("Error Removing Event Listeners From CashierWindow\n", error);
-  }
-}
-
-
-function removeEmitters (emitters) {
-  try {
-    if (win) {
-      emitters.forEach(
-        emitter => {
-          const func = win.webContents.listeners(emitter)[0];
-          if (func)
-            win.webContents.removeListener(emitter, func);
-        }
-      )
-    }
-  }
-  catch (error) {
-    console.error("Error Removing Event Emitters From CashierWindow\n", error);
   }
 }

@@ -6,7 +6,7 @@ let order = 1;
 let sort = "name";
 
 let medTags, totalTags, numPages;
-let serverURL;
+let serverURL, empName;
 let filtering = false;
 
 // DOM Nodes
@@ -18,10 +18,8 @@ window.onload = async () => {
 
     setMinExpiryDate(inputExpiryDate);
 
-    serverURL = localStorage.getItem("serverUrl");
-
-    if (!serverURL || serverURL === null)
-      throw new Error("Error: failed to get server url");
+    loadDataFromLocalStorage();
+    displayLoginInformation();
 
     await reloadData({});
     await createPaginationButtons();
@@ -31,6 +29,36 @@ window.onload = async () => {
   }
 
 }
+
+
+/**
+# Load Datasource From LocalStorage
+**/
+function loadDataFromLocalStorage () {
+  // get server URL
+  serverURL = localStorage.getItem("serverUrl");
+  if (!serverURL || serverURL === null)
+    throw new Error ("Application Error: Failed to get Server URL.");
+
+  const emp = JSON.parse(localStorage.getItem("user"));
+  if (!emp || emp === null || !emp.name || emp.name === null)
+    throw new Error ("Application Error: Failed to fetch Login User!");
+  empName = emp.name;
+}
+
+
+/**
+# Display Header Infomation: Login Name & Login Time
+**/
+function displayLoginInformation () {
+  const loginName = document.getElementById("login-name");
+  loginName.innerHTML = empName;
+
+  const loginTime = document.getElementById("login-time");
+  const now = new Date();
+  loginTime.innerHTML = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+}
+
 
 
 window.inventoryAPI.receive('reload-data', async data => {
@@ -60,7 +88,7 @@ async function changeNumPerPage (num) {
   }
   catch (error) {
     console.log(error);
-    alert (`Error Changing Number Of Items Per Page. code null`);
+    showAlertModal ("Error Changing Number Of Items Per Page. code null", "Application Error! Contact Developer!", "error");
   }
 }
 
@@ -76,7 +104,7 @@ async function changeSort(field) {
   }
   catch (error) {
     console.log(error);
-    alert (`Error Changing Sorting Field. code null`);
+    showAlertModal ("Error Changing Sorting Field. code null", "Application Error! Contact Developer!", "error");
   }
 }
 
@@ -121,7 +149,7 @@ async function displayData (tags) {
     );
   }
   catch (error) {
-    alert ("Error Display Medicine Category. code null");
+    showAlertModal ("Error Display Medicine Category. code null", "Application Error! Contact Developer!", "error");
   }
 }
 
@@ -153,9 +181,9 @@ async function filterTags () {
     else {
       const { message } = await response.json();
       if (message)
-        alert(`Error Searching Med Categories: ${message}`);
+        showAlertModal(`Error Searching Med Categories`, message, "error");
       else
-        alert("Error Searching Med Categories. Code : 500");
+        showAlertModal("Error Searching Med Categories. Code : 500", "Network Connection Error", "error");
     }
     // displayFilteredResults(results);
   }
@@ -201,7 +229,6 @@ async function reloadData (newData) {
     const oldData = itemTable.querySelectorAll('tr');
 
     // excpet the table header, remove all the data
-    console.log()
     oldData.forEach( (node, idx) =>  idx !== 0 && node.remove());
 
     // reload the data by fetching data based on the data type, and populate the table again
@@ -218,13 +245,14 @@ async function reloadData (newData) {
     else {
       const { message } = await response.json();
       if (message)
-        alert (`Error Reloading: ${message}`);
+        showErrorMessage(`Error Loading Med Categories: ${message}`);
       else
-        alert (`Error Reloading Meds Categories: Server Error`);
+        showErrorMessage("Error Loading Med Categories: Network Connection Error!");
     }
   }
   catch (error) {
-    console.log(`Error Reloading ${newData.type} data`, error);
+    console.log(`Error Reloading Med Catgeories data`, error);
+    showErrorMessage("Error Loading Med Categories: Network Connection Error!");
   }
   finally {
     reloadStatus = "ready";
@@ -375,7 +403,13 @@ function removeMessageBoxes () {
 
 
 function logout() {
+  clearUserLocalStorageData();
   window.inventoryAPI.send ("logout", "");
+}
+
+
+function clearUserLocalStorageData () {
+  localStorage.removeItem("user");
 }
 
 
@@ -387,7 +421,7 @@ async function createPaginationButtons () {
   try {
 
     const response = await getTagsCount();
-    if (response.ok) {
+    if (response && response.ok) {
       if (!filtering && limit !== 0) {
         const count = await response.json();
 
@@ -404,12 +438,13 @@ async function createPaginationButtons () {
       }
     }
     else {
-      const json = await response.json();
-      alert(`Error Getting Tags Count: ${json.message}`);
+      const { message } = await response.json();
+      const errMessage = message ? message : "Network Connection Error!";
+      showAlertModal(`Error Searching Med Categories`, message, "error");
     }
   }
   catch (error) {
-    alert(`Error Creating Pagination Buttons: Get Tag Count`);
+    showAlertModal(`Error Searching Med Categories`, "Application Error! Contact Developer!", "error");
   }
 }
 
@@ -443,7 +478,7 @@ function displayPagination () {
         togglePaginationButtons();
       }
       catch (error) {
-        alert("Error Performing Click on Pagination Items");
+        showAlertModal("Error Performing Click on Pagination Items", "Application Error! Contact Developer!", "error");
       }
     });
 
@@ -484,7 +519,7 @@ async function nextPaginationClick (event) {
     }
   }
   catch (error) {
-    alert("Error Performing Click on Pagination Next Button");
+    console.error ("Error Performing Click on Pagination Next Button");
   }
 }
 
@@ -507,7 +542,7 @@ async function prevPaginationClick (event) {
     }
   }
   catch (error) {
-    alert("Error Performing Click on Pagination Next Button");
+    console.error ("Error Performing Click on Pagination Next Button");
   }
 }
 
@@ -555,7 +590,7 @@ async function searchAllMedsOnKey (e) {
       await searchAllMedicines();
   }
   catch (error) {
-    alert(`Error Searching Medicines. code: null.`);
+    showAlertModal("Error Searching Medicines. code: null.", "Application Error! Contact Developer!", "error");
   }
 }
 
@@ -580,7 +615,7 @@ async function searchAllMedicines() {
 
     if (response.ok) {
       const results = await response.json();
-
+      console.log(results);
       if (results.length === 0) {
         showEmptyMessageSearchAllMeds(searchAllMeds);
       }
@@ -596,12 +631,10 @@ async function searchAllMedicines() {
       const errMessage = message ? `Error Searching Medicines. ${message}`
                               : `Error Searching Medicines. code : 500`;
 
-      alert(errMessage);
       showErrorMessageSearchAllMeds(errMessage);
      }
   }
   catch (error) {
-    alert(`Error Searching Medicines. code: null.`);
     showErrorMessageSearchAllMeds(error);
   }
 }
@@ -785,12 +818,13 @@ async function addMedTagsToMedicineForm () {
       const { message } = await response.json();
       const errMessage = message ? `Error fetching tags for create med form. ${message}`
                                 : "Error fetching tags for create medicine form. code 500";
-      alert(errMessage);
+
+      showAlertModal(errMessage, "Error!", "error");
     }
   }
   catch (error) {
     console.log(error);
-    alert("Error fetching tags for create medicine form. code null");
+    showAlertModal("Error fetching tags for create medicine form. code null", "Error!", "error");
   }
 }
 
@@ -1003,7 +1037,7 @@ async function fetchTagsNoFilter () {
     return response;
   }
   catch (error) {
-    alert(`Error Fetching Med Categories!`)
+    console.error(`Error Fetching Med Categories!`)
   }
 }
 
@@ -1029,7 +1063,7 @@ async function fetchTags () {
     return response;
   }
   catch (error) {
-    alert(`Error Fetching Med Categories!`)
+    console.error("Error Getting Medicines Tag\n", error);
   }
 }
 
@@ -1047,7 +1081,7 @@ async function getTagsCount () {
     return response;
   }
   catch (error) {
-    alert(`Error Creating Pagination Buttons: Get Tag Count`);
+    console.error (`Error Creating Pagination Buttons: Get Tag Count`);
   }
 }
 
@@ -1125,7 +1159,7 @@ async function searchAllMedsRequest (q, area) {
     return response;
   }
   catch (error) {
-
+    console.error ("Error Searching Medicines", error);
   }
 }
 
