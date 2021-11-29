@@ -1,5 +1,5 @@
 /**
-  another form window to edit/show medicines
+  another window to edit/show medicines
 **/
  const path = require("path");
  const {
@@ -35,6 +35,7 @@ exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, c
    });
 
    win.loadFile(path.join(__dirname, "../views/inventory/item_detail.html"));
+   // win.openDevTools();
 
    win.once("ready-to-show", () => win.show());
 

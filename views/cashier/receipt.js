@@ -36,12 +36,12 @@ window.receiptAPI.receive("invoice", invoice => {
 
 
 function loadHeader (dom, value) {
-  dom.innerHTML = `${dom.innerHTML} ${value}`;
+  dom.innerHTML = `<small>${dom.innerHTML}</small> ${value}`;
 }
 
 
 function loadPrice (dom, title, value) {
-  dom.innerHTML = `${title} : ${value}ks`;
+  dom.innerHTML = `<small>${title}</small> : ${value}ks`;
 }
 
 

@@ -906,7 +906,7 @@ async function addMedicine (event) {
       showAlertModal("Error Creating Medicines. Invalid Price!", "Error!", "error");
       return;
     }
-
+    console.log("approved", approved);
     const response = await addMedicineRequest({
       name,
       qty: parseInt(qty),
@@ -914,6 +914,7 @@ async function addMedicine (event) {
       productNumber,
       tag,
       price: parseInt(price),
+      approve: approved === "No" ? false : true,
       description: description === "" ? "NA" : description
     });
 

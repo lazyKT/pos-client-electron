@@ -10,7 +10,8 @@ const {
   session
 } = require('electron');
 
-const { createLoginWindow } = require("./loginWindow.js");
+const { createCashierWindow } = require("./cashierWindow.js");
+const { createInventoryWindow } = require("./inventoryWindow.js");
 const { createFormWindow } = require("./formWindow.js");
 const { createEditFormWindow } = require("./editFormWindow.js");
 
@@ -40,7 +41,7 @@ exports.createMainWindow = function createMainWindow () {
 
 
     win.loadFile(mainMenuURL);
-    // win.openDevTools();
+    win.openDevTools();
 
     win.once("ready-to-show", () => win.show() );
 
@@ -51,44 +52,25 @@ exports.createMainWindow = function createMainWindow () {
         # Always clean up the listeners and event emitters
         **/
         removeListeners(["login", "login-user", "user-logout", "create-modal", "user-data", "user-logout", "logout"]);
-        unregisterEmitters();
         win = null;
-      }
-    });
-
-
-    /**
-    # When the window changes the file to load page
-    **/
-    win.webContents.on("did-navigate", (event, url) => {
-
-      let fileUrl = "";
-
-      if (process.platform === "win32") {
-        // for windows system
-        const targetFileUrl = url.split(":///")[1];
-        fileUrl = targetFileUrl.replaceAll("/", "\\");
-      }
-      else {
-        // for mac and linux
-        fileUrl = url.split("://")[1];
-      }
-
-      /** if the current page is Main Menu, listen for user login event and remove once done " **/
-      if (fileUrl === mainMenuURL) {
-
-        ipcMain.once("login-user", (e, args) => {
-          console.log("main window user-login");
-          win.loadFile(userMangementURL);
-        });
       }
     });
 
     /**
       IPC Messages
     */
-    ipcMain.on("login", (e, from) => {
-      createLoginWindow(win, from);
+    ipcMain.on("login", (e, args) => {
+      openWindow(args);
+    });
+
+
+    ipcMain.on("login-user", (e, args) => {
+      win.loadFile(userMangementURL);
+    });
+
+    ipcMain.on("login-user", (e, args) => {
+      console.log("main window user-login");
+      win.loadFile(userMangementURL);
     });
 
 
@@ -125,6 +107,23 @@ exports.createMainWindow = function createMainWindow () {
 }
 
 
+function openWindow ({name, _id, page}) {
+  switch (page) {
+    case 'Pharmacy' :
+      createCashierWindow(name, _id);
+      break;
+    case 'Clinic' :
+      createCashierWindow(name, _id);
+      break;
+    case 'Inventory' :
+      createInventoryWindow(name, _id);
+      break;
+    default :
+      throw new Error ('Unknown Page Name!');
+  }
+}
+
+
 function removeListeners (listeners) {
   try {
     listeners.forEach (
@@ -135,17 +134,5 @@ function removeListeners (listeners) {
   }
   catch (error) {
     console.error("Error removing listeners from ItemEditWindow", error);
-  }
-}
-
-
-function unregisterEmitters () {
-  try {
-    if (win) {
-        win.webContents.removeListener("did-navigate", win.webContents.listeners("did-navigate")[0]);
-    }
-  }
-  catch (error) {
-    console.error("Error removing Emitters", error);
   }
 }

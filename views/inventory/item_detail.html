@@ -81,7 +81,14 @@
               <!-- contents -->
               <table class="table table-hover mt-3" id="item-details-table">
                   <thead>
-                    <tr>
+                    <col style="width: 25%;"/>
+                    <col style="width: 25%;"/>
+                    <col style="width: 10%;"/>
+                    <col style="width: 5%">
+                    <col style="width: 10%;"/>
+                    <col style="width: 5%;"/>
+                    <col style="width: 20%;"/>
+                    <tr class="bg-primary text-white p-1">
                       <th scope="col">Product ID</th>
                       <th scope="col">Description</th>
                       <th scope='col'>Expiry Date</th>
@@ -109,54 +116,54 @@
         </div>
 
         <!-- edit/view meds -->
-        <div class="container mt-3" id="subItem-edit-box" style='display:none'>
+        <!-- <div class="container mt-3" id="subItem-edit-box" style='display:none'>
           <div class="d-flex justify-content-center">
             <p><b>Edit Item</b></p>
           </div>
           <div id="error">
 
           </div>
-            <div class="card mx-1">
-              <div class="card-body">
-                <form>
-                  <div class="mb-3">
-                    <label class="form-label">Product ID</label>
-                    <input type="text" class="form-control" id="sub-item-id" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Description</label>
-                    <input type="text" class="form-control" id="sub-item-description" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Expiry Date</label>
-                    <input type="date" class="form-control" id="sub-item-expireDate" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Quantity</label>
-                    <input type="text" class="form-control" id="sub-item-quantity" required>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Unit Price</label>
-                    <input type="text" class="form-control" id="sub-item-unitPrice" required>
-                  </div>
-                  <div class="mb-3">
-                    <label for="inputApproved">Approved</label>
-                    <select id="inputApproved" class="form-control" required>
-                        <option selected></option>
-                        <option>No</option>
-                        <option>Yes</option>
-                    </select>
-                  </div>
-                  <div class="mb-3">
-                    <label class="form-label">Ingredients</label>
-                    <input type="text" class="form-control" id="sub-item-ingredients" required>
-                  </div>
-                  <button type="submit" id="edit-detail-item" class="btn btn-primary w-100 my-1">Edit</button>
-                  <a id="dismiss-window" value="cancel" class="btn btn-outline-secondary w-100 my-1">Cancel</a>
-                </form>
-              </div>
+          <div class="card mx-1">
+            <div class="card-body">
+              <form>
+                <div class="mb-3">
+                  <label class="form-label">Product ID</label>
+                  <input type="text" class="form-control" id="sub-item-id" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Description</label>
+                  <input type="text" class="form-control" id="sub-item-description" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Expiry Date</label>
+                  <input type="date" class="form-control" id="sub-item-expireDate" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Quantity</label>
+                  <input type="text" class="form-control" id="sub-item-quantity" required>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Unit Price</label>
+                  <input type="text" class="form-control" id="sub-item-unitPrice" required>
+                </div>
+                <div class="mb-3">
+                  <label for="inputApproved">Approved</label>
+                  <select id="inputApproved" class="form-control" required>
+                      <option selected></option>
+                      <option>No</option>
+                      <option>Yes</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Ingredients</label>
+                  <input type="text" class="form-control" id="sub-item-ingredients" required>
+                </div>
+                <button type="submit" id="edit-detail-item" class="btn btn-primary w-100 my-1">Edit</button>
+                <a id="dismiss-window" value="cancel" class="btn btn-outline-secondary w-100 my-1">Cancel</a>
+              </form>
             </div>
           </div>
+        </div> -->
 
         <!-- medicine details -->
         <div class="container m-2" id="med-details">
@@ -198,8 +205,8 @@
                     <label class="form-label">Approved By Doctor</label>
                     <select class="form-select" disabled id="medApprove" required>
                       <option selected>Open this select menu</option>
-                      <option value="1" id="approve-yes">Yes</option>
-                      <option value="2" id="approve-no">No</option>
+                      <option value="Yes" id="approve-yes">Yes</option>
+                      <option value="No" id="approve-no">No</option>
                     </select>
                   </div>
                   <div class="col">

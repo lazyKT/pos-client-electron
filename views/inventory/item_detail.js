@@ -89,7 +89,7 @@ window.onload = function () {
           price: parseInt(medPrice.value),
           qty: parseInt(medQty.value),
           expiry: medExp.value,
-          medApprove: medApprove.value === "YES" ? true : false,
+          approve: medApprove.value === "Yes" ? true : false,
           tag: medTagId,
           productNumber: medNumber.value,
           description: medIngredients.value
@@ -176,7 +176,7 @@ async function resetFilter() {
 /** display medicines **/
 function displayMedicines (med, idx) {
   try {
-
+    console.log(med);
     const { _id, name, productNumber, description, approve, expiry, qty, price } = med;
 
     const itemTable = document.getElementById("item-details-table");
