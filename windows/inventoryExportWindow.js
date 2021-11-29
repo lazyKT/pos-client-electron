@@ -12,6 +12,9 @@ const {
   createPreviewWindow
 } = require("./previewWindow.js");
 
+const { removeEventListeners } = require("../ipcHelper.js");
+
+
 let win
 
 
@@ -39,16 +42,10 @@ exports.createInventoryExportWindow = function (parent) {
 
   win.on("close", () => {
     if (win) {
-      removeListeners(["close-export", "open-preview"]);
-      unregisterEmitters();
+      removeEventListeners(ipcMain, ["close-export", "open-preview"]);
       win = null;
     }
   });
-
-  win.webContents.on("did-finish-load", () => {
-    win.webContents.send("server-addr", AppConfig.serverURL);
-  });
-
 
   ipcMain.on("close-export", () => {
     if (win) win.close();
@@ -58,33 +55,4 @@ exports.createInventoryExportWindow = function (parent) {
     createPreviewWindow(win, args);
     // win.close();
   })
-}
-
-
-function removeListeners (listeners) {
-  try {
-    listeners.forEach (
-      listener => {
-        let func = ipcMain.listeners(listener)[0];
-        if (func)
-          ipcMain.removeListener(listener, func);
-      }
-    )
-  }
-  catch (error) {
-    console.error("Error Removing Listeners from inventoryExportWindow", error);
-  }
-}
-
-
-function unregisterEmitters () {
-  try {
-    if (win) {
-        win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
-        // win.webContents.removeListener()
-    }
-  }
-  catch (error) {
-    console.error("Error removing Emitters", error);
-  }
 }

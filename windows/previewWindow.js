@@ -11,6 +11,9 @@ const {
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 
 
+const { removeEventListeners } = require("../ipcHelper.js");
+
+
 let win
 let exporting = false;
 
@@ -37,7 +40,8 @@ exports.createPreviewWindow = function (parent, data) {
 
     win.on("close", () => {
       if (win) {
-        cleanUpWindow(["export-data"]);
+        removeEventListeners(ipcMain, ["export-data"]);
+        removeEventListeners(win.webContents, ["did-finish-load"]);
         win = null;
       }
     });
@@ -126,39 +130,4 @@ async function exportCSV(targetFilePath, data) {
   catch (error) {
     console.log('Error Exporting CSV File', error)
   }
-}
-
-
-function removeListeners (listeners) {
-  try {
-    listeners.forEach (
-      listener => {
-        let func = ipcMain.listeners(listener)[0];
-        if (func)
-          ipcMain.removeListener(listener, func);
-      }
-    )
-  }
-  catch (error) {
-    console.error("Error Removing Listeners from inventoryExportWindow", error);
-  }
-}
-
-
-function unregisterEmitters () {
-  try {
-    if (win) {
-        win.webContents.removeListener("did-finish-load", win.webContents.listeners("did-finish-load")[0]);
-        // win.webContents.removeListener()
-    }
-  }
-  catch (error) {
-    console.error("Error removing Emitters", error);
-  }
-}
-
-
-function cleanUpWindow(listeners) {
-  removeListeners (listeners);
-  unregisterEmitters();
 }
