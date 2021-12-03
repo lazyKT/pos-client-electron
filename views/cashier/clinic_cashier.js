@@ -9,7 +9,8 @@ let shoppingCart = {
 	total: 0,
 	payment: 0,
 	change: 0,
-	items: []
+	items: [],
+	services: []
 }
 let serverUrl
 
@@ -346,6 +347,19 @@ function addOtherFeesAndServiceToCart (otherFees) {
 	const feesItem = document.createElement('div');
 	feesItem.setAttribute('class', 'p-2 my-1 bg-light row');
 
+	otherFees.id = cartDOM.childElementCount;
+
+	// delete Fees Item
+	const deleteButton = document.createElement('button');
+	deleteButton.setAttribute('class', 'btn btn-danger w-auto');
+	deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+	feesItem.appendChild(deleteButton);
+	deleteButton.addEventListener('click', () => {
+		feesItem.remove();
+		updateShoppingCartObjForFees (otherFees, 'remove');
+		updateUITotalPrice ();
+	});
+
 	// quantity 
 	feesItem.appendChild (createDataColumn(otherFees.qty));
 
@@ -355,10 +369,15 @@ function addOtherFeesAndServiceToCart (otherFees) {
 	// price
 	feesItem.appendChild (createDataColumn(otherFees.price, 'price'));
 
-	cartDOM.appendChild(feesItem);
+	cartDOM.appendChild (feesItem);
+
+	updateShoppingCartObjForFees (otherFees, 'add');
+	updateUITotalPrice ();
+	console.log(shoppingCart);
 }
 
 
+// create data column for fees item
 function createDataColumn (value, type) {
 	const div = document.createElement('div');
 	div.setAttribute('class', 'col');
@@ -373,6 +392,29 @@ function createDataColumn (value, type) {
 	}
 	div.appendChild(h6);
 	return div;
+}
+
+
+
+// update shopping cart object
+function updateShoppingCartObjForFees (fees, mode) {
+	if (mode === 'add') {
+		shoppingCart.services.push({
+			id: fees.id,
+			description: fees.description,
+			qty: parseInt (fees.qty),
+			price: parseInt (fees.price)
+		});
+
+		shoppingCart.total += parseInt(fees.price);
+	}
+	else if (mode === 'remove') {
+		shoppingCart.services = shoppingCart.services.filter(
+			service => service.id !== fees.id
+		);
+
+		shoppingCart.total -= parseInt(fees.price);
+	}
 }
 
 
