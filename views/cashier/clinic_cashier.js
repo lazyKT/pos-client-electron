@@ -21,6 +21,7 @@ const addToCartButton = document.getElementById('add-item-to-cart');
 const productCodeInput = document.getElementById('prod-code-input');
 const searchMedsInput = document.getElementById('item-search-input');
 const searchMedsButton = document.getElementById('search-item');
+const addFeesButton = document.getElementById('add-fees-to-cart');
 const cartDOM = document.getElementById('cart');
 
 
@@ -42,7 +43,7 @@ window.onload = () => {
 
 
 //////////////////////////////////////////////////////////////
-/////////////// Shopping Cart Functions //////////////////////
+///////// Shopping Cart Functions For Medicines //////////////
 //////////////////////////////////////////////////////////////
 
 
@@ -121,7 +122,7 @@ function createCartItemQuantityDiv (parent, item) {
 	parent.appendChild(qtyDiv);
 
 	const div = document.createElement("div");
-	div.setAttribute("class", "d-flex justify-content-between align-items-center");
+	div.setAttribute("class", "d-flex justify-content-start align-items-center");
 
 	const decrementButton = document.createElement("button");
 	decrementButton.setAttribute("class", "btn btn-secondary text-white");
@@ -129,7 +130,7 @@ function createCartItemQuantityDiv (parent, item) {
 	div.appendChild(decrementButton);
 
 	const qtyText = document.createElement("h6");
-	qtyText.setAttribute("class", "px-1 text-muted");
+	qtyText.setAttribute("class", "px-1 mt-1 mx-2 text-muted");
 	qtyText.setAttribute("data-qty-item-id", item.productNumber);
 	qtyText.innerHTML = '1';
 	div.appendChild(qtyText);
@@ -338,7 +339,82 @@ function removeErrorWithProdCode () {
 
 
 //////////////////////////////////////////////////////////////
-/////////////////////// Search Products //////////////////////
+//// Shopping Cart Functions For Other Fees and Services /////
+//////////////////////////////////////////////////////////////
+
+function addOtherFeesAndServiceToCart (otherFees) {
+	const feesItem = document.createElement('div');
+	feesItem.setAttribute('class', 'p-2 my-1 bg-light row');
+
+	// quantity 
+	feesItem.appendChild (createDataColumn(otherFees.qty));
+
+	// description
+	feesItem.appendChild (createDataColumn(otherFees.description));
+
+	// price
+	feesItem.appendChild (createDataColumn(otherFees.price, 'price'));
+
+	cartDOM.appendChild(feesItem);
+}
+
+
+function createDataColumn (value, type) {
+	const div = document.createElement('div');
+	div.setAttribute('class', 'col');
+	const h6 = document.createElement('h6');
+	if (type === 'price') {
+		h6.setAttribute('class', 'text-muted text-end mx-1 my-2');
+		h6.innerHTML = `${value} ks`;
+	}
+	else {
+		h6.setAttribute('class', 'text-muted mx-1 my-2');
+		h6.innerHTML = value;
+	}
+	div.appendChild(h6);
+	return div;
+}
+
+
+
+//////////////////////////////////////////////////////////////
+/////////// Add Other Fees and Service to Cart ///////////////
+//////////////////////////////////////////////////////////////
+
+addFeesButton.addEventListener('click', e => {
+	e.preventDefault();
+	const feesDescription = document.getElementById('fees-desc');
+	const feesPrice = document.getElementById('fees-price');
+	const feesQty = document.getElementById('qty-other-fees');
+
+	if (feesDescription.value === '') {
+		feesDescription.focus();
+		return;
+	}
+	else if (feesPrice.value === '0' || feesPrice.value === '' || parseInt(feesPrice.value) < 0) {
+		feesPrice.focus();
+		return;
+	}
+	else if (feesQty.value === '' || feesQty.value === '0' || parseInt(feesQty.value) < 0) {
+		feesQty.focus();
+		return;
+	}
+
+	addOtherFeesAndServiceToCart ({
+		description: feesDescription.value,
+		price: parseInt(feesPrice.value),
+		qty: parseInt(feesQty.value)
+	});
+
+	feesDescription.value = '';
+	feesPrice.value = '';
+	feesQty.value = '';
+});
+
+
+
+//////////////////////////////////////////////////////////////
+///////////////////// Search Products ////////////////////////
 //////////////////////////////////////////////////////////////
 
 searchMedsInput.addEventListener('keyup', async e => {

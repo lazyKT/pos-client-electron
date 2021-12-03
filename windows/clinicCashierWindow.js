@@ -21,6 +21,7 @@ exports.createClinicCashierWindow = function (name, id) {
 			width: 1200,
 			height: 1000,
 			show: false,
+			fullscreen: true,
 			webPreferences: {
 				nodeIntegration: false,
 				contextIsolation: true,
