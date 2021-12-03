@@ -2,10 +2,11 @@
  * Script for clinic_cashier.html
  **/
 
-// shopping cart object
-let shoppingCart = {
+// prescription object
+let prescription = {
 	employee: null,
 	employeeID: null,
+	doctor: null,
 	total: 0,
 	payment: 0,
 	change: 0,
@@ -18,12 +19,15 @@ let serverUrl
 const loadingSpinner = document.getElementById('modal');
 const mainContents = document.getElementById('main');
 
+const doctorNameInput = document.getElementById('doctor-name');
 const addToCartButton = document.getElementById('add-item-to-cart');
 const productCodeInput = document.getElementById('prod-code-input');
 const searchMedsInput = document.getElementById('item-search-input');
 const searchMedsButton = document.getElementById('search-item');
 const addFeesButton = document.getElementById('add-fees-to-cart');
 const cartDOM = document.getElementById('cart');
+const clearCartButton = document.getElementById('discard-btn');
+const logOutButton = document.getElementById('logout');
 
 
 
@@ -43,21 +47,22 @@ window.onload = () => {
 }
 
 
+
 //////////////////////////////////////////////////////////////
-///////// Shopping Cart Functions For Medicines //////////////
+///////// Prescriptions Functions For Medicines //////////////
 //////////////////////////////////////////////////////////////
 
 
-// add item to shopping cart
+// add item to Prescription cart
 // if the item alredy exists in the cart, increment the quantity (update the cart)
 // if the item is not in the cart, create new cart-item
 function addToCart (item) {
 
 	if (isCartItemAlreadyAdded(item)) {
-		updateShoppingCartItem (item, 'add');
+		updatePrescriptionItem (item, 'add');
 	}
 	else {
-		createNewShoppingCartItem (item);	
+		createNewPrescriptionItem (item);	
 	}
 }
 
@@ -65,7 +70,7 @@ function addToCart (item) {
 // check if the cart item is already exists
 function isCartItemAlreadyAdded (item) {
 
-	const items = shoppingCart.items.filter (
+	const items = prescription.items.filter (
 		i => i.productNumber === item.productNumber
 	);
 
@@ -74,8 +79,8 @@ function isCartItemAlreadyAdded (item) {
 
 
 
-// create new shopping cart item
-function createNewShoppingCartItem (item) {
+// create new prescription cart item
+function createNewPrescriptionItem (item) {
 
 	// cart item container
 	const cartItemDOM = document.createElement('div');
@@ -109,14 +114,14 @@ function createNewShoppingCartItem (item) {
 
     cartDOM.appendChild(cartItemDOM);
 
-    updateShoppingCartObj (item, 'add');
+    updatePrescriptionObj (item, 'add');
 
     // update total price on UI
     updateUITotalPrice();
 }
 
 
-// create quantity div with increase/decrease button for shopping cart item
+// create quantity div with increase/decrease button for prescription cart item
 function createCartItemQuantityDiv (parent, item) {
 	const qtyDiv = document.createElement('div');
 	qtyDiv.setAttribute('class', 'col');
@@ -150,15 +155,15 @@ function createCartItemQuantityDiv (parent, item) {
 }
 
 
-// update shopping cart UI total price
+// update prescription cart UI total price
 function updateUITotalPrice () {
 	const totalPriceDOM = document.getElementById('total-price');
-	totalPriceDOM.innerHTML = `${shoppingCart.total} ks`;
+	totalPriceDOM.innerHTML = `${prescription.total} ks`;
 }
 
 
-// update items in the shopping cart
-function updateShoppingCartItem (item, mode) {
+// update items in the prescription cart
+function updatePrescriptionItem (item, mode) {
 	const cartItem = document.getElementById(`cart-item-${item.productNumber}`);
 
 	if (!cartItem)	throw new Error('Error Adding New Item to Cart!');
@@ -172,7 +177,7 @@ function updateShoppingCartItem (item, mode) {
 }
 
 
-// increase quantity of shopping cart item
+// increase quantity of prescription item
 function increaseQuantity (item) {
 	const qtyDOM = document.querySelectorAll(`[data-qty-item-id="${item.productNumber}"`)[0];
 	const priceDOM = document.getElementById(`item-price-${item.productNumber}`);
@@ -182,12 +187,12 @@ function increaseQuantity (item) {
 	// update price
 	priceDOM.innerHTML = `${parseInt(priceDOM.innerHTML) + item.price} ks`;
 
-	updateShoppingCartObj (item, 'add');
+	updatePrescriptionObj (item, 'add');
 	updateUITotalPrice ();	
 }
 
 
-// decrease quantity of shopping cart item
+// decrease quantity of prescription cart item
 function decreaseQuantity (item) {
 	const qtyDOM = document.querySelectorAll(`[data-qty-item-id="${item.productNumber}"`)[0];
 	const priceDOM = document.getElementById(`item-price-${item.productNumber}`);
@@ -201,12 +206,12 @@ function decreaseQuantity (item) {
 		priceDOM.innerHTML = `${parseInt(priceDOM.innerHTML) - item.price} ks`;
 	}
 
-	updateShoppingCartObj (item, 'reduce');
+	updatePrescriptionObj (item, 'reduce');
 	updateUITotalPrice ();	
 }
 
 
-// remove cart item from shopping cart
+// remove cart item from prescription cart
 function removeCartItem (itemID) {
 	const cartItem = document.getElementById(`cart-item-${itemID}`);
 	cartItem.remove();
@@ -214,18 +219,18 @@ function removeCartItem (itemID) {
 
 
 
-// update shopping cart object (shoppingCart)
-function updateShoppingCartObj (cartItem, mode) {
+// update prescription cart object (prescription)
+function updatePrescriptionObj (cartItem, mode) {
 
 	// search for existing item
-	const item = shoppingCart.items.find( i => i.productNumber === cartItem.productNumber);
+	const item = prescription.items.find( i => i.productNumber === cartItem.productNumber);
 
 	if (item) {
 		// cart item already exists
 		if (mode === 'add') {
 			console.log('update: increase qty', item, item.name);
 			// increase qty and price
-			shoppingCart.items = shoppingCart.items.map (
+			prescription.items = prescription.items.map (
 				i => i.productNumber === cartItem.productNumber
 				? {
 					...i,
@@ -234,14 +239,14 @@ function updateShoppingCartObj (cartItem, mode) {
 				} : i
 			);
 
-			shoppingCart.total += parseInt(cartItem.price);
+			prescription.total += parseInt(cartItem.price);
 		}
 		else if (mode === 'reduce') {
 			const remaingQty = item.qty;
 			console.log('remaingQty', remaingQty);
 			if (remaingQty > 1) {
 				// reduce qty and price
-				shoppingCart.items = shoppingCart.items.map(
+				prescription.items = prescription.items.map(
 					i => i.productNumber === cartItem.productNumber
 					? {
 						...i,
@@ -252,20 +257,20 @@ function updateShoppingCartObj (cartItem, mode) {
 			}
 			else {
 				// remove item
-				shoppingCart.items = shoppingCart.items.filter(
+				prescription.items = prescription.items.filter(
 					i => i.productNumber !== item.productNumber
 				);
 				console.log(cartItem.name, ' has been removed');
 			}
 
 			// update total price
-			shoppingCart.total -= parseInt(cartItem.price);
+			prescription.total -= parseInt(cartItem.price);
 		}
 	}
 	else {
 		console.log('adding new item to cart');
 		// cart item not existed yet
-		shoppingCart.items.push({
+		prescription.items.push({
 			productNumber: cartItem.productNumber,
 			productName: cartItem.name,
 			tagId: cartItem.tag[0],
@@ -276,7 +281,7 @@ function updateShoppingCartObj (cartItem, mode) {
 	    });
 
 	    // update total price
-		shoppingCart.total += parseInt(cartItem.price);
+		prescription.total += parseInt(cartItem.price);
 	}
 }
 
@@ -340,7 +345,7 @@ function removeErrorWithProdCode () {
 
 
 //////////////////////////////////////////////////////////////
-//// Shopping Cart Functions For Other Fees and Services /////
+// Prescription Cart Functions For Other Fees and Services ///
 //////////////////////////////////////////////////////////////
 
 function addOtherFeesAndServiceToCart (otherFees) {
@@ -356,7 +361,7 @@ function addOtherFeesAndServiceToCart (otherFees) {
 	feesItem.appendChild(deleteButton);
 	deleteButton.addEventListener('click', () => {
 		feesItem.remove();
-		updateShoppingCartObjForFees (otherFees, 'remove');
+		updatePrescriptionObjForServiceFees (otherFees, 'remove');
 		updateUITotalPrice ();
 	});
 
@@ -371,9 +376,9 @@ function addOtherFeesAndServiceToCart (otherFees) {
 
 	cartDOM.appendChild (feesItem);
 
-	updateShoppingCartObjForFees (otherFees, 'add');
+	updatePrescriptionObjForServiceFees (otherFees, 'add');
 	updateUITotalPrice ();
-	console.log(shoppingCart);
+	console.log(prescription);
 }
 
 
@@ -396,24 +401,24 @@ function createDataColumn (value, type) {
 
 
 
-// update shopping cart object
-function updateShoppingCartObjForFees (fees, mode) {
+// update prescription cart object
+function updatePrescriptionObjForServiceFees (fees, mode) {
 	if (mode === 'add') {
-		shoppingCart.services.push({
+		prescription.services.push({
 			id: fees.id,
 			description: fees.description,
 			qty: parseInt (fees.qty),
 			price: parseInt (fees.price)
 		});
 
-		shoppingCart.total += parseInt(fees.price);
+		prescription.total += parseInt(fees.price);
 	}
 	else if (mode === 'remove') {
-		shoppingCart.services = shoppingCart.services.filter(
+		prescription.services = prescription.services.filter(
 			service => service.id !== fees.id
 		);
 
-		shoppingCart.total -= parseInt(fees.price);
+		prescription.total -= parseInt(fees.price);
 	}
 }
 
@@ -703,6 +708,15 @@ function onPageDidLoaded (contents, loading) {
 }
 
 
+// ser doctor name
+doctorNameInput.addEventListener('keyup', e => {
+	if (e.key === 'Enter') {
+		if (e.target.value !== '')
+			prescription.doctor = e.target.value;
+	}
+});
+
+
 // load user data and server url from local storage
 function loadDataFromLocalStorage () {
 	serverUrl = localStorage.getItem('serverUrl');
@@ -714,8 +728,8 @@ function loadDataFromLocalStorage () {
 	if (!emp || emp === null || !emp.name || !emp._id) 
 		throw new Error ('Failed to get User Data');
 
-	shoppingCart.employeeID = emp._id;
-	shoppingCart.employee = emp.name;
+	prescription.employeeID = emp._id;
+	prescription.employee = emp.name;
 }
 
 
@@ -724,7 +738,7 @@ function displayLoginInformation () {
 	const loginName = document.getElementById('employee-name');
 	const loginTime = document.getElementById('login-time');
 
-	loginName.innerHTML = shoppingCart.employee;
+	loginName.innerHTML = prescription.employee;
 
 	const now = new Date();
 	loginTime.innerHTML = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
@@ -738,6 +752,10 @@ function hideAllErrorMessageDOM () {
 }
 
 
+
+logOutButton.addEventListener('click', e => logoutToMainMenu());
+
+
 // logout from clinic cashier
 function logoutToMainMenu () {
 	removeUserDetailsFromWindow();
@@ -748,6 +766,14 @@ function logoutToMainMenu () {
 function removeUserDetailsFromWindow () {
 	localStorage.removeItem("user");
 }
+
+
+// clear prescription card
+clearCartButton.addEventListener('click', e => {
+	while (cartDOM.lastChild) {
+		cartDOM.removeChild(cartDOM.lastChild);
+	}
+});
 
 
 
