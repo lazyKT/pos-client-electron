@@ -41,10 +41,7 @@ exports.createCashierWindow = function createCashierWindow(name, id) {
       }
     });
 
-    // win.webContents.once("did-finish-load", () => {
-    //   console.log("did-finish-load");
-    // });
-    //
+    
     win.webContents.once("dom-ready", () => {
       win.webContents.send("user-details", {name, id});
     });

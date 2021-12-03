@@ -14,6 +14,7 @@ const { createCashierWindow } = require("./cashierWindow.js");
 const { createInventoryWindow } = require("./inventoryWindow.js");
 const { createFormWindow } = require("./formWindow.js");
 const { createEditFormWindow } = require("./editFormWindow.js");
+const { createClinicCashierWindow } = require("./clinicCashierWindow.js");
 
 const applicationMenu = Menu.buildFromTemplate(require('../applicationMenu.js'));
 const AppConfig = require("../config");
@@ -41,7 +42,7 @@ exports.createMainWindow = function createMainWindow () {
 
 
     win.loadFile(mainMenuURL);
-    win.openDevTools();
+    // win.openDevTools();
 
     win.once("ready-to-show", () => win.show() );
 
@@ -108,7 +109,7 @@ function openWindow ({name, _id, page}) {
       createCashierWindow(name, _id);
       break;
     case 'Clinic' :
-      createCashierWindow(name, _id);
+      createClinicCashierWindow(name, _id);
       break;
     case 'Inventory' :
       createInventoryWindow();

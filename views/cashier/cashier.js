@@ -907,7 +907,7 @@ function showErrorMessage (container, show, message) {
 
 
 function showHidePostPaymentLoading (dom, state) {
-  // removeCheckOutError();
+  
   dom.style.display = (state === "show") ? "flex" : "none";
 }
 
