@@ -482,7 +482,6 @@ function createQuantityDivision (qty, item) {
 
   const decrementButton = document.createElement("button");
   decrementButton.setAttribute("class", "btn btn-secondary text-white");
-  // decrementButton.setAttribute("onclick", reduceQuantityInCart());
   decrementButton.innerHTML = `<i class="fas fa-minus"></i>`;
   div.appendChild(decrementButton);
 
@@ -494,7 +493,6 @@ function createQuantityDivision (qty, item) {
 
   const incrementButton = document.createElement("button");
   incrementButton.setAttribute("class", "btn btn-secondary text-white");
-  // incrementButton.setAttribute("onclick", "increaseQuantityInCart()");
   incrementButton.innerHTML = `<i class="fas fa-plus"></i>`;
   div.appendChild(incrementButton);
 
@@ -506,7 +504,7 @@ function createQuantityDivision (qty, item) {
 
   decrementButton.addEventListener("click", e => {
     reduceQuantityInCart(item);
-  })
+  });
 
   return div;
 }
@@ -907,7 +905,7 @@ function showErrorMessage (container, show, message) {
 
 
 function showHidePostPaymentLoading (dom, state) {
-  // removeCheckOutError();
+  
   dom.style.display = (state === "show") ? "flex" : "none";
 }
 
