@@ -759,6 +759,7 @@ logOutButton.addEventListener('click', e => logoutToMainMenu());
 // logout from clinic cashier
 function logoutToMainMenu () {
 	removeUserDetailsFromWindow();
+	window.clinicCashierAPI.send('clinic-cashier-close');
 } 
 
 

@@ -9,7 +9,7 @@ const {
 
 
 const ALLOWED_SEND_CHANNELS = [
-	''
+	'clinic-cashier-close'
 ];
 
 
