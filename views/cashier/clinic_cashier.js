@@ -21,6 +21,7 @@ const addToCartButton = document.getElementById('add-item-to-cart');
 const productCodeInput = document.getElementById('prod-code-input');
 const searchMedsInput = document.getElementById('item-search-input');
 const searchMedsButton = document.getElementById('search-item');
+const cartDOM = document.getElementById('cart');
 
 
 
@@ -39,6 +40,243 @@ window.onload = () => {
 	}
 }
 
+
+//////////////////////////////////////////////////////////////
+/////////////// Shopping Cart Functions //////////////////////
+//////////////////////////////////////////////////////////////
+
+
+// add item to shopping cart
+// if the item alredy exists in the cart, increment the quantity (update the cart)
+// if the item is not in the cart, create new cart-item
+function addToCart (item) {
+
+	if (isCartItemAlreadyAdded(item)) {
+		updateShoppingCartItem (item, 'add');
+	}
+	else {
+		createNewShoppingCartItem (item);	
+	}
+}
+
+
+// check if the cart item is already exists
+function isCartItemAlreadyAdded (item) {
+
+	const items = shoppingCart.items.filter (
+		i => i.productNumber === item.productNumber
+	);
+
+	return items.length > 0;			
+}
+
+
+
+// create new shopping cart item
+function createNewShoppingCartItem (item) {
+
+	// cart item container
+	const cartItemDOM = document.createElement('div');
+	cartItemDOM.setAttribute('class', 'p-2 my-1 bg-light row');
+	cartItemDOM.setAttribute('id', `cart-item-${item.productNumber}`);
+
+	// quantity 
+	createCartItemQuantityDiv (cartItemDOM, item);
+
+	// description
+	const descriptionDiv = document.createElement('div');
+	descriptionDiv.setAttribute('class', 'col');
+	cartItemDOM.appendChild(descriptionDiv);
+
+	const description = document.createElement('h6');
+	description.setAttribute('class', 'text-muted mx-1 my-2');
+	description.innerHTML = item.name;
+	descriptionDiv.appendChild(description);
+
+	// total price
+	const priceDiv = document.createElement('div');
+	priceDiv.setAttribute('class', 'col');
+	cartItemDOM.appendChild(priceDiv);
+
+	const price = document.createElement('h6');
+	price.setAttribute("class", "text-muted text-end mx-1 my-2");
+    price.setAttribute("id", `item-price-${item.productNumber}`);
+    price.setAttribute("data-price-item-id", item.productNumber);
+    price.innerHTML = `${item.price} ks`;
+    priceDiv.appendChild(price);
+
+    cartDOM.appendChild(cartItemDOM);
+
+    updateShoppingCartObj (item, 'add');
+
+    // update total price on UI
+    updateUITotalPrice();
+}
+
+
+// create quantity div with increase/decrease button for shopping cart item
+function createCartItemQuantityDiv (parent, item) {
+	const qtyDiv = document.createElement('div');
+	qtyDiv.setAttribute('class', 'col');
+	parent.appendChild(qtyDiv);
+
+	const div = document.createElement("div");
+	div.setAttribute("class", "d-flex justify-content-between align-items-center");
+
+	const decrementButton = document.createElement("button");
+	decrementButton.setAttribute("class", "btn btn-secondary text-white");
+	decrementButton.innerHTML = `<i class="fas fa-minus"></i>`;
+	div.appendChild(decrementButton);
+
+	const qtyText = document.createElement("h6");
+	qtyText.setAttribute("class", "px-1 text-muted");
+	qtyText.setAttribute("data-qty-item-id", item.productNumber);
+	qtyText.innerHTML = '1';
+	div.appendChild(qtyText);
+
+	const incrementButton = document.createElement("button");
+	incrementButton.setAttribute("class", "btn btn-secondary text-white");
+	incrementButton.innerHTML = `<i class="fas fa-plus"></i>`;
+	div.appendChild(incrementButton);
+
+
+	incrementButton.addEventListener("click", e => increaseQuantity(item));
+
+	decrementButton.addEventListener("click", e => decreaseQuantity(item));
+
+	qtyDiv.appendChild(div);
+}
+
+
+// update shopping cart UI total price
+function updateUITotalPrice () {
+	const totalPriceDOM = document.getElementById('total-price');
+	totalPriceDOM.innerHTML = `${shoppingCart.total} ks`;
+}
+
+
+// update items in the shopping cart
+function updateShoppingCartItem (item, mode) {
+	const cartItem = document.getElementById(`cart-item-${item.productNumber}`);
+
+	if (!cartItem)	throw new Error('Error Adding New Item to Cart!');
+
+	if (mode === 'add') {
+		increaseQuantity (item);
+	}
+	else if (mode === 'reduce') {
+		decreaseQuantity (item);
+	}
+}
+
+
+// increase quantity of shopping cart item
+function increaseQuantity (item) {
+	const qtyDOM = document.querySelectorAll(`[data-qty-item-id="${item.productNumber}"`)[0];
+	const priceDOM = document.getElementById(`item-price-${item.productNumber}`);
+
+	// update quantity
+	qtyDOM.innerHTML = parseInt(qtyDOM.innerHTML) + 1;
+	// update price
+	priceDOM.innerHTML = `${parseInt(priceDOM.innerHTML) + item.price} ks`;
+
+	updateShoppingCartObj (item, 'add');
+	updateUITotalPrice ();	
+}
+
+
+// decrease quantity of shopping cart item
+function decreaseQuantity (item) {
+	const qtyDOM = document.querySelectorAll(`[data-qty-item-id="${item.productNumber}"`)[0];
+	const priceDOM = document.getElementById(`item-price-${item.productNumber}`);
+
+	// if current qty is one before qty decrement, remove the item
+	if (qtyDOM.innerHTML === '1') {
+		removeCartItem (item.productNumber);
+	}
+	else {
+		qtyDOM.innerHTML = parseInt(qtyDOM.innerHTML) - 1;
+		priceDOM.innerHTML = `${parseInt(priceDOM.innerHTML) - item.price} ks`;
+	}
+
+	updateShoppingCartObj (item, 'reduce');
+	updateUITotalPrice ();	
+}
+
+
+// remove cart item from shopping cart
+function removeCartItem (itemID) {
+	const cartItem = document.getElementById(`cart-item-${itemID}`);
+	cartItem.remove();
+}
+
+
+
+// update shopping cart object (shoppingCart)
+function updateShoppingCartObj (cartItem, mode) {
+
+	// search for existing item
+	const item = shoppingCart.items.find( i => i.productNumber === cartItem.productNumber);
+
+	if (item) {
+		// cart item already exists
+		if (mode === 'add') {
+			console.log('update: increase qty', item, item.name);
+			// increase qty and price
+			shoppingCart.items = shoppingCart.items.map (
+				i => i.productNumber === cartItem.productNumber
+				? {
+					...i,
+					qty: (i.qty + 1),
+					totalPrice: (i.totalPrice + parseInt(cartItem.price))
+				} : i
+			);
+
+			shoppingCart.total += parseInt(cartItem.price);
+		}
+		else if (mode === 'reduce') {
+			const remaingQty = item.qty;
+			console.log('remaingQty', remaingQty);
+			if (remaingQty > 1) {
+				// reduce qty and price
+				shoppingCart.items = shoppingCart.items.map(
+					i => i.productNumber === cartItem.productNumber
+					? {
+						...i,
+						qty: i.qty - 1,
+						totalPrice: (i.totalPrice - parseInt(cartItem.price))
+					} : i
+				);
+			}
+			else {
+				// remove item
+				shoppingCart.items = shoppingCart.items.filter(
+					i => i.productNumber !== item.productNumber
+				);
+				console.log(cartItem.name, ' has been removed');
+			}
+
+			// update total price
+			shoppingCart.total -= parseInt(cartItem.price);
+		}
+	}
+	else {
+		console.log('adding new item to cart');
+		// cart item not existed yet
+		shoppingCart.items.push({
+			productNumber: cartItem.productNumber,
+			productName: cartItem.name,
+			tagId: cartItem.tag[0],
+			productId: cartItem._id,
+			qty: 1,
+			price: parseInt(cartItem.price),
+			totalPrice: parseInt(cartItem.price) // update cart item total price
+	    });
+
+	    // update total price
+		shoppingCart.total += parseInt(cartItem.price);
+	}
+}
 
 
 //////////////////////////////////////////////////////////////
@@ -70,6 +308,7 @@ async function enterOrScanProductCode (prodCode) {
 			const med = await response.json();
 			console.log(med);
 			removeErrorWithProdCode();
+			addToCart(med);
 		}
 		else {
 			const errorMessage = await getErrorMessageFromResponse(response);
@@ -78,6 +317,7 @@ async function enterOrScanProductCode (prodCode) {
 		}
 	}
 	catch (error) {
+		console.error(error);
 		showErrorModal(error);
 	}
 }
@@ -122,11 +362,13 @@ async function searchMeds (q) {
 
 		if (response && response.ok) {
 			const results = await response.json();
-			console.log(results);
+			
+			displaySearchResults (results, q);
 		}
 		else {
 			const errorMessage = await getErrorMessageFromResponse(response);
 			console.log(errorMessage);
+			displayErrorOnSearchMeds(errorMessage);
 		}
 	}
 	catch (error) {
@@ -134,6 +376,131 @@ async function searchMeds (q) {
 		showErrorModal(error);
 	}
 }
+
+
+// display search results in search container
+function displaySearchResults (results, q) {
+	const searchContainer = document.getElementById('search-results');
+	clearSearchResultsContainer (searchContainer);
+
+	if (results.length === 0)
+		displayEmptySearchResult (q);
+	else {
+		results.forEach (
+			result => {
+				const div = document.createElement("div");
+		        const h6 = document.createElement("h6");
+		        h6.setAttribute("class", "text-muted mb-3");
+		        h6.innerHTML = result.name;
+		        div.appendChild(h6);
+
+		        createSingleRow(div, "Category", result.category);
+
+		        createSingleRow(div, "Ingredients", result.description);
+
+		        createRow(
+		        	div, 
+		        	["Location", "Product Number", "Price"], 
+		        	[result.location, result.productNumber, result.price]
+	        	);
+
+		        createRow(
+	        		div,
+		          	["Quantity", "Doctor Approve", "Expiry"],
+		          	[result.qty, result.approve, (new Date(result.expiry)).toLocaleDateString()]
+	          	);
+
+		        searchContainer.appendChild(div);
+		        searchContainer.appendChild(document.createElement("hr"));
+			}
+		);
+	}
+}
+
+
+// create single-column row item to display search result
+function createSingleRow (parent, title, value) {
+  const div = document.createElement("div");
+  div.setAttribute("class", "mb-3");
+
+  const titleDOM = document.createElement("h6");
+  titleDOM.setAttribute("class", "text-muted");
+  titleDOM.innerHTML = title;
+
+  const valueDOM = document.createElement("span");
+  valueDOM.setAttribute("class", "mb-3");
+  valueDOM.innerHTML = value ? value : '--';
+
+  div.appendChild(titleDOM);
+  div.appendChild(valueDOM);
+
+  parent.appendChild(div);
+}
+
+
+// create three-column row item to display search result 
+function createRow (parent, titles, values) {
+  const row = document.createElement("div");
+  row.setAttribute("class", "row mb-3");
+
+  for (let i = 0; i < 3; i++) {
+    createCol(row, titles[i], values[i]);
+  }
+
+  parent.appendChild(row);
+}
+
+
+// create column to fill inside the parent row to display search result
+function createCol (parent, title, value) {
+  const col = document.createElement("div");
+  col.setAttribute("class", "col");
+
+  const titleDOM = document.createElement("h6");
+  titleDOM.setAttribute("class", "text-muted");
+  titleDOM.innerHTML = title;
+
+  const valueDOM = document.createElement("span");
+  valueDOM.innerHTML = value;
+
+  col.appendChild(titleDOM);
+  col.appendChild(valueDOM);
+
+  parent.appendChild(col);
+}
+
+
+function displayEmptySearchResult (q) {
+	const searchContainer = document.getElementById('search-results');
+	clearSearchResultsContainer (searchContainer);
+
+	const emptyAlert = document.createElement('div');
+	emptyAlert.setAttribute('class', 'alert alert-info');
+	emptyAlert.setAttribute('role', 'alert');
+	emptyAlert.innerHTML = `No medicine(s) found with ${q}`;
+	searchContainer.appendChild(emptyAlert);
+}
+
+
+function displayErrorOnSearchMeds (message) {
+	const searchContainer = document.getElementById('search-results');
+	clearSearchResultsContainer (searchContainer);
+
+	const errAlert = document.createElement('div');
+	errAlert.setAttribute('class', 'alert alert-danger');
+	errAlert.setAttribute('role', 'alert');
+	errAlert.innerHTML = message;
+	searchContainer.appendChild(errAlert);
+}
+
+
+// clear contents and make room for next results
+function clearSearchResultsContainer (container) {
+	
+	while (container.lastChild)
+		container.removeChild(container.lastChild);
+}
+
 
 
 //////////////////////////////////////////////////////////////
@@ -195,6 +562,7 @@ async function getErrorMessageFromResponse (response) {
 
   return errorMessage;
 }
+
 
 
 //////////////////////////////////////////////////////////////
