@@ -668,53 +668,53 @@ function displaySearchResults (results, q) {
 
 // create single-column row item to display search result
 function createSingleRow (parent, title, value) {
-  const div = document.createElement("div");
-  div.setAttribute("class", "mb-3");
+	const div = document.createElement("div");
+	div.setAttribute("class", "mb-3");
 
-  const titleDOM = document.createElement("h6");
-  titleDOM.setAttribute("class", "text-muted");
-  titleDOM.innerHTML = title;
+	const titleDOM = document.createElement("h6");
+	titleDOM.setAttribute("class", "text-muted");
+	titleDOM.innerHTML = title;
 
-  const valueDOM = document.createElement("span");
-  valueDOM.setAttribute("class", "mb-3");
-  valueDOM.innerHTML = value ? value : '--';
+	const valueDOM = document.createElement("span");
+	valueDOM.setAttribute("class", "mb-3");
+	valueDOM.innerHTML = value ? value : '--';
 
-  div.appendChild(titleDOM);
-  div.appendChild(valueDOM);
+	div.appendChild(titleDOM);
+	div.appendChild(valueDOM);
 
-  parent.appendChild(div);
+	parent.appendChild(div);
 }
 
 
 // create three-column row item to display search result 
 function createRow (parent, titles, values) {
-  const row = document.createElement("div");
-  row.setAttribute("class", "row mb-3");
+	const row = document.createElement("div");
+	row.setAttribute("class", "row mb-3");
 
-  for (let i = 0; i < 3; i++) {
-    createCol(row, titles[i], values[i]);
-  }
+	for (let i = 0; i < 3; i++) {
+		createCol(row, titles[i], values[i]);
+	}
 
-  parent.appendChild(row);
+	parent.appendChild(row);
 }
 
 
 // create column to fill inside the parent row to display search result
 function createCol (parent, title, value) {
-  const col = document.createElement("div");
-  col.setAttribute("class", "col");
+	const col = document.createElement("div");
+	col.setAttribute("class", "col");
 
-  const titleDOM = document.createElement("h6");
-  titleDOM.setAttribute("class", "text-muted");
-  titleDOM.innerHTML = title;
+	const titleDOM = document.createElement("h6");
+	titleDOM.setAttribute("class", "text-muted");
+	titleDOM.innerHTML = title;
 
-  const valueDOM = document.createElement("span");
-  valueDOM.innerHTML = value;
+	const valueDOM = document.createElement("span");
+	valueDOM.innerHTML = value;
 
-  col.appendChild(titleDOM);
-  col.appendChild(valueDOM);
+	col.appendChild(titleDOM);
+	col.appendChild(valueDOM);
 
-  parent.appendChild(col);
+	parent.appendChild(col);
 }
 
 
@@ -775,7 +775,7 @@ function onCloseErrorModal () {
 
 	/* remove error message */
 	const errorMessageDiv = document.getElementById('error-div');
-	console.log(errorMessageDiv);
+	
 	errorMessageDiv.style.display = 'none';
 
 	/* show loading spinner */
@@ -786,29 +786,29 @@ function onCloseErrorModal () {
 
 /** show appropriate error base on network response status **/
 async function getErrorMessageFromResponse (response) {
-  let errorMessage = "";
-  try {
-    switch (response.status) {
-      case 400:
-        const { message } = await response.json();
-        errorMessage = message;
-        break;
-      case 404:
-        errorMessage = "Server EndPoint Not Found!";
-        break;
-      case 500:
-        errorMessage = "Internal Server Error";
-        break;
-      default:
-        errorMessage = "Network Connection Error";
-    }
-  }
-  catch (error) {
-    console.error("getErrorMessageFromResponse()", error);
-    errorMessage = "Application Error. Contact Administrator.";
-  }
+	let errorMessage = "";
+	try {
+		switch (response.status) {
+			case 400:
+				const { message } = await response.json();
+				errorMessage = message;
+				break;
+			case 404:
+				errorMessage = "Server EndPoint Not Found!";
+				break;
+			case 500:
+				errorMessage = "Internal Server Error";
+				break;
+			default:
+				errorMessage = "Network Connection Error";
+		}
+	}
+	catch (error) {
+		console.error("getErrorMessageFromResponse()", error);
+		errorMessage = "Application Error. Contact Administrator.";
+	}
 
-  return errorMessage;
+	return errorMessage;
 }
 
 
