@@ -40,13 +40,14 @@ exports.createClinicCashierWindow = function (name, id) {
 
 		win.on('close', () => {
 			if (win) {
-				removeEventListeners(ipcMain, []);
+				removeEventListeners(ipcMain, ["clinic-cashier-close", "clinic-cashier-receipt"]);
 				win = null;
 			}
 		});
 
 		ipcMain.on('clinic-cashier-close', () => {
-			win.close();
+			if (win)
+				win.close();
 		});
 
 		ipcMain.on('clinic-cashier-receipt', (event, data) => {

@@ -6,6 +6,7 @@
 let prescription = {
 	employee: null,
 	employeeID: null,
+	patient: null,
 	doctor: null,
 	total: 0,
 	payment: 0,
@@ -20,6 +21,7 @@ const loadingSpinner = document.getElementById('modal');
 const mainContents = document.getElementById('main');
 
 const doctorNameInput = document.getElementById('doctor-name');
+const patientNameInput = document.getElementById('patient-name');
 const addToCartButton = document.getElementById('add-item-to-cart');
 const productCodeInput = document.getElementById('prod-code-input');
 const searchMedsInput = document.getElementById('item-search-input');
@@ -354,41 +356,67 @@ function addOtherFeesAndServiceToCart (otherFees) {
 
 	otherFees.id = cartDOM.childElementCount;
 
-	// delete Fees Item
-	const deleteButton = document.createElement('button');
-	deleteButton.setAttribute('class', 'btn btn-danger w-auto');
-	deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-	feesItem.appendChild(deleteButton);
-	deleteButton.addEventListener('click', () => {
-		feesItem.remove();
-		updatePrescriptionObjForServiceFees (otherFees, 'remove');
-		updateUITotalPrice ();
-	});
+	feesItem.setAttribute('id', `service-item-${otherFees.id}`);
 
 	// quantity 
-	feesItem.appendChild (createDataColumn(otherFees.qty));
+	createServiceQuantityDiv (feesItem, otherFees);
 
 	// description
 	feesItem.appendChild (createDataColumn(otherFees.description));
 
 	// price
-	feesItem.appendChild (createDataColumn(otherFees.price, 'price'));
+	feesItem.appendChild (createDataColumn(otherFees.price, otherFees.id, 'price'));
 
 	cartDOM.appendChild (feesItem);
 
-	updatePrescriptionObjForServiceFees (otherFees, 'add');
+	addNewServiceItemToPrescription (otherFees, 'add');
 	updateUITotalPrice ();
-	console.log(prescription);
 }
 
 
+// service quantity
+function createServiceQuantityDiv (parent, service) {
+	const qtyDiv = document.createElement('div');
+	qtyDiv.setAttribute('class', 'col');
+	parent.appendChild(qtyDiv);
+
+	const div = document.createElement("div");
+	div.setAttribute("class", "d-flex justify-content-start align-items-center");
+
+	const decrementButton = document.createElement("button");
+	decrementButton.setAttribute("class", "btn btn-secondary text-white");
+	decrementButton.innerHTML = `<i class="fas fa-minus"></i>`;
+	div.appendChild(decrementButton);
+
+	const qtyText = document.createElement("h6");
+	qtyText.setAttribute("class", "px-1 mt-1 mx-2 text-muted");
+	qtyText.setAttribute("id", `service-qty-${service.id}`);
+	qtyText.innerHTML = '1';
+	div.appendChild(qtyText);
+
+	const incrementButton = document.createElement("button");
+	incrementButton.setAttribute("class", "btn btn-secondary text-white");
+	incrementButton.innerHTML = `<i class="fas fa-plus"></i>`;
+	div.appendChild(incrementButton);
+
+
+	incrementButton.addEventListener("click", e => increaseServiceQuantity(service));
+
+	decrementButton.addEventListener("click", e => decreaseServiceQuantity(service));
+
+	qtyDiv.appendChild(div);
+}
+
+
+
 // create data column for fees item
-function createDataColumn (value, type) {
+function createDataColumn (value, id, type) {
 	const div = document.createElement('div');
 	div.setAttribute('class', 'col');
 	const h6 = document.createElement('h6');
 	if (type === 'price') {
 		h6.setAttribute('class', 'text-muted text-end mx-1 my-2');
+		h6.setAttribute('id', `service-price-${id}`);
 		h6.innerHTML = `${value} ks`;
 	}
 	else {
@@ -401,25 +429,120 @@ function createDataColumn (value, type) {
 
 
 
-// update prescription cart object
-function updatePrescriptionObjForServiceFees (fees, mode) {
-	if (mode === 'add') {
-		prescription.services.push({
-			id: fees.id,
-			description: fees.description,
-			qty: parseInt (fees.qty),
-			price: parseInt (fees.price)
-		});
+// increase quantity for service item
+function increaseServiceQuantity (service) {
+	// update qty
+	const qty = document.getElementById(`service-qty-${service.id}`);
+	if (!qty)
+		throw new Error ('Error Updating Service Item: Quantity!');
 
-		prescription.total += parseInt(fees.price);
+	qty.innerHTML = parseInt(qty.innerHTML) + 1;
+
+	// also update price
+	const price = document.getElementById(`service-price-${service.id}`);
+	if (!price)
+			throw new Error ('Error Updateing Service Item: Price!');
+
+	price.innerHTML = `${parseInt(price.innerHTML) + service.price} ks`;
+
+	increaseServiceQuntityInPrescriptionObj (service);
+	updateUITotalPrice ();
+}
+
+
+function increaseServiceQuntityInPrescriptionObj (service) {
+
+	const s = prescription.services.find (s => s.id === service.id);
+	if (!s) throw new Error ('Error Updating Service Item in Prescription: increment!');
+	console.log(service);
+	prescription.services = prescription.services.map (
+		s => s.id === service.id
+		? {
+			...s,
+			qty: parseInt(s.qty) + 1,
+			totalPrice: parseInt(s.totalPrice) + service.price
+		} : s
+	);
+
+	prescription.total += parseInt(service.price);
+	console.log(prescription);
+}
+
+
+
+function decreaseServiceQuantity (service) {
+	// update qty
+	const qty = document.getElementById(`service-qty-${service.id}`);
+	if (!qty)
+		throw new Error ('Error Updating Service Item: Quantity!');
+
+	if (qty.innerHTML === '1') {
+		removeServiceItem (service);
 	}
-	else if (mode === 'remove') {
-		prescription.services = prescription.services.filter(
-			service => service.id !== fees.id
+	else {
+		qty.innerHTML = parseInt(qty.innerHTML) - 1;
+
+
+
+		// also update price
+		const price = document.getElementById(`service-price-${service.id}`);
+		if (!price)
+				throw new Error ('Error Updateing Service Item: Price!');
+
+		price.innerHTML = `${parseInt(price.innerHTML) - service.price} ks`;
+
+		decreaseServiceQuntityInPrescriptionObj (service);
+	}
+
+	updateUITotalPrice ();
+}
+
+
+
+function decreaseServiceQuntityInPrescriptionObj (service) {
+	const s = prescription.services.find (s => s.id === service.id);
+	if (!s) throw new Error ('Error Updating Service Item in Prescription: increment!');
+	
+	prescription.services = prescription.services.map (
+		s => s.id === service.id
+		? {
+			...s,
+			qty: parseInt(s.qty) - 1,
+			totalPrice: parseInt(s.totalPrice) - service.price
+		} : s
+	);
+
+	prescription.total -= parseInt(service.price);
+}
+
+
+// remove service item from prescription
+function removeServiceItem (service) {
+
+	const serviceCartItem = document.getElementById(`service-item-${service.id}`);
+	if (serviceCartItem)	serviceCartItem.remove();
+	else 	throw new Error('Error Removing Service Cart Item');
+
+	prescription.services = prescription.services.filter(
+			s => s.id !== service.id
 		);
 
-		prescription.total -= parseInt(fees.price);
-	}
+	prescription.total -= parseInt(service.price);	
+}
+
+
+// update prescription cart object
+function addNewServiceItemToPrescription (service) {
+
+	prescription.services.push({
+			id: service.id,
+			description: service.description,
+			qty: parseInt (service.qty),
+			price: parseInt (service.price),
+			totalPrice: parseInt(service.price)
+		});
+
+	prescription.total += parseInt(service.price);	
 }
 
 
@@ -429,33 +552,33 @@ function updatePrescriptionObjForServiceFees (fees, mode) {
 //////////////////////////////////////////////////////////////
 
 addFeesButton.addEventListener('click', e => {
-	e.preventDefault();
-	const feesDescription = document.getElementById('fees-desc');
-	const feesPrice = document.getElementById('fees-price');
-	const feesQty = document.getElementById('qty-other-fees');
+	try {
+		e.preventDefault();
+		const feesDescription = document.getElementById('fees-desc');
+		const feesPrice = document.getElementById('fees-price');
 
-	if (feesDescription.value === '') {
-		feesDescription.focus();
-		return;
-	}
-	else if (feesPrice.value === '0' || feesPrice.value === '' || parseInt(feesPrice.value) < 0) {
-		feesPrice.focus();
-		return;
-	}
-	else if (feesQty.value === '' || feesQty.value === '0' || parseInt(feesQty.value) < 0) {
-		feesQty.focus();
-		return;
-	}
+		if (feesDescription.value === '') {
+			feesDescription.focus();
+			return;
+		}
+		else if (feesPrice.value === '0' || feesPrice.value === '' || parseInt(feesPrice.value) < 0) {
+			feesPrice.focus();
+			return;
+		}
 
-	addOtherFeesAndServiceToCart ({
-		description: feesDescription.value,
-		price: parseInt(feesPrice.value),
-		qty: parseInt(feesQty.value)
-	});
+		addOtherFeesAndServiceToCart ({
+			description: feesDescription.value,
+			price: parseInt(feesPrice.value),
+			qty: 1
+		});
 
-	feesDescription.value = '';
-	feesPrice.value = '';
-	feesQty.value = '';
+		feesDescription.value = '';
+		feesPrice.value = '';
+	}
+	catch (error) {
+		console.error(error);
+		showErrorModal(error);
+	}
 });
 
 
@@ -512,29 +635,29 @@ function displaySearchResults (results, q) {
 		results.forEach (
 			result => {
 				const div = document.createElement("div");
-		        const h6 = document.createElement("h6");
-		        h6.setAttribute("class", "text-muted mb-3");
-		        h6.innerHTML = result.name;
-		        div.appendChild(h6);
+				const h6 = document.createElement("h6");
+				h6.setAttribute("class", "text-muted mb-3");
+				h6.innerHTML = result.name;
+				div.appendChild(h6);
 
-		        createSingleRow(div, "Category", result.category);
+				createSingleRow(div, "Category", result.category);
 
-		        createSingleRow(div, "Ingredients", result.description);
+				createSingleRow(div, "Ingredients", result.description);
 
-		        createRow(
-		        	div, 
-		        	["Location", "Product Number", "Price"], 
-		        	[result.location, result.productNumber, result.price]
-	        	);
+				createRow(
+					div, 
+					["Location", "Product Number", "Price"], 
+					[result.location, result.productNumber, result.price]
+				);
 
-		        createRow(
-	        		div,
-		          	["Quantity", "Doctor Approve", "Expiry"],
-		          	[result.qty, result.approve, (new Date(result.expiry)).toLocaleDateString()]
-	          	);
+				createRow(
+					div,
+				  	["Quantity", "Doctor Approve", "Expiry"],
+				  	[result.qty, result.approve, (new Date(result.expiry)).toLocaleDateString()]
+					);
 
-		        searchContainer.appendChild(div);
-		        searchContainer.appendChild(document.createElement("hr"));
+				searchContainer.appendChild(div);
+				searchContainer.appendChild(document.createElement("hr"));
 			}
 		);
 	}
@@ -713,6 +836,15 @@ doctorNameInput.addEventListener('keyup', e => {
 	if (e.key === 'Enter') {
 		if (e.target.value !== '')
 			prescription.doctor = e.target.value;
+	}
+});
+
+
+// set patient name
+patientNameInput.addEventListener('keyup', e => {
+	if (e.key === 'Enter') {
+		if (e.target.value !== '')
+			prescription.patient = e.target.value;
 	}
 });
 

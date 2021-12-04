@@ -32,10 +32,15 @@
       <div class="row h-100">
         <div class="col">
           
+          <!-- doctor & patient name -->
           <div class="my-2 row">
-            <label class="col-sm-2 col-form-label"><strong>Doctor</strong></label>
-            <div class="col-sm-10">
-              <input type="text" class="form-control" id="doctor-name">
+            <div class="col">
+              <label class="form-label"><strong>Doctor</strong></label>
+              <input type="text" class="form-control" id="doctor-name" placeholder="Doctor Name">
+            </div>
+            <div class="col">
+              <label class="form-label"><strong>Patient</strong></label>
+              <input type="text" class="form-control" id="patient-name" placeholder="Patient Name">
             </div>
           </div>
 
@@ -59,10 +64,9 @@
             <div class="card-body d-flex justify-content-between">
               <input class="w-50 form-control px-2" type="text" id="fees-desc" placeholder="Server (or) Fees Name">
               <input class="w-25 form-control px-2 mx-1" type="number" min="0" id="fees-price" placeholder="Price">
-              <input class="w-25 form-control px-2 mx-1" type="number" min="1" id="qty-other-fees" placeholder="Quantity">
-            </div>
-            <div class="mb-1 d-flex justify-content-end">
-              <button class="btn btn-primary mx-3" name="button" id="add-fees-to-cart">Add Fees</button>
+              <div class="w-25 d-flex justify-content-end">
+                <button class="btn btn-primary" name="button" id="add-fees-to-cart">Add Fees</button>
+              </div>
             </div>
           </div>
           <!-- end of other fees -->
