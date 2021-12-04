@@ -30,6 +30,8 @@ const addFeesButton = document.getElementById('add-fees-to-cart');
 const cartDOM = document.getElementById('cart');
 const clearCartButton = document.getElementById('discard-btn');
 const logOutButton = document.getElementById('logout');
+const checkoutButton = document.getElementById('checkout-btn');
+const givenAmountInput = document.getElementById('given-amount');
 
 
 
@@ -812,6 +814,87 @@ async function getErrorMessageFromResponse (response) {
 
 
 //////////////////////////////////////////////////////////////
+/////////////////// Checkout Functions ///////////////////////
+//////////////////////////////////////////////////////////////
+
+checkoutButton.addEventListener('click', async e => {
+	try {
+		const { error, message } = validateCheckOut();
+
+		if (error)	throw new Error(message);
+
+		console.log(prescription);
+	}
+	catch (error) {
+		console.error(error);
+		showErrorModal(error);
+	}
+});
+
+
+/** enter given amount from customer **/
+givenAmountInput.addEventListener('keyup', e => {
+	if (e.key === 'Enter') {
+		if (e.target.value !== '') {
+			prescription.payment = parseInt(e.target.value);
+			const changeReturnDOM = document.getElementById('change-return');
+			setChangeAmount (changeReturnDOM, prescription.payment - prescription.total); 
+		}
+	}
+});
+
+
+/** set change amount **/
+function setChangeAmount (dom, amount) {
+	dom.innerHTML = parseInt(amount);
+	if (parseInt(amount) < 0)
+		dom.style.color = 'red';
+	else
+		dom.style.color = 'green';
+
+	prescription.change = parseInt(amount);
+}
+
+
+
+/**
+# Validate Shopping Cart Before Checkout
+@return -> object: {error: boolean, message: string}
+**/
+function validateCheckOut () {
+
+	const { change, doctor, patient, employee, employeeID, payment, total } = prescription;
+
+	if (!doctor || doctor === '')
+		return { error: true, message: "Invalid Doctor Name. Name Empty or Invalid Name!"};
+
+	if (!patient || patient === '')
+		return { error: true, message: "Invalid Patient Name. Name Empty or Invalid Name!"}
+
+	if (!total || parseInt(total) <= 0)
+		return { error: true, message: "Invalid Total Price. Please Check the Cart."};
+
+	if (!payment || parseInt(payment) <= 0)
+		return { error: true, message: "Invalid Price. Please Check the give amount."};
+
+	if (parseInt(change) < 0)
+		return { error: true, message: "Incorrect Payment. Please check the given amount and change."};
+
+	if (employee === null || employee === '')
+		return { error: true, message: "Invalid Employee Name. Empty Name or Not Valid!"};
+
+	if (employeeID === null || employeeID === '')
+		return { error: true, message: "Invalid Employee ID. Empty ID or Not Valid!"};
+
+	if (prescription.services.length === 0 || prescription.items.length === 0) 
+		return { error: true, message: "Empty Cart!"};
+
+	return { error: false };
+}
+
+
+
+//////////////////////////////////////////////////////////////
 ///////////////////// Utilities Functions ////////////////////
 //////////////////////////////////////////////////////////////
 
@@ -901,12 +984,39 @@ function removeUserDetailsFromWindow () {
 }
 
 
-// clear prescription card
-clearCartButton.addEventListener('click', e => {
+// clear prescription cart
+clearCartButton.addEventListener('click', e => clearPrescriptionCart());
+
+
+// clear prescription cart and prices
+function clearPrescriptionCart () {
 	while (cartDOM.lastChild) {
 		cartDOM.removeChild(cartDOM.lastChild);
 	}
-});
+
+	givenAmountInput.value = '';
+	(document.getElementById('change-return')).innerHTML = '';
+	doctorNameInput.value = '';
+	patientNameInput.value = '';
+	resetPrescriptionObject ();
+	updateUITotalPrice ();
+}
+
+
+// reset prescription object with default values
+function resetPrescriptionObject () {
+	prescription = {
+		employee: null,
+		employeeID: null,
+		patient: null,
+		doctor: null,
+		total: 0,
+		payment: 0,
+		change: 0,
+		items: [],
+		services: []
+	}
+}
 
 
 
