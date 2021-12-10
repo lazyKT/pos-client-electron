@@ -842,41 +842,43 @@ checkoutButton.addEventListener('click', async e => {
 
 		if (error)	throw new Error(message);
 
-		console.log(prescription);
+		// validate products in prescription item list
+		Promise.all( prescription.items.map( async (item) => {
+			const validateResponse = await validateCartItemsRequest (item);
 
-		let invoice = createInvoice();
-		window.clinicCashierAPI.send('print-clinic-receipt', invoice);
+			if (!validateResponse || !(validateResponse.ok) ) {
+				const errorMessage = await getErrorMessageFromResponse(validateResponse);
 
-		// // validate products in prescription item list
-		// Promise.all( prescription.items.map( async (item) => {
-		// 	const validateResponse = await validateCartItemsRequest (item);
-		//
-		// 	if (!validateResponse || !(validateResponse.ok) ) {
-		// 		const errorMessage = await getErrorMessageFromResponse(validateResponse);
-		//
-		// 		throw new Error (errorMessage);
-		// 	}
-		// }))
-		// 	.then ( async () => {
-		// 		let invoice = createInvoice();
-		//
-		// 		const response = await checkOutRequests (invoice);
-		//
-		// 		if (response && response.ok) {
-		// 			const invoice = await response.json();
-		//
-		// 			console.log(invoice);
-		// 		}
-		// 		else {
-		// 			const errorMessage = await getErrorMessageFromResponse(response);
-    //       throw new Error(errorMessage);
-		// 		}
-		// 	})
-		// 	.catch (error => {
-		// 		console.error(error);
-		// 		onPageDidLoaded (mainContents, loadingSpinner);
-		// 		showErrorModal (error.message);
-		// 	});
+				throw new Error (errorMessage);
+			}
+		}))
+			.then ( async () => {
+				let invoice = createInvoice();
+				console.log(invoice);
+
+				const response = await checkOutRequest (invoice);
+
+				if (response && response.ok) {
+					const invoice = await response.json();
+
+					console.log(invoice);
+
+					window.clinicCashierAPI.send('print-clinic-receipt', invoice);
+
+					onPageDidLoaded (mainContents, loadingSpinner);
+					// clear cart
+					clearPrescriptionCart();
+				}
+				else {
+					const errorMessage = await getErrorMessageFromResponse(response);
+          throw new Error(errorMessage);
+				}
+			})
+			.catch (error => {
+				console.error(error);
+				onPageDidLoaded (mainContents, loadingSpinner);
+				showErrorModal (error.message);
+			});
 	}
 	catch (error) {
 		console.error(error);
@@ -916,7 +918,7 @@ function setChangeAmount (dom, amount) {
 @return -> object: {error: boolean, message: string}
 **/
 function validateCheckOut () {
-
+	console.log(prescription);
 	const { change, doctor, patient, employee, employeeID, payment, total } = prescription;
 
 	if (!doctor || doctor === '')
@@ -940,8 +942,8 @@ function validateCheckOut () {
 	if (employeeID === null || employeeID === '')
 		return { error: true, message: "Invalid Employee ID. Empty ID or Not Valid!"};
 
-	if (prescription.services.length === 0 || prescription.items.length === 0)
-		return { error: true, message: "Empty Cart!"};
+	if (prescription.services.length === 0)
+		return { error: true, message: "Empty Service List! Add some service fees?"};
 
 	return { error: false };
 }
@@ -1188,4 +1190,24 @@ async function validateCartItemsRequest (item) {
   catch (error) {
     console.error("Error validating items", error);
   }
+}
+
+
+// send checkout request
+async function checkOutRequest (invoice) {
+	try {
+		const response = await fetch(`${serverUrl}/api/clinic/invoices`, {
+			method: "POST",
+			headers: {
+				"Content-Type" : "application/json",
+				"Accept" : "application/json"
+			},
+			body: JSON.stringify(invoice)
+		});
+
+		return response;
+	}
+	catch (error) {
+		console.error (error);
+	}
 }

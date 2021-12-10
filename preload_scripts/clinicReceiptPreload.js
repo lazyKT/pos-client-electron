@@ -14,12 +14,12 @@ const ALLOWED_RECEIVED_CHANNELS = [
 ];
 
 const ALLOWED_SENT_CHANNELS = [
-
+  "print-clinic-invoice"
 ];
 
 
 
-contextBridge.exposeInMainWorld ("clinicReciptAPI", {
+contextBridge.exposeInMainWorld ("clinicReceiptAPI", {
   send: (channel, data) => {
     if (ALLOWED_SENT_CHANNELS.includes(channel)) {
       ipcRenderer.send(channel, data)

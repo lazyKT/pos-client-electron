@@ -19,6 +19,9 @@
 
 exports.createReceiptWindow = function (parentWindow, invoice) {
 
+  const PRINT_MODE_PRODUCTION = 0;
+  const PRINT_MODE_TEST = 1;
+
   if (!win) {
     win = new BrowserWindow({
       width: 400,
@@ -51,53 +54,61 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
 
       win.webContents.send("invoice", invoice);
 
-      ipcMain.on("print", (event, printer) => {
-        // console.log("printer", printer);
-        // console.log(win.webContents.getPrinters());
+      ipcMain.on("print", (event, printOptions) => {
 
-        if ((findPrinters(win.webContents.getPrinters(), printer)).length > 0) {
-          // console.log('printer found', printer);
-          const options = {
-            silent: true,
-            deviceName: printer
-          }
+        const { name, mode } = printOptions;
 
-          win.webContents.print(options, (success, errorType) => {
-            if (!success) {
-              console.error("Printing Erorr:", errorType);
-              dialog.showMessageBox({
-                  title : "Printing Receipt",
-                  message: `Error: ${errorType}`
-              })
-                .then (() => {
-                  win.close();
-                });
-            }
-            else
+        if (mode === PRINT_MODE_TEST) {
+          // print to PDF
+          const pdfPath = path.join(os.homedir(), 'Desktop', 'temp.pdf')
+          win.webContents.printToPDF({}).then(data => {
+            console.log("Writing PDF ...");
+            fs.writeFile(pdfPath, data, (error) => {
+              if (error) throw error
+              console.log(`Wrote PDF successfully to ${pdfPath}`)
               win.close();
-          });
+            })
+          }).catch(error => {
+            console.log(`Failed to write PDF to ${pdfPath}: `, error)
+          })
+        }
+        else if (mode === PRINT_MODE_PRODUCTION) {
+          // print with printer
+          if ((findPrinters(win.webContents.getPrinters(), printer)).length > 0) {
+            // console.log('printer found', printer);
+            const options = {
+              silent: true,
+              deviceName: printer
+            }
+
+            win.webContents.print(options, (success, errorType) => {
+              if (!success) {
+                console.error("Printing Erorr:", errorType);
+                dialog.showMessageBox({
+                    title : "Printing Receipt",
+                    message: `Error: ${errorType}`
+                })
+                  .then (() => {
+                    win.close();
+                  });
+              }
+              else
+                win.close();
+            });
+          }
+          else {
+            dialog.showMessageBox({
+              title : "Printing Receipt",
+              message: `Error: Printer, ${printer} not found!`
+          })
+            .then (() => {
+              win.close();
+            });
+          }
         }
         else {
-          dialog.showMessageBox({
-            title : "Printing Receipt",
-            message: `Error: Printer, ${printer} not found!`
-        })
-          .then (() => {
-            win.close();
-          });
+          throw new Error ("Invalid Print Mode");
         }
-
-        // const pdfPath = path.join(os.homedir(), 'Desktop', 'temp.pdf')
-        // win.webContents.printToPDF({}).then(data => {
-        //   console.log("Writing PDF ...");
-        //   fs.writeFile(pdfPath, data, (error) => {
-        //     if (error) throw error
-        //     console.log(`Wrote PDF successfully to ${pdfPath}`)
-        //     win.close();
-        //   })
-        // }).catch(error => {
-        //   console.log(`Failed to write PDF to ${pdfPath}: `, error)
-        // })
       });
     });
   }

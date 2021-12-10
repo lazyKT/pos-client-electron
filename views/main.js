@@ -12,10 +12,14 @@ const mainPage = document.getElementById('main-container');
 
 let newNode = null;
 
+const printOptions = {
+  name: "",
+  mode: 0 // production mode
+};
 
 window.onload = () => {
   localStorage.setItem("serverUrl", "http://127.0.0.1:8080");
-  console.log("Local Storage Saved");
+  localStorage.setItem("printOptions", JSON.stringify(printOptions));
   hideErrorMessage();
 };
 
