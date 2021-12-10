@@ -37,7 +37,7 @@ exports.createClinicReciptWindow = function (parentWindow, invoice) {
     });
 
     win.loadFile(path.join(__dirname, '../views/cashier/clinic_receipt.html'));
-    win.openDevTools();
+    // win.openDevTools();
 
     win.on('close', () => {
       if (win !== null) {

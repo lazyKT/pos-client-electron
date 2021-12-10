@@ -31,7 +31,6 @@ exports.createSettingWindow = function () {
     });
 
     win.loadFile(path.join(__dirname, "../views/settings.html"));
-    win.openDevTools();
 
     win.on("ready-to-show", () => win.show());
 

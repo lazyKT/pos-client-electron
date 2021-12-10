@@ -21,7 +21,7 @@ exports.createClinicCashierWindow = function (name, id) {
 			width: 1200,
 			height: 1000,
 			show: false,
-			// fullscreen: true,
+			fullscreen: true,
 			webPreferences: {
 				nodeIntegration: false,
 				contextIsolation: true,
@@ -31,8 +31,7 @@ exports.createClinicCashierWindow = function (name, id) {
 
 
 		win.loadFile(path.join(__dirname, '../views/cashier/clinic_cashier.html'));
-		win.openDevTools();
-
+		// win.openDevTools();
 
 		win.on('ready-to-show', () => {
 			win.show();

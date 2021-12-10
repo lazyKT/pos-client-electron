@@ -579,7 +579,7 @@ addFeesButton.addEventListener('click', e => {
 			feesDescription.focus();
 			return;
 		}
-		else if (feesPrice.value === '0' || feesPrice.value === '' || parseInt(feesPrice.value) < 0) {
+		else if (feesPrice.value === '' || parseInt(feesPrice.value) < 0) {
 			feesPrice.focus();
 			return;
 		}
@@ -610,12 +610,26 @@ searchMedsInput.addEventListener('keyup', async e => {
 		if (e.key === 'Enter') {
 			if (e.target.value !== '') {
 				// send search meds network request
-				searchMeds(e.target.value);
+				await searchMeds(e.target.value);
 			}
 		}
 	}
 	catch (error) {
 		showErrorModal(error);
+	}
+});
+
+
+searchMedsButton.addEventListener('click', async e => {
+	try {
+		const q = (document.getElementById('item-search-input'))?.value;
+
+		if (q && q !== '') {
+			await searchMeds (q);
+		}
+	}
+	catch (error) {
+		showErrorModal (error);
 	}
 });
 
