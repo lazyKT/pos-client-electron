@@ -7,7 +7,7 @@ const {
 	ipcMain
 } = require('electron');
 
-const { createReceiptWindow } = require('./receiptWindow');
+const { createClinicReciptWindow } = require('./clinicReceiptWindow');
 const { removeEventListeners } = require('../ipcHelper');
 
 
@@ -21,7 +21,7 @@ exports.createClinicCashierWindow = function (name, id) {
 			width: 1200,
 			height: 1000,
 			show: false,
-			fullscreen: true,
+			// fullscreen: true,
 			webPreferences: {
 				nodeIntegration: false,
 				contextIsolation: true,
@@ -50,8 +50,8 @@ exports.createClinicCashierWindow = function (name, id) {
 				win.close();
 		});
 
-		ipcMain.on('clinic-cashier-receipt', (event, data) => {
-			createReceiptWindow(win, data);
+		ipcMain.on('print-clinic-receipt', (event, data) => {
+			createClinicReciptWindow(win, data);
 		});
 	}
 }

@@ -273,10 +273,7 @@ checkoutBtn.addEventListener("click", async e => {
       displayCheckOutError(message);
       return;
     }
-    let invoice = createInvoice();
-    // window.cashierAPI.send("show-receipt", invoice);
-    // showHidePostPaymentLoading(postPaymentLoadingDOM, "hide");
-
+  
     // validate cart items in server: check availability
     Promise.all(shoppingCart.items.map( async item => {
       const availabilityResponse = await validateCartItemsRequest(item);
@@ -905,7 +902,7 @@ function showErrorMessage (container, show, message) {
 
 
 function showHidePostPaymentLoading (dom, state) {
-  
+
   dom.style.display = (state === "show") ? "flex" : "none";
 }
 
