@@ -66,7 +66,7 @@ function addToCart (item) {
 		updatePrescriptionItem (item, 'add');
 	}
 	else {
-		createNewPrescriptionItem (item);	
+		createNewPrescriptionItem (item);
 	}
 }
 
@@ -78,7 +78,7 @@ function isCartItemAlreadyAdded (item) {
 		i => i.productNumber === item.productNumber
 	);
 
-	return items.length > 0;			
+	return items.length > 0;
 }
 
 
@@ -91,7 +91,7 @@ function createNewPrescriptionItem (item) {
 	cartItemDOM.setAttribute('class', 'p-2 my-1 bg-light row');
 	cartItemDOM.setAttribute('id', `cart-item-${item.productNumber}`);
 
-	// quantity 
+	// quantity
 	createCartItemQuantityDiv (cartItemDOM, item);
 
 	// description
@@ -192,7 +192,7 @@ function increaseQuantity (item) {
 	priceDOM.innerHTML = `${parseInt(priceDOM.innerHTML) + item.price} ks`;
 
 	updatePrescriptionObj (item, 'add');
-	updateUITotalPrice ();	
+	updateUITotalPrice ();
 }
 
 
@@ -211,7 +211,7 @@ function decreaseQuantity (item) {
 	}
 
 	updatePrescriptionObj (item, 'reduce');
-	updateUITotalPrice ();	
+	updateUITotalPrice ();
 }
 
 
@@ -311,6 +311,22 @@ productCodeInput.addEventListener('keyup', async e => {
 });
 
 
+addToCartButton.addEventListener('click', async e => {
+	try {
+		const productCode = (document.getElementById('prod-code-input'))?.value;
+
+		if (productCode && productCode !== '') {
+			await enterOrScanProductCode (productCode);
+
+			productCodeInput.value = '';
+		}
+	}
+	catch (error) {
+		showErrorModal (error);
+	}
+});
+
+
 async function enterOrScanProductCode (prodCode) {
 	try {
 		const response = await getMedsByProductCodeNetworkRequest (prodCode);
@@ -360,7 +376,7 @@ function addOtherFeesAndServiceToCart (otherFees) {
 
 	feesItem.setAttribute('id', `service-item-${otherFees.id}`);
 
-	// quantity 
+	// quantity
 	createServiceQuantityDiv (feesItem, otherFees);
 
 	// description
@@ -504,7 +520,7 @@ function decreaseServiceQuantity (service) {
 function decreaseServiceQuntityInPrescriptionObj (service) {
 	const s = prescription.services.find (s => s.id === service.id);
 	if (!s) throw new Error ('Error Updating Service Item in Prescription: increment!');
-	
+
 	prescription.services = prescription.services.map (
 		s => s.id === service.id
 		? {
@@ -529,7 +545,7 @@ function removeServiceItem (service) {
 			s => s.id !== service.id
 		);
 
-	prescription.total -= parseInt(service.price);	
+	prescription.total -= parseInt(service.price);
 }
 
 
@@ -544,7 +560,7 @@ function addNewServiceItemToPrescription (service) {
 			totalPrice: parseInt(service.price)
 		});
 
-	prescription.total += parseInt(service.price);	
+	prescription.total += parseInt(service.price);
 }
 
 
@@ -563,7 +579,7 @@ addFeesButton.addEventListener('click', e => {
 			feesDescription.focus();
 			return;
 		}
-		else if (feesPrice.value === '0' || feesPrice.value === '' || parseInt(feesPrice.value) < 0) {
+		else if (feesPrice.value === '' || parseInt(feesPrice.value) < 0) {
 			feesPrice.focus();
 			return;
 		}
@@ -594,12 +610,26 @@ searchMedsInput.addEventListener('keyup', async e => {
 		if (e.key === 'Enter') {
 			if (e.target.value !== '') {
 				// send search meds network request
-				searchMeds(e.target.value);
+				await searchMeds(e.target.value);
 			}
 		}
 	}
 	catch (error) {
 		showErrorModal(error);
+	}
+});
+
+
+searchMedsButton.addEventListener('click', async e => {
+	try {
+		const q = (document.getElementById('item-search-input'))?.value;
+
+		if (q && q !== '') {
+			await searchMeds (q);
+		}
+	}
+	catch (error) {
+		showErrorModal (error);
 	}
 });
 
@@ -610,7 +640,7 @@ async function searchMeds (q) {
 
 		if (response && response.ok) {
 			const results = await response.json();
-			
+
 			displaySearchResults (results, q);
 		}
 		else {
@@ -647,8 +677,8 @@ function displaySearchResults (results, q) {
 				createSingleRow(div, "Ingredients", result.description);
 
 				createRow(
-					div, 
-					["Location", "Product Number", "Price"], 
+					div,
+					["Location", "Product Number", "Price"],
 					[result.location, result.productNumber, result.price]
 				);
 
@@ -686,7 +716,7 @@ function createSingleRow (parent, title, value) {
 }
 
 
-// create three-column row item to display search result 
+// create three-column row item to display search result
 function createRow (parent, titles, values) {
 	const row = document.createElement("div");
 	row.setAttribute("class", "row mb-3");
@@ -744,7 +774,7 @@ function displayErrorOnSearchMeds (message) {
 
 // clear contents and make room for next results
 function clearSearchResultsContainer (container) {
-	
+
 	while (container.lastChild)
 		container.removeChild(container.lastChild);
 }
@@ -765,7 +795,7 @@ function showErrorModal (message) {
 	errorMessageDiv.style.display = 'block';
 
 	const errorMessage = document.getElementById('error-msg');
-	errorMessage.innerHTML = message;	
+	errorMessage.innerHTML = message;
 }
 
 
@@ -775,7 +805,7 @@ function onCloseErrorModal () {
 
 	/* remove error message */
 	const errorMessageDiv = document.getElementById('error-div');
-	
+
 	errorMessageDiv.style.display = 'none';
 
 	/* show loading spinner */
@@ -819,14 +849,54 @@ async function getErrorMessageFromResponse (response) {
 
 checkoutButton.addEventListener('click', async e => {
 	try {
+		// show loading spinner
+		onPageLoad (mainContents, loadingSpinner);
+
 		const { error, message } = validateCheckOut();
 
 		if (error)	throw new Error(message);
 
-		console.log(prescription);
+		// validate products in prescription item list
+		Promise.all( prescription.items.map( async (item) => {
+			const validateResponse = await validateCartItemsRequest (item);
+
+			if (!validateResponse || !(validateResponse.ok) ) {
+				const errorMessage = await getErrorMessageFromResponse(validateResponse);
+
+				throw new Error (errorMessage);
+			}
+		}))
+			.then ( async () => {
+				let invoice = createInvoice();
+				console.log(invoice);
+
+				const response = await checkOutRequest (invoice);
+
+				if (response && response.ok) {
+					const invoice = await response.json();
+
+					console.log(invoice);
+
+					window.clinicCashierAPI.send('print-clinic-receipt', invoice);
+
+					onPageDidLoaded (mainContents, loadingSpinner);
+					// clear cart
+					clearPrescriptionCart();
+				}
+				else {
+					const errorMessage = await getErrorMessageFromResponse(response);
+          throw new Error(errorMessage);
+				}
+			})
+			.catch (error => {
+				console.error(error);
+				onPageDidLoaded (mainContents, loadingSpinner);
+				showErrorModal (error.message);
+			});
 	}
 	catch (error) {
 		console.error(error);
+		onPageDidLoaded (mainContents, loadingSpinner);
 		showErrorModal(error);
 	}
 });
@@ -838,7 +908,7 @@ givenAmountInput.addEventListener('keyup', e => {
 		if (e.target.value !== '') {
 			prescription.payment = parseInt(e.target.value);
 			const changeReturnDOM = document.getElementById('change-return');
-			setChangeAmount (changeReturnDOM, prescription.payment - prescription.total); 
+			setChangeAmount (changeReturnDOM, prescription.payment - prescription.total);
 		}
 	}
 });
@@ -862,7 +932,7 @@ function setChangeAmount (dom, amount) {
 @return -> object: {error: boolean, message: string}
 **/
 function validateCheckOut () {
-
+	console.log(prescription);
 	const { change, doctor, patient, employee, employeeID, payment, total } = prescription;
 
 	if (!doctor || doctor === '')
@@ -886,13 +956,66 @@ function validateCheckOut () {
 	if (employeeID === null || employeeID === '')
 		return { error: true, message: "Invalid Employee ID. Empty ID or Not Valid!"};
 
-	if (prescription.services.length === 0 || prescription.items.length === 0) 
-		return { error: true, message: "Empty Cart!"};
+	if (prescription.services.length === 0)
+		return { error: true, message: "Empty Service List! Add some service fees?"};
 
 	return { error: false };
 }
 
 
+//////////////////////////////////////////////////////////////
+//////////////////////// Invoicing ///////////////////////////
+//////////////////////////////////////////////////////////////
+
+
+/** create invoice object to make network request */
+function createInvoice () {
+
+  const invoiceNumber = generateInvoiceNumber(new Date());
+
+  return {
+    invoiceNumber,
+    employeeID: prescription.employeeID,
+    cashier: prescription.employee,
+    patientID: "Guest",
+		patientName: prescription.patient,
+		doctorID: "DOC",
+		doctorName: prescription.doctor,
+    payableAmount: prescription.total,
+    givenAmount: prescription.payment,
+    changeAmount: prescription.change,
+    items: prescription.items,
+		services: prescription.services
+  };
+}
+
+
+/** Generate Invoice Number Base On Current Timestamps **/
+function generateInvoiceNumber (date) {
+  const year = date.getFullYear();
+  const month = zeroPadding(date.getMonth() + 1);
+  const day = zeroPadding(date.getDate());
+  const hr = zeroPadding(date.getHours());
+  const mm = zeroPadding(date.getMinutes());
+  const ss = zeroPadding(date.getSeconds());
+  const ms = zeroPadding(date.getMilliseconds());
+  return `${year}${month}${day}${hr}${mm}${ss}${ms}`;
+}
+
+
+/** add zero prefixs to the time values **/
+function zeroPadding (value, type) {
+  let strValue = value.toString();
+  if (type === "ms") {
+    while (strValue.length < 3)
+      strValue = '0' + strValue;
+  }
+  else {
+    while (strValue.length < 2)
+      strValue = '0' + strValue;
+  }
+  return strValue;
+}
 
 //////////////////////////////////////////////////////////////
 ///////////////////// Utilities Functions ////////////////////
@@ -940,7 +1063,7 @@ function loadDataFromLocalStorage () {
 
 
 	const emp = JSON.parse(localStorage.getItem('user'));
-	if (!emp || emp === null || !emp.name || !emp._id) 
+	if (!emp || emp === null || !emp.name || !emp._id)
 		throw new Error ('Failed to get User Data');
 
 	prescription.employeeID = emp._id;
@@ -975,7 +1098,7 @@ logOutButton.addEventListener('click', e => logoutToMainMenu());
 function logoutToMainMenu () {
 	removeUserDetailsFromWindow();
 	window.clinicCashierAPI.send('clinic-cashier-close');
-} 
+}
 
 
 // Remove User Details from BrowserWindow Local Storage
@@ -1060,7 +1183,45 @@ async function getMedsByProductCodeNetworkRequest (code) {
 }
 
 
+// validate checkout items request
+async function validateCartItemsRequest (item) {
+  try {
+    const response = await fetch(`${serverUrl}/api/meds/checkout`, {
+      method: "PUT",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      },
+      body: JSON.stringify({
+        tagId: item.tagId,
+        medId: item.productId,
+        qty: item.qty
+      })
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error("Error validating items", error);
+  }
+}
 
 
+// send checkout request
+async function checkOutRequest (invoice) {
+	try {
+		const response = await fetch(`${serverUrl}/api/clinic/invoices`, {
+			method: "POST",
+			headers: {
+				"Content-Type" : "application/json",
+				"Accept" : "application/json"
+			},
+			body: JSON.stringify(invoice)
+		});
 
-
+		return response;
+	}
+	catch (error) {
+		console.error (error);
+	}
+}
