@@ -39,11 +39,7 @@ exports.createClinicCashierWindow = function (name, id) {
 
 		win.on('close', () => {
 			if (win) {
-<<<<<<< HEAD
-				removeEventListeners(ipcMain, ["clinic-cashier-close"]);
-=======
 				removeEventListeners(ipcMain, ["clinic-cashier-close", "clinic-cashier-receipt"]);
->>>>>>> e2bf46b32bce004d435b8d9b1a4529a893290b82
 				win = null;
 			}
 		});
