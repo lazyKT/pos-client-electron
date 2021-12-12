@@ -16,7 +16,7 @@ exports.createCashierWindow = function createCashierWindow(name, id) {
       width: 1200,
       height: 1000,
       show: false,
-      // fullscreen: true,
+      fullscreen: true,
       webPreferences: {
         contextIsolation: true,
         nodeIntegration: true,
@@ -41,7 +41,7 @@ exports.createCashierWindow = function createCashierWindow(name, id) {
       }
     });
 
-    
+
     win.webContents.once("dom-ready", () => {
       win.webContents.send("user-details", {name, id});
     });

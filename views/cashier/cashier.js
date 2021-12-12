@@ -273,7 +273,7 @@ checkoutBtn.addEventListener("click", async e => {
       displayCheckOutError(message);
       return;
     }
-  
+
     // validate cart items in server: check availability
     Promise.all(shoppingCart.items.map( async item => {
       const availabilityResponse = await validateCartItemsRequest(item);
@@ -788,6 +788,9 @@ function validateCheckOut () {
 
   if (!payment || parseInt(payment) <= 0)
     return { error: true, message: "Invalid Price. Please Check the give amount."};
+
+  if (!payment || parseInt(payment) < parseInt(total))
+    return { error: true, message: "Given Amount is less than Total Payable Amount!"};
 
   if (parseInt(change) < 0)
     return { error: true, message: "Incorrect Payment. Please check the given amount and change."};
