@@ -37,12 +37,12 @@ function getCurrentDateTime () {
 
 
 function setReceiptHeaders (dom, value) {
-  dom.innerHTML = `<small>${dom.innerHTML}</small> ${value}`;
+  dom.innerHTML = `${dom.innerHTML} <strong>${value}</strong>`;
 }
 
 
 function loadPrice (dom, title, value) {
-  dom.innerHTML = `<small>${title}</small> : ${value}ks`;
+  dom.innerHTML = `${title} : <strong>${value}ks</strong>`;
 }
 
 
@@ -58,7 +58,7 @@ function createDescTd (tBody, description) {
   const td = document.createElement("td");
   td.setAttribute("style", "width: 100px;");
   td.setAttribute("colspan", "3");
-  td.innerHTML = description;
+  td.innerHTML = `<small><strong>${description}</strong></small>`;
 
   tr.appendChild(td);
   tBody.appendChild(tr);
@@ -69,15 +69,15 @@ function createInfoTableCells (tBody, item) {
   tr.setAttribute("class", "mb-1");
 
   const unitPrice = document.createElement("td");
-  unitPrice.innerHTML = item.price;
+  unitPrice.innerHTML = `<small><strong>${item.price}</strong></small>`;
   tr.appendChild(unitPrice);
 
   const qty = document.createElement("td");
-  qty.innerHTML = item.qty;
+  qty.innerHTML = `<small><strong>${item.qty}</strong></small>`;
   tr.appendChild(qty);
 
   const totalPrice = document.createElement("td");
-  totalPrice.innerHTML = item.totalPrice;
+  totalPrice.innerHTML = `<small><strong>${item.totalPrice}</strong></small>`;
   tr.appendChild(totalPrice);
 
   tBody.appendChild(tr);
