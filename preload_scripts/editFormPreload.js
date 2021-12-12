@@ -11,6 +11,7 @@ const {
 
 const ALLOWED_RECEIVED_CHANNELS = [
   "response-user-data",
+  "response-patient-data",
   "response-edit-item-data"
 ];
 

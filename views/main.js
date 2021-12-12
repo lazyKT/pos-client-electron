@@ -84,7 +84,7 @@ async function handleRoutesAfterLogin (event, pageName, employee) {
       if (parseInt(employee.level) === 3) {
         closeLoginModal(event);
         saveInLocalStorage({name: employee.fullName, _id: employee._id});
-        window.api.send("login-user");
+        window.api.send("login-user", {name: employee.fullName, _id: employee._id, page: pageName});
       }
       else
         showErrorMessage("Error. Access Denied!");

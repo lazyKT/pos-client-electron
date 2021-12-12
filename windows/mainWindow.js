@@ -10,15 +10,24 @@ const {
   session
 } = require('electron');
 
+const { createPFormWindow } = require("./newPatientFormWindow.js");
+const { createPEditWindow } = require("./createPatientEditWindow.js");
+
 const { createCashierWindow } = require("./cashierWindow.js");
 const { createInventoryWindow } = require("./inventoryWindow.js");
 const { createFormWindow } = require("./formWindow.js");
+
 const { createEditFormWindow } = require("./editFormWindow.js");
 const { createClinicCashierWindow } = require("./clinicCashierWindow.js");
+
+
+const userMangementURL = path.join(__dirname, "../views/user/user.html");
+const patientMgmtURL = path.join(__dirname, "../views/user/patient.html");
 
 const applicationMenu = Menu.buildFromTemplate(require('../applicationMenu.js'));
 const AppConfig = require("../config");
 const { createPageSelectionWindow } = require('./createPageSelectionWindow.js');
+
 
 let win
 
@@ -38,8 +47,8 @@ exports.createMainWindow = function createMainWindow () {
     });
 
     const mainMenuURL = path.join(__dirname, "../views/main.html");
-    const userMangementURL = path.join(__dirname, "../views/user/user.html");
-
+    
+    //
 
     win.loadFile(mainMenuURL);
     // win.openDevTools();
@@ -52,7 +61,7 @@ exports.createMainWindow = function createMainWindow () {
         /**
         # Always clean up the listeners and event emitters
         **/
-        removeListeners(["login", "login-user", "user-logout", "create-modal", "user-data", "user-logout", "logout"]);
+        removeListeners(["login", "login-user", "user-logout", "create-modal","create-modal2",  "user-data", "user-logout", "logout"]);
         win = null;
       }
     });
@@ -66,7 +75,11 @@ exports.createMainWindow = function createMainWindow () {
 
 
     ipcMain.on("login-user", (e, args) => {
-      win.loadFile(userMangementURL);
+      
+        //win.loadFile(patientMgmtURL);
+      loadUserWindows(args);
+      
+      
     });
 
 
@@ -89,10 +102,18 @@ exports.createMainWindow = function createMainWindow () {
       createFormWindow(win, windowType);
     });
 
+    ipcMain.on('create-modal2', (e, windowType) => {
+      createPFormWindow(win, windowType);
+    });
+
 
     // open edit form
     ipcMain.on("user-data", (event, args) => {
       createEditFormWindow(win, args.method, args._id);
+    });
+
+    ipcMain.on("patient-data", (event, args) => {
+      createPEditWindow(win, args.method, args._id);
     });
 
 
@@ -116,6 +137,23 @@ function openWindow ({name, _id, page}) {
       break;
     default :
       throw new Error ('Unknown Page Name!');
+  }
+}
+function loadUserWindows({name, _id, page})
+{
+  switch (page){
+    case 'Doctor' :
+      win.loadFile(userMangementURL);
+      break;
+    case 'Patient' :
+      win.loadFile(patientMgmtURL);
+      break;
+    case 'Employee' :
+      win.loadFile(userMangementURL);
+      break;
+    default :
+      throw new Error('Unknown Page Name!');
+
   }
 }
 
