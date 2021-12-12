@@ -6,6 +6,7 @@
 let prescription = {
 	employee: null,
 	employeeID: null,
+	patient: null,
 	doctor: null,
 	total: 0,
 	payment: 0,
@@ -20,6 +21,7 @@ const loadingSpinner = document.getElementById('modal');
 const mainContents = document.getElementById('main');
 
 const doctorNameInput = document.getElementById('doctor-name');
+const patientNameInput = document.getElementById('patient-name');
 const addToCartButton = document.getElementById('add-item-to-cart');
 const productCodeInput = document.getElementById('prod-code-input');
 const searchMedsInput = document.getElementById('item-search-input');
@@ -28,6 +30,8 @@ const addFeesButton = document.getElementById('add-fees-to-cart');
 const cartDOM = document.getElementById('cart');
 const clearCartButton = document.getElementById('discard-btn');
 const logOutButton = document.getElementById('logout');
+const checkoutButton = document.getElementById('checkout-btn');
+const givenAmountInput = document.getElementById('given-amount');
 
 
 
@@ -62,7 +66,7 @@ function addToCart (item) {
 		updatePrescriptionItem (item, 'add');
 	}
 	else {
-		createNewPrescriptionItem (item);	
+		createNewPrescriptionItem (item);
 	}
 }
 
@@ -74,7 +78,7 @@ function isCartItemAlreadyAdded (item) {
 		i => i.productNumber === item.productNumber
 	);
 
-	return items.length > 0;			
+	return items.length > 0;
 }
 
 
@@ -87,7 +91,7 @@ function createNewPrescriptionItem (item) {
 	cartItemDOM.setAttribute('class', 'p-2 my-1 bg-light row');
 	cartItemDOM.setAttribute('id', `cart-item-${item.productNumber}`);
 
-	// quantity 
+	// quantity
 	createCartItemQuantityDiv (cartItemDOM, item);
 
 	// description
@@ -188,7 +192,7 @@ function increaseQuantity (item) {
 	priceDOM.innerHTML = `${parseInt(priceDOM.innerHTML) + item.price} ks`;
 
 	updatePrescriptionObj (item, 'add');
-	updateUITotalPrice ();	
+	updateUITotalPrice ();
 }
 
 
@@ -207,7 +211,7 @@ function decreaseQuantity (item) {
 	}
 
 	updatePrescriptionObj (item, 'reduce');
-	updateUITotalPrice ();	
+	updateUITotalPrice ();
 }
 
 
@@ -307,6 +311,22 @@ productCodeInput.addEventListener('keyup', async e => {
 });
 
 
+addToCartButton.addEventListener('click', async e => {
+	try {
+		const productCode = (document.getElementById('prod-code-input'))?.value;
+
+		if (productCode && productCode !== '') {
+			await enterOrScanProductCode (productCode);
+
+			productCodeInput.value = '';
+		}
+	}
+	catch (error) {
+		showErrorModal (error);
+	}
+});
+
+
 async function enterOrScanProductCode (prodCode) {
 	try {
 		const response = await getMedsByProductCodeNetworkRequest (prodCode);
@@ -354,41 +374,67 @@ function addOtherFeesAndServiceToCart (otherFees) {
 
 	otherFees.id = cartDOM.childElementCount;
 
-	// delete Fees Item
-	const deleteButton = document.createElement('button');
-	deleteButton.setAttribute('class', 'btn btn-danger w-auto');
-	deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-	feesItem.appendChild(deleteButton);
-	deleteButton.addEventListener('click', () => {
-		feesItem.remove();
-		updatePrescriptionObjForServiceFees (otherFees, 'remove');
-		updateUITotalPrice ();
-	});
+	feesItem.setAttribute('id', `service-item-${otherFees.id}`);
 
-	// quantity 
-	feesItem.appendChild (createDataColumn(otherFees.qty));
+	// quantity
+	createServiceQuantityDiv (feesItem, otherFees);
 
 	// description
 	feesItem.appendChild (createDataColumn(otherFees.description));
 
 	// price
-	feesItem.appendChild (createDataColumn(otherFees.price, 'price'));
+	feesItem.appendChild (createDataColumn(otherFees.price, otherFees.id, 'price'));
 
 	cartDOM.appendChild (feesItem);
 
-	updatePrescriptionObjForServiceFees (otherFees, 'add');
+	addNewServiceItemToPrescription (otherFees, 'add');
 	updateUITotalPrice ();
-	console.log(prescription);
 }
 
 
+// service quantity
+function createServiceQuantityDiv (parent, service) {
+	const qtyDiv = document.createElement('div');
+	qtyDiv.setAttribute('class', 'col');
+	parent.appendChild(qtyDiv);
+
+	const div = document.createElement("div");
+	div.setAttribute("class", "d-flex justify-content-start align-items-center");
+
+	const decrementButton = document.createElement("button");
+	decrementButton.setAttribute("class", "btn btn-secondary text-white");
+	decrementButton.innerHTML = `<i class="fas fa-minus"></i>`;
+	div.appendChild(decrementButton);
+
+	const qtyText = document.createElement("h6");
+	qtyText.setAttribute("class", "px-1 mt-1 mx-2 text-muted");
+	qtyText.setAttribute("id", `service-qty-${service.id}`);
+	qtyText.innerHTML = '1';
+	div.appendChild(qtyText);
+
+	const incrementButton = document.createElement("button");
+	incrementButton.setAttribute("class", "btn btn-secondary text-white");
+	incrementButton.innerHTML = `<i class="fas fa-plus"></i>`;
+	div.appendChild(incrementButton);
+
+
+	incrementButton.addEventListener("click", e => increaseServiceQuantity(service));
+
+	decrementButton.addEventListener("click", e => decreaseServiceQuantity(service));
+
+	qtyDiv.appendChild(div);
+}
+
+
+
 // create data column for fees item
-function createDataColumn (value, type) {
+function createDataColumn (value, id, type) {
 	const div = document.createElement('div');
 	div.setAttribute('class', 'col');
 	const h6 = document.createElement('h6');
 	if (type === 'price') {
 		h6.setAttribute('class', 'text-muted text-end mx-1 my-2');
+		h6.setAttribute('id', `service-price-${id}`);
 		h6.innerHTML = `${value} ks`;
 	}
 	else {
@@ -401,25 +447,120 @@ function createDataColumn (value, type) {
 
 
 
-// update prescription cart object
-function updatePrescriptionObjForServiceFees (fees, mode) {
-	if (mode === 'add') {
-		prescription.services.push({
-			id: fees.id,
-			description: fees.description,
-			qty: parseInt (fees.qty),
-			price: parseInt (fees.price)
-		});
+// increase quantity for service item
+function increaseServiceQuantity (service) {
+	// update qty
+	const qty = document.getElementById(`service-qty-${service.id}`);
+	if (!qty)
+		throw new Error ('Error Updating Service Item: Quantity!');
 
-		prescription.total += parseInt(fees.price);
+	qty.innerHTML = parseInt(qty.innerHTML) + 1;
+
+	// also update price
+	const price = document.getElementById(`service-price-${service.id}`);
+	if (!price)
+			throw new Error ('Error Updateing Service Item: Price!');
+
+	price.innerHTML = `${parseInt(price.innerHTML) + service.price} ks`;
+
+	increaseServiceQuntityInPrescriptionObj (service);
+	updateUITotalPrice ();
+}
+
+
+function increaseServiceQuntityInPrescriptionObj (service) {
+
+	const s = prescription.services.find (s => s.id === service.id);
+	if (!s) throw new Error ('Error Updating Service Item in Prescription: increment!');
+	console.log(service);
+	prescription.services = prescription.services.map (
+		s => s.id === service.id
+		? {
+			...s,
+			qty: parseInt(s.qty) + 1,
+			totalPrice: parseInt(s.totalPrice) + service.price
+		} : s
+	);
+
+	prescription.total += parseInt(service.price);
+	console.log(prescription);
+}
+
+
+
+function decreaseServiceQuantity (service) {
+	// update qty
+	const qty = document.getElementById(`service-qty-${service.id}`);
+	if (!qty)
+		throw new Error ('Error Updating Service Item: Quantity!');
+
+	if (qty.innerHTML === '1') {
+		removeServiceItem (service);
 	}
-	else if (mode === 'remove') {
-		prescription.services = prescription.services.filter(
-			service => service.id !== fees.id
+	else {
+		qty.innerHTML = parseInt(qty.innerHTML) - 1;
+
+
+
+		// also update price
+		const price = document.getElementById(`service-price-${service.id}`);
+		if (!price)
+				throw new Error ('Error Updateing Service Item: Price!');
+
+		price.innerHTML = `${parseInt(price.innerHTML) - service.price} ks`;
+
+		decreaseServiceQuntityInPrescriptionObj (service);
+	}
+
+	updateUITotalPrice ();
+}
+
+
+
+function decreaseServiceQuntityInPrescriptionObj (service) {
+	const s = prescription.services.find (s => s.id === service.id);
+	if (!s) throw new Error ('Error Updating Service Item in Prescription: increment!');
+
+	prescription.services = prescription.services.map (
+		s => s.id === service.id
+		? {
+			...s,
+			qty: parseInt(s.qty) - 1,
+			totalPrice: parseInt(s.totalPrice) - service.price
+		} : s
+	);
+
+	prescription.total -= parseInt(service.price);
+}
+
+
+// remove service item from prescription
+function removeServiceItem (service) {
+
+	const serviceCartItem = document.getElementById(`service-item-${service.id}`);
+	if (serviceCartItem)	serviceCartItem.remove();
+	else 	throw new Error('Error Removing Service Cart Item');
+
+	prescription.services = prescription.services.filter(
+			s => s.id !== service.id
 		);
 
-		prescription.total -= parseInt(fees.price);
-	}
+	prescription.total -= parseInt(service.price);
+}
+
+
+// update prescription cart object
+function addNewServiceItemToPrescription (service) {
+
+	prescription.services.push({
+			id: service.id,
+			description: service.description,
+			qty: parseInt (service.qty),
+			price: parseInt (service.price),
+			totalPrice: parseInt(service.price)
+		});
+
+	prescription.total += parseInt(service.price);
 }
 
 
@@ -429,33 +570,33 @@ function updatePrescriptionObjForServiceFees (fees, mode) {
 //////////////////////////////////////////////////////////////
 
 addFeesButton.addEventListener('click', e => {
-	e.preventDefault();
-	const feesDescription = document.getElementById('fees-desc');
-	const feesPrice = document.getElementById('fees-price');
-	const feesQty = document.getElementById('qty-other-fees');
+	try {
+		e.preventDefault();
+		const feesDescription = document.getElementById('fees-desc');
+		const feesPrice = document.getElementById('fees-price');
 
-	if (feesDescription.value === '') {
-		feesDescription.focus();
-		return;
-	}
-	else if (feesPrice.value === '0' || feesPrice.value === '' || parseInt(feesPrice.value) < 0) {
-		feesPrice.focus();
-		return;
-	}
-	else if (feesQty.value === '' || feesQty.value === '0' || parseInt(feesQty.value) < 0) {
-		feesQty.focus();
-		return;
-	}
+		if (feesDescription.value === '') {
+			feesDescription.focus();
+			return;
+		}
+		else if (feesPrice.value === '' || parseInt(feesPrice.value) < 0) {
+			feesPrice.focus();
+			return;
+		}
 
-	addOtherFeesAndServiceToCart ({
-		description: feesDescription.value,
-		price: parseInt(feesPrice.value),
-		qty: parseInt(feesQty.value)
-	});
+		addOtherFeesAndServiceToCart ({
+			description: feesDescription.value,
+			price: parseInt(feesPrice.value),
+			qty: 1
+		});
 
-	feesDescription.value = '';
-	feesPrice.value = '';
-	feesQty.value = '';
+		feesDescription.value = '';
+		feesPrice.value = '';
+	}
+	catch (error) {
+		console.error(error);
+		showErrorModal(error);
+	}
 });
 
 
@@ -469,12 +610,26 @@ searchMedsInput.addEventListener('keyup', async e => {
 		if (e.key === 'Enter') {
 			if (e.target.value !== '') {
 				// send search meds network request
-				searchMeds(e.target.value);
+				await searchMeds(e.target.value);
 			}
 		}
 	}
 	catch (error) {
 		showErrorModal(error);
+	}
+});
+
+
+searchMedsButton.addEventListener('click', async e => {
+	try {
+		const q = (document.getElementById('item-search-input'))?.value;
+
+		if (q && q !== '') {
+			await searchMeds (q);
+		}
+	}
+	catch (error) {
+		showErrorModal (error);
 	}
 });
 
@@ -485,7 +640,7 @@ async function searchMeds (q) {
 
 		if (response && response.ok) {
 			const results = await response.json();
-			
+
 			displaySearchResults (results, q);
 		}
 		else {
@@ -512,29 +667,29 @@ function displaySearchResults (results, q) {
 		results.forEach (
 			result => {
 				const div = document.createElement("div");
-		        const h6 = document.createElement("h6");
-		        h6.setAttribute("class", "text-muted mb-3");
-		        h6.innerHTML = result.name;
-		        div.appendChild(h6);
+				const h6 = document.createElement("h6");
+				h6.setAttribute("class", "text-muted mb-3");
+				h6.innerHTML = result.name;
+				div.appendChild(h6);
 
-		        createSingleRow(div, "Category", result.category);
+				createSingleRow(div, "Category", result.category);
 
-		        createSingleRow(div, "Ingredients", result.description);
+				createSingleRow(div, "Ingredients", result.description);
 
-		        createRow(
-		        	div, 
-		        	["Location", "Product Number", "Price"], 
-		        	[result.location, result.productNumber, result.price]
-	        	);
+				createRow(
+					div,
+					["Location", "Product Number", "Price"],
+					[result.location, result.productNumber, result.price]
+				);
 
-		        createRow(
-	        		div,
-		          	["Quantity", "Doctor Approve", "Expiry"],
-		          	[result.qty, result.approve, (new Date(result.expiry)).toLocaleDateString()]
-	          	);
+				createRow(
+					div,
+				  	["Quantity", "Doctor Approve", "Expiry"],
+				  	[result.qty, result.approve, (new Date(result.expiry)).toLocaleDateString()]
+					);
 
-		        searchContainer.appendChild(div);
-		        searchContainer.appendChild(document.createElement("hr"));
+				searchContainer.appendChild(div);
+				searchContainer.appendChild(document.createElement("hr"));
 			}
 		);
 	}
@@ -543,53 +698,53 @@ function displaySearchResults (results, q) {
 
 // create single-column row item to display search result
 function createSingleRow (parent, title, value) {
-  const div = document.createElement("div");
-  div.setAttribute("class", "mb-3");
+	const div = document.createElement("div");
+	div.setAttribute("class", "mb-3");
 
-  const titleDOM = document.createElement("h6");
-  titleDOM.setAttribute("class", "text-muted");
-  titleDOM.innerHTML = title;
+	const titleDOM = document.createElement("h6");
+	titleDOM.setAttribute("class", "text-muted");
+	titleDOM.innerHTML = title;
 
-  const valueDOM = document.createElement("span");
-  valueDOM.setAttribute("class", "mb-3");
-  valueDOM.innerHTML = value ? value : '--';
+	const valueDOM = document.createElement("span");
+	valueDOM.setAttribute("class", "mb-3");
+	valueDOM.innerHTML = value ? value : '--';
 
-  div.appendChild(titleDOM);
-  div.appendChild(valueDOM);
+	div.appendChild(titleDOM);
+	div.appendChild(valueDOM);
 
-  parent.appendChild(div);
+	parent.appendChild(div);
 }
 
 
-// create three-column row item to display search result 
+// create three-column row item to display search result
 function createRow (parent, titles, values) {
-  const row = document.createElement("div");
-  row.setAttribute("class", "row mb-3");
+	const row = document.createElement("div");
+	row.setAttribute("class", "row mb-3");
 
-  for (let i = 0; i < 3; i++) {
-    createCol(row, titles[i], values[i]);
-  }
+	for (let i = 0; i < 3; i++) {
+		createCol(row, titles[i], values[i]);
+	}
 
-  parent.appendChild(row);
+	parent.appendChild(row);
 }
 
 
 // create column to fill inside the parent row to display search result
 function createCol (parent, title, value) {
-  const col = document.createElement("div");
-  col.setAttribute("class", "col");
+	const col = document.createElement("div");
+	col.setAttribute("class", "col");
 
-  const titleDOM = document.createElement("h6");
-  titleDOM.setAttribute("class", "text-muted");
-  titleDOM.innerHTML = title;
+	const titleDOM = document.createElement("h6");
+	titleDOM.setAttribute("class", "text-muted");
+	titleDOM.innerHTML = title;
 
-  const valueDOM = document.createElement("span");
-  valueDOM.innerHTML = value;
+	const valueDOM = document.createElement("span");
+	valueDOM.innerHTML = value;
 
-  col.appendChild(titleDOM);
-  col.appendChild(valueDOM);
+	col.appendChild(titleDOM);
+	col.appendChild(valueDOM);
 
-  parent.appendChild(col);
+	parent.appendChild(col);
 }
 
 
@@ -619,7 +774,7 @@ function displayErrorOnSearchMeds (message) {
 
 // clear contents and make room for next results
 function clearSearchResultsContainer (container) {
-	
+
 	while (container.lastChild)
 		container.removeChild(container.lastChild);
 }
@@ -640,7 +795,7 @@ function showErrorModal (message) {
 	errorMessageDiv.style.display = 'block';
 
 	const errorMessage = document.getElementById('error-msg');
-	errorMessage.innerHTML = message;	
+	errorMessage.innerHTML = message;
 }
 
 
@@ -650,7 +805,7 @@ function onCloseErrorModal () {
 
 	/* remove error message */
 	const errorMessageDiv = document.getElementById('error-div');
-	console.log(errorMessageDiv);
+
 	errorMessageDiv.style.display = 'none';
 
 	/* show loading spinner */
@@ -661,32 +816,206 @@ function onCloseErrorModal () {
 
 /** show appropriate error base on network response status **/
 async function getErrorMessageFromResponse (response) {
-  let errorMessage = "";
-  try {
-    switch (response.status) {
-      case 400:
-        const { message } = await response.json();
-        errorMessage = message;
-        break;
-      case 404:
-        errorMessage = "Server EndPoint Not Found!";
-        break;
-      case 500:
-        errorMessage = "Internal Server Error";
-        break;
-      default:
-        errorMessage = "Network Connection Error";
-    }
-  }
-  catch (error) {
-    console.error("getErrorMessageFromResponse()", error);
-    errorMessage = "Application Error. Contact Administrator.";
-  }
+	let errorMessage = "";
+	try {
+		switch (response.status) {
+			case 400:
+				const { message } = await response.json();
+				errorMessage = message;
+				break;
+			case 404:
+				errorMessage = "Server EndPoint Not Found!";
+				break;
+			case 500:
+				errorMessage = "Internal Server Error";
+				break;
+			default:
+				errorMessage = "Network Connection Error";
+		}
+	}
+	catch (error) {
+		console.error("getErrorMessageFromResponse()", error);
+		errorMessage = "Application Error. Contact Administrator.";
+	}
 
-  return errorMessage;
+	return errorMessage;
 }
 
 
+
+//////////////////////////////////////////////////////////////
+/////////////////// Checkout Functions ///////////////////////
+//////////////////////////////////////////////////////////////
+
+checkoutButton.addEventListener('click', async e => {
+	try {
+		// show loading spinner
+		onPageLoad (mainContents, loadingSpinner);
+
+		const { error, message } = validateCheckOut();
+
+		if (error)	throw new Error(message);
+
+		// validate products in prescription item list
+		Promise.all( prescription.items.map( async (item) => {
+			const validateResponse = await validateCartItemsRequest (item);
+
+			if (!validateResponse || !(validateResponse.ok) ) {
+				const errorMessage = await getErrorMessageFromResponse(validateResponse);
+
+				throw new Error (errorMessage);
+			}
+		}))
+			.then ( async () => {
+				let invoice = createInvoice();
+				console.log(invoice);
+
+				const response = await checkOutRequest (invoice);
+
+				if (response && response.ok) {
+					const invoice = await response.json();
+
+					console.log(invoice);
+
+					window.clinicCashierAPI.send('print-clinic-receipt', invoice);
+
+					onPageDidLoaded (mainContents, loadingSpinner);
+					// clear cart
+					clearPrescriptionCart();
+				}
+				else {
+					const errorMessage = await getErrorMessageFromResponse(response);
+          throw new Error(errorMessage);
+				}
+			})
+			.catch (error => {
+				console.error(error);
+				onPageDidLoaded (mainContents, loadingSpinner);
+				showErrorModal (error.message);
+			});
+	}
+	catch (error) {
+		console.error(error);
+		onPageDidLoaded (mainContents, loadingSpinner);
+		showErrorModal(error);
+	}
+});
+
+
+/** enter given amount from customer **/
+givenAmountInput.addEventListener('keyup', e => {
+	if (e.key === 'Enter') {
+		if (e.target.value !== '') {
+			prescription.payment = parseInt(e.target.value);
+			const changeReturnDOM = document.getElementById('change-return');
+			setChangeAmount (changeReturnDOM, prescription.payment - prescription.total);
+		}
+	}
+});
+
+
+/** set change amount **/
+function setChangeAmount (dom, amount) {
+	dom.innerHTML = parseInt(amount);
+	if (parseInt(amount) < 0)
+		dom.style.color = 'red';
+	else
+		dom.style.color = 'green';
+
+	prescription.change = parseInt(amount);
+}
+
+
+
+/**
+# Validate Shopping Cart Before Checkout
+@return -> object: {error: boolean, message: string}
+**/
+function validateCheckOut () {
+	console.log(prescription);
+	const { change, doctor, patient, employee, employeeID, payment, total } = prescription;
+
+	if (!doctor || doctor === '')
+		return { error: true, message: "Invalid Doctor Name. Name Empty or Invalid Name!"};
+
+	if (!patient || patient === '')
+		return { error: true, message: "Invalid Patient Name. Name Empty or Invalid Name!"}
+
+	if (!total || parseInt(total) <= 0)
+		return { error: true, message: "Invalid Total Price. Please Check the Cart."};
+
+	if (!payment || parseInt(payment) <= 0)
+		return { error: true, message: "Invalid Price. Please Check the give amount."};
+
+	if (parseInt(change) < 0)
+		return { error: true, message: "Incorrect Payment. Please check the given amount and change."};
+
+	if (employee === null || employee === '')
+		return { error: true, message: "Invalid Employee Name. Empty Name or Not Valid!"};
+
+	if (employeeID === null || employeeID === '')
+		return { error: true, message: "Invalid Employee ID. Empty ID or Not Valid!"};
+
+	if (prescription.services.length === 0)
+		return { error: true, message: "Empty Service List! Add some service fees?"};
+
+	return { error: false };
+}
+
+
+//////////////////////////////////////////////////////////////
+//////////////////////// Invoicing ///////////////////////////
+//////////////////////////////////////////////////////////////
+
+
+/** create invoice object to make network request */
+function createInvoice () {
+
+  const invoiceNumber = generateInvoiceNumber(new Date());
+
+  return {
+    invoiceNumber,
+    employeeID: prescription.employeeID,
+    cashier: prescription.employee,
+    patientID: "Guest",
+		patientName: prescription.patient,
+		doctorID: "DOC",
+		doctorName: prescription.doctor,
+    payableAmount: prescription.total,
+    givenAmount: prescription.payment,
+    changeAmount: prescription.change,
+    items: prescription.items,
+		services: prescription.services
+  };
+}
+
+
+/** Generate Invoice Number Base On Current Timestamps **/
+function generateInvoiceNumber (date) {
+  const year = date.getFullYear();
+  const month = zeroPadding(date.getMonth() + 1);
+  const day = zeroPadding(date.getDate());
+  const hr = zeroPadding(date.getHours());
+  const mm = zeroPadding(date.getMinutes());
+  const ss = zeroPadding(date.getSeconds());
+  const ms = zeroPadding(date.getMilliseconds());
+  return `${year}${month}${day}${hr}${mm}${ss}${ms}`;
+}
+
+
+/** add zero prefixs to the time values **/
+function zeroPadding (value, type) {
+  let strValue = value.toString();
+  if (type === "ms") {
+    while (strValue.length < 3)
+      strValue = '0' + strValue;
+  }
+  else {
+    while (strValue.length < 2)
+      strValue = '0' + strValue;
+  }
+  return strValue;
+}
 
 //////////////////////////////////////////////////////////////
 ///////////////////// Utilities Functions ////////////////////
@@ -717,6 +1046,15 @@ doctorNameInput.addEventListener('keyup', e => {
 });
 
 
+// set patient name
+patientNameInput.addEventListener('keyup', e => {
+	if (e.key === 'Enter') {
+		if (e.target.value !== '')
+			prescription.patient = e.target.value;
+	}
+});
+
+
 // load user data and server url from local storage
 function loadDataFromLocalStorage () {
 	serverUrl = localStorage.getItem('serverUrl');
@@ -725,7 +1063,7 @@ function loadDataFromLocalStorage () {
 
 
 	const emp = JSON.parse(localStorage.getItem('user'));
-	if (!emp || emp === null || !emp.name || !emp._id) 
+	if (!emp || emp === null || !emp.name || !emp._id)
 		throw new Error ('Failed to get User Data');
 
 	prescription.employeeID = emp._id;
@@ -760,7 +1098,7 @@ logOutButton.addEventListener('click', e => logoutToMainMenu());
 function logoutToMainMenu () {
 	removeUserDetailsFromWindow();
 	window.clinicCashierAPI.send('clinic-cashier-close');
-} 
+}
 
 
 // Remove User Details from BrowserWindow Local Storage
@@ -769,12 +1107,39 @@ function removeUserDetailsFromWindow () {
 }
 
 
-// clear prescription card
-clearCartButton.addEventListener('click', e => {
+// clear prescription cart
+clearCartButton.addEventListener('click', e => clearPrescriptionCart());
+
+
+// clear prescription cart and prices
+function clearPrescriptionCart () {
 	while (cartDOM.lastChild) {
 		cartDOM.removeChild(cartDOM.lastChild);
 	}
-});
+
+	givenAmountInput.value = '';
+	(document.getElementById('change-return')).innerHTML = '';
+	doctorNameInput.value = '';
+	patientNameInput.value = '';
+	resetPrescriptionObject ();
+	updateUITotalPrice ();
+}
+
+
+// reset prescription object with default values
+function resetPrescriptionObject () {
+	prescription = {
+		employee: null,
+		employeeID: null,
+		patient: null,
+		doctor: null,
+		total: 0,
+		payment: 0,
+		change: 0,
+		items: [],
+		services: []
+	}
+}
 
 
 
@@ -818,7 +1183,45 @@ async function getMedsByProductCodeNetworkRequest (code) {
 }
 
 
+// validate checkout items request
+async function validateCartItemsRequest (item) {
+  try {
+    const response = await fetch(`${serverUrl}/api/meds/checkout`, {
+      method: "PUT",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      },
+      body: JSON.stringify({
+        tagId: item.tagId,
+        medId: item.productId,
+        qty: item.qty
+      })
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error("Error validating items", error);
+  }
+}
 
 
+// send checkout request
+async function checkOutRequest (invoice) {
+	try {
+		const response = await fetch(`${serverUrl}/api/clinic/invoices`, {
+			method: "POST",
+			headers: {
+				"Content-Type" : "application/json",
+				"Accept" : "application/json"
+			},
+			body: JSON.stringify(invoice)
+		});
 
-
+		return response;
+	}
+	catch (error) {
+		console.error (error);
+	}
+}

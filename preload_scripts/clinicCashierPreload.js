@@ -9,7 +9,8 @@ const {
 
 
 const ALLOWED_SEND_CHANNELS = [
-	'clinic-cashier-close'
+	'clinic-cashier-close',
+	'print-clinic-receipt'
 ];
 
 
@@ -19,7 +20,7 @@ contextBridge.exposeInMainWorld ('clinicCashierAPI', {
 		if (ALLOWED_SEND_CHANNELS.includes(channel)) {
 			ipcRenderer.send(channel, data);
 		}
-		else 
+		else
 			throw new Error(`Unkown IPC Channel ${channel} detected in clinicCashierAPI`);
 	}
 });

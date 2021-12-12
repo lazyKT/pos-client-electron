@@ -7,7 +7,7 @@ const {
 	ipcMain
 } = require('electron');
 
-const { createReceiptWindow } = require('./receiptWindow');
+const { createClinicReciptWindow } = require('./clinicReceiptWindow');
 const { removeEventListeners } = require('../ipcHelper');
 
 
@@ -31,8 +31,7 @@ exports.createClinicCashierWindow = function (name, id) {
 
 
 		win.loadFile(path.join(__dirname, '../views/cashier/clinic_cashier.html'));
-		win.openDevTools();
-
+		// win.openDevTools();
 
 		win.on('ready-to-show', () => {
 			win.show();
@@ -40,7 +39,11 @@ exports.createClinicCashierWindow = function (name, id) {
 
 		win.on('close', () => {
 			if (win) {
+<<<<<<< HEAD
 				removeEventListeners(ipcMain, ["clinic-cashier-close"]);
+=======
+				removeEventListeners(ipcMain, ["clinic-cashier-close", "clinic-cashier-receipt"]);
+>>>>>>> e2bf46b32bce004d435b8d9b1a4529a893290b82
 				win = null;
 			}
 		});
@@ -50,8 +53,8 @@ exports.createClinicCashierWindow = function (name, id) {
 				win.close();
 		});
 
-		ipcMain.on('clinic-cashier-receipt', (event, data) => {
-			createReceiptWindow(win, data);
+		ipcMain.on('print-clinic-receipt', (event, data) => {
+			createClinicReciptWindow(win, data);
 		});
 	}
 }

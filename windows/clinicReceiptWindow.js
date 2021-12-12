@@ -1,66 +1,63 @@
 /**
- receipt window
- */
+ * Clinic Recipt Browser Window
+ **/
+const path = require('path');
+const os = require('os');
+const fs = require('fs');
+const {
+  BrowserWindow,
+  ipcMain,
+  dialog
+} = require ('electron');
 
- const path = require("path");
- const {
-   BrowserWindow,
-   ipcMain,
-   dialog
- } = require("electron");
- const fs = require("fs");
- const os = require("os");
-
- const { removeEventListeners } = require("../ipcHelper.js");
-
-
- let win
+const { removeEventListeners } = require('../ipcHelper');
 
 
-exports.createReceiptWindow = function (parentWindow, invoice) {
+let win
+
+
+exports.createClinicReciptWindow = function (parentWindow, invoice) {
 
   const PRINT_MODE_PRODUCTION = 0;
   const PRINT_MODE_TEST = 1;
 
-  if (!win) {
+  if (!win || win === null) {
+
     win = new BrowserWindow({
+      height: 700,
       width: 400,
-      height: 500,
       parent: parentWindow,
       show: false,
       frame: false,
       webPreferences: {
-       contextIsolation: true,
-       nodeIntegration: false,
-       preload: path.join(__dirname, "../preload_scripts/receiptPreload.js")
+        nodeIntegration: false,
+        contextIsolation: true,
+        preload: path.join(__dirname, '../preload_scripts/clinicReceiptPreload.js')
       }
     });
 
-    win.loadFile(path.join(__dirname, "../views/cashier/receipt.html"));
+    win.loadFile(path.join(__dirname, '../views/cashier/clinic_receipt.html'));
     // win.openDevTools();
 
-    // win.once("ready-to-show", () => win.show());
-
-    win.on("close", () => {
-      if (win) {
-        removeEventListeners(win.webContents, ["did-finish-load"]);
-        removeEventListeners(ipcMain, ["print"])
+    win.on('close', () => {
+      if (win !== null) {
+        removeEventListeners (ipcMain, ["print-clinic-invoice"]);
+        removeEventListeners (win.webContents, ["did-finish-load"]);
         win = null;
       }
     });
 
-    //console.log(invoice);
-    win.webContents.on("did-finish-load", () => {
+    win.webContents.on('did-finish-load', () => {
+      win.webContents.send("clinic-invoice", invoice);
 
-      win.webContents.send("invoice", invoice);
 
-      ipcMain.on("print", (event, printOptions) => {
-
+      ipcMain.on("print-clinic-invoice", (event, printOptions) => {
+        console.log(printOptions);
         const { name, mode } = printOptions;
 
         if (mode === PRINT_MODE_TEST) {
-          // print to PDF
-          const pdfPath = path.join(os.homedir(), 'Desktop', 'temp.pdf')
+          // test mode : print to PDF file
+          const pdfPath = path.join(os.homedir(), 'Desktop', 'temp.pdf');
           win.webContents.printToPDF({}).then(data => {
             console.log("Writing PDF ...");
             fs.writeFile(pdfPath, data, (error) => {
@@ -70,15 +67,15 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
             })
           }).catch(error => {
             console.log(`Failed to write PDF to ${pdfPath}: `, error)
-          })
+          });
         }
         else if (mode === PRINT_MODE_PRODUCTION) {
           // print with printer
-          if ((findPrinters(win.webContents.getPrinters(), printer)).length > 0) {
+          if ((findPrinters(win.webContents.getPrinters(), name)).length > 0) {
             // console.log('printer found', printer);
             const options = {
               silent: true,
-              deviceName: printer
+              deviceName: name
             }
 
             win.webContents.print(options, (success, errorType) => {
@@ -99,7 +96,7 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
           else {
             dialog.showMessageBox({
               title : "Printing Receipt",
-              message: `Error: Printer, ${printer} not found!`
+              message: `Error: Printer, ${name} not found!`
           })
             .then (() => {
               win.close();
@@ -107,13 +104,15 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
           }
         }
         else {
-          throw new Error ("Invalid Print Mode");
+          throw new Error ("Invalid Print Mode!");
         }
+
       });
+
     });
+
   }
 }
-
 
 
 function findPrinters (printerList, receiptPrinterName) {
