@@ -36,14 +36,14 @@ exports.createPEditWindow = function createPEditWindow(parentWindow, type, conte
 
 
     win.loadFile(path.join(__dirname, "../views/user/editPatient.html"));
-    win.openDevTools();
+    //win.openDevTools();
 
 
     win.once("ready-to-show", () => win.show());
 
     win.on("close", () => {
       if(win) {
-        removeEventListeners(ipcMain, ["dismiss-form-window", "from-data-finish"]);
+        removeEventListeners(ipcMain, ["dismiss-form-window", "from-data-finish","patient-form-finish"]);
         removeEventListeners(win.webContents, ["did-finish-load"]);
         win = null;
       }
@@ -65,7 +65,7 @@ exports.createPEditWindow = function createPEditWindow(parentWindow, type, conte
     })
 
     /* close form when the renderer process informs that the edit process is finished */
-    ipcMain.on("form-data-finish", (event, args) => {
+    ipcMain.on("patient-form-finish", (event, args) => {
       if(win) win.close();
       parentWindow.webContents.send("reload-data");
     });

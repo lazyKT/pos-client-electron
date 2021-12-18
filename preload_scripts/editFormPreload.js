@@ -20,7 +20,8 @@ const ALLOWED_SEND_CHANNELS = [
   "dismiss-form-window",
   "form-data-finish",
   "item-form-data-finish",
-  "dismiss-edit-item-form-window"
+  "dismiss-edit-item-form-window",
+  'patient-form-finish'
 ];
 
 

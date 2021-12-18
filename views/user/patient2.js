@@ -110,9 +110,24 @@ async function onKeyUp(event) {
       filterPatients(event);
 }
 
+function formatDate(input) {
+    console.log(input);
+    var d = new Date(input),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
 
 function populatePatientTable(empData, idx=1) {
-  const { _id,patientId, fullname, age, gender, mobile, address, allergies } = empData;
+  const { _id,patientId, fullname, birthday, gender, mobile, address, allergies } = empData;
   const patientTable = document.getElementById('patient-table');
 
   const row = patientTable.insertRow(idx);
@@ -126,7 +141,7 @@ function populatePatientTable(empData, idx=1) {
 
   firstColumn.innerHTML = patientId;
   secondColumn.innerHTML = fullname;
-  thirdColumn.innerHTML = age;
+  thirdColumn.innerHTML = formatDate(birthday);
   forthColumn.innerHTML = gender;
   fifthColumn.innerHTML = mobile;
   //sixthColumn.innerHTML = address;
@@ -559,23 +574,20 @@ async function createPatient(event) {
     event.preventDefault();
 
     const fullname = document.getElementById('fullname').value;
-    const dob = document.getElementById('inputBOD').value;
-    console.log(dob);
-    const age = calculateAge(dob);
-    console.log(age);
+    const birthday = document.getElementById('inputBOD').value;
     const gender = document.getElementById('gender').value;
     const mobile = document.getElementById('mobile').value;
     const address = document.getElementById('address').value;
     const allergies = document.getElementById('allergies').value;
 
-    if (!fullname || fullname === ''|| !age || age === ''|| !gender || gender === '' || !mobile || mobile === '' || !address || address === '' || !allergies || allergies === '') {
+    if (!fullname || fullname === ''|| !birthday || birthday === ''|| !gender || gender === '' || !mobile || mobile === '' || !address || address === '' || !allergies || allergies === '') {
       throw new Error ("Missing Required Inputs");
     }
 
     const data = {
       fullname,
       gender,
-      age,
+      birthday,
       mobile,
       address,
       allergies
@@ -589,11 +601,16 @@ async function createPatient(event) {
       },
       body: JSON.stringify(data)
     });
-
     if (response && response.ok) {
-      const json = await response.json();
-      window.api.send('form-data-finish', {method: 'CREATE', data: {fullname}, type: 'patient'});
+      const patient = await response.json();
+      showAlertModal(`${name}, is successfully created!`, "New Patient Created!", "success");
+      await reloadData({});
+      createPaginationButtons();
     }
+    // if (response && response.ok) {
+    //   const json = await response.json();
+    //   window.api.send('form-data-finish', {method: 'CREATE', data: {fullname}, type: 'patient'});
+    // }
     else {
       const { message } = await response.json();
       const errMessage = message ? `Error Creating New Patient. ${message}`
@@ -637,6 +654,7 @@ function removeAlertModal (e) {
   if (alertModal)
     alertModal.style.display = "none";
 }
+
 
 
 /***********************************************************************

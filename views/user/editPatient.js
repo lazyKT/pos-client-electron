@@ -44,31 +44,28 @@ editButton.addEventListener('click', async e => {
     const id = document.getElementById('id')?.value;
     const pId = document.getElementById('patientId')?.value;
     const fName = document.getElementById('fullname')?.value;
-    const age = document.getElementById('age')?.value;
+    const bd = document.getElementById('birthday')?.value;
     const gender= document.getElementById('gender')?.value;
     const mobile = document.getElementById("mobile")?.value;
     const address = document.getElementById("address")?.value;
     const allergies= document.getElementById('allergies')?.value;
 
-    if (!id || id === '' ||!pId || pId === '' ||!fullname || fullname === ''|| !age || age === ''|| !gender || gender === '' || !mobile || mobile === '' || !address || address === '' || !allergies || allergies === '') {
+    if (!id || id === '' ||!pId || pId === '' ||!fName || fName === ''|| !bd || bd === ''|| !gender || gender === '' || !mobile || mobile === '' || !address || address === '' || !allergies || allergies === '') {
       throw new Error ("Missing Required Inputs");
     }
 
     const response = await editPatientById(id, {
-      pId,
-      fullname,
-      age,
-      gender,
+      fullname : fName,
       mobile,
       address,
       allergies
     });
-
+    console.log(response);
     if (response && response.ok) {
       // update opreration successful
       // inform the main process that new data update is done
       console.log(await response.json());
-      window.editContentAPI.send('form-data-finish');
+      window.editContentAPI.send('patient-form-finish');
     }
     else {
       const { message } = await response.json();
@@ -97,7 +94,7 @@ deleteButton.addEventListener("click", async e => {
     const response = await deletePatientById (id);
 
     if (response && response.ok) {
-      window.editContentAPI.send('form-data-finish');
+      window.editContentAPI.send('patient-form-finish');
     }
     else {
       const { message } = await response.json();
@@ -142,18 +139,19 @@ function displayPatientData(emp) {
   const id = document.getElementById('id');
   const pId = document.getElementById('patientId');
   const fName = document.getElementById('fullname');
-  const age = document.getElementById('age');
+  const birthday = document.getElementById('birthday');
   const gender = document.getElementById("gender");
   const mobile = document.getElementById("mobile");
   const address = document.getElementById("address");
   const allergies = document.getElementById("allergies");
 
+ 
   const { fullName } = emp;
 
   id.value = emp._id;
   pId.value = emp.patientId;
   fName.value = emp.fullname;
-  age.value = parseInt(emp.age);
+  birthday.value = formatDate(emp.birthday);
   gender.value = emp.gender;
   mobile.value = emp.mobile;
   address.value = emp.address;
@@ -193,6 +191,23 @@ function toggleInputs (method) {
     genderSelect.setAttribute("disabled", true);
   }
 }
+
+function formatDate(input) {
+    console.log(input);
+    var d = new Date(input),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+ 
+
 
 
 /* Show error message */
@@ -238,6 +253,7 @@ async function editPatientById (id, data) {
         "Accept" : "application/json"
       },
       body: JSON.stringify(data)
+
     });
 
     return response;
