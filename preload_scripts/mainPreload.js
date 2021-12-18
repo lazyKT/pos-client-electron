@@ -16,7 +16,7 @@ const ALLOWED_SEND_CHANNELS = [
   'create-modal2',
   'user-data',
   'item-data',
-  'form-data-finish',
+  "form-data-finish",
   'export-csv',
   'user-logout',
   'patient-data',

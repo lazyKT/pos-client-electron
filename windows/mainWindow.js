@@ -12,7 +12,7 @@ const {
 
 const { createPFormWindow } = require("./newPatientFormWindow.js");
 const { createPEditWindow } = require("./createPatientEditWindow.js");
-
+const { createPatientWindow } = require("./PatientWindow.js");
 const { createCashierWindow } = require("./cashierWindow.js");
 const { createInventoryWindow } = require("./inventoryWindow.js");
 const { createFormWindow } = require("./formWindow.js");
@@ -22,7 +22,7 @@ const { createClinicCashierWindow } = require("./clinicCashierWindow.js");
 
 
 const userMangementURL = path.join(__dirname, "../views/user/user.html");
-const patientMgmtURL = path.join(__dirname, "../views/user/patient.html");
+const patientMgmtURL = path.join(__dirname, "../views/user/patient2.html");
 
 const applicationMenu = Menu.buildFromTemplate(require('../applicationMenu.js'));
 const AppConfig = require("../config");
@@ -78,7 +78,7 @@ exports.createMainWindow = function createMainWindow () {
       
         //win.loadFile(patientMgmtURL);
       loadUserWindows(args);
-      
+     //createPatientWindow(win, windowType);
       
     });
 
@@ -112,9 +112,7 @@ exports.createMainWindow = function createMainWindow () {
       createEditFormWindow(win, args.method, args._id);
     });
 
-    ipcMain.on("patient-data", (event, args) => {
-      createPEditWindow(win, args.method, args._id);
-    });
+    
 
 
     Menu.setApplicationMenu(applicationMenu);
@@ -146,7 +144,7 @@ function loadUserWindows({name, _id, page})
       win.loadFile(userMangementURL);
       break;
     case 'Patient' :
-      win.loadFile(patientMgmtURL);
+      createPatientWindow(name, _id);
       break;
     case 'Employee' :
       win.loadFile(userMangementURL);

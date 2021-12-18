@@ -36,7 +36,7 @@ exports.createPEditWindow = function createPEditWindow(parentWindow, type, conte
 
 
     win.loadFile(path.join(__dirname, "../views/user/editPatient.html"));
-    //win.openDevTools();
+    win.openDevTools();
 
 
     win.once("ready-to-show", () => win.show());

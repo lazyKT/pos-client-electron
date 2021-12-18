@@ -41,7 +41,7 @@ editButton.addEventListener('click', async e => {
 
   try {
 
-    const id = document.getElementById('_id')?.value;
+    const id = document.getElementById('id')?.value;
     const pId = document.getElementById('patientId')?.value;
     const fName = document.getElementById('fullname')?.value;
     const age = document.getElementById('age')?.value;
@@ -92,7 +92,7 @@ deleteButton.addEventListener("click", async e => {
     e.target.setAttribute("disabled", true);
     e.target.innerHTML = "Loading ...";
 
-    const id = document.getElementById("_id")?.value;
+    const id = document.getElementById("id")?.value;
 
     const response = await deletePatientById (id);
 
@@ -121,7 +121,7 @@ async function showPatient (id) {
 
     if (response && response.ok) {
       const emp = await response.json();
-      console.log(emp);
+      //console.log(emp);
       displayPatientData (emp);
     }
     else {
@@ -166,7 +166,7 @@ function toggleInputs (method) {
 
   inputs.forEach(
     input => {
-      if (input.getAttribute("id") != "_id") {
+      if (input.getAttribute("id") != "id") {
         if (method === "PUT")
           input.removeAttribute("readonly");
         else
