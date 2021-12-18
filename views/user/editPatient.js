@@ -55,10 +55,7 @@ editButton.addEventListener('click', async e => {
     }
 
     const response = await editPatientById(id, {
-      pId,
-      fullname,
-      age,
-      gender,
+      fullname: fName,
       mobile,
       address,
       allergies
@@ -223,7 +220,7 @@ async function getPatientById (id) {
     return response;
   }
   catch (error) {
-    
+
     console.error(error);
   }
 }
@@ -231,6 +228,7 @@ async function getPatientById (id) {
 
 async function editPatientById (id, data) {
   try {
+    console.log('data', data);
     const response = await fetch(`${serverUrl}/api/patients/${id}`, {
       method: "PUT",
       headers: {
