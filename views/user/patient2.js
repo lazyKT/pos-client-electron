@@ -22,7 +22,7 @@ window.onload = async () => {
     next = document.getElementById("next");
     const inputBOD = document.getElementById("inputBOD");
 
-    setMinAge(inputBOD); 
+    setMinAge(inputBOD);
 
     loadDataFromLocalStorage();
     displayLoginInformation();
@@ -31,7 +31,7 @@ window.onload = async () => {
     await createPaginationButtons();
   }
   catch (error) {
-    showErrorMessage(error);
+    showAlertModal(error.message, "Error!", "error");
   }
 
 }
@@ -89,7 +89,7 @@ async function changeNumPerPage (num) {
     limit = parseInt(num);
     console.log(limit);
     await reloadData({});
-    
+
     await createPaginationButtons();
   }
   catch (error) {
@@ -110,9 +110,24 @@ async function onKeyUp(event) {
       filterPatients(event);
 }
 
+function formatDate(input) {
+    console.log(input);
+    var d = new Date(input),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
 
 function populatePatientTable(empData, idx=1) {
-  const { _id,patientId, fullname, age, gender, mobile, address, allergies } = empData;
+  const { _id,patientId, fullname, birthday, gender, mobile, address, allergies } = empData;
   const patientTable = document.getElementById('patient-table');
 
   const row = patientTable.insertRow(idx);
@@ -121,22 +136,22 @@ function populatePatientTable(empData, idx=1) {
   const thirdColumn = row.insertCell(2);
   const forthColumn = row.insertCell(3);
   const fifthColumn = row.insertCell(4);
-  //const sixthColumn = row.insertCell(5);
-  const seventhColumn = row.insertCell(5);
+  const sixthColumn = row.insertCell(5);
 
   firstColumn.innerHTML = patientId;
   secondColumn.innerHTML = fullname;
-  thirdColumn.innerHTML = age;
+  thirdColumn.innerHTML = formatDate(birthday);
   forthColumn.innerHTML = gender;
   fifthColumn.innerHTML = mobile;
-  //sixthColumn.innerHTML = address;
-  
+
+  const actionDiv = document.createElement('div');
+
   /* edit button */
   const editBtn = document.createElement('button');
   editBtn.setAttribute('class', 'btn mx-1 btn-primary');
   editBtn.setAttribute('data-id', _id);
   editBtn.innerHTML = '<i class="fas fa-pen"></i>';
-  seventhColumn.appendChild(editBtn);
+  sixthColumn.appendChild(editBtn);
   //
   editBtn.addEventListener('click', e => {
     window.api.send('patient-data', {_id, method: 'PUT'});
@@ -146,7 +161,7 @@ function populatePatientTable(empData, idx=1) {
   viewBtn.setAttribute('class', 'btn mx-1 btn-info');
   viewBtn.setAttribute('data-id', _id);
   viewBtn.innerHTML = '<i class="fas fa-info-circle"></i>';
-  seventhColumn.appendChild(viewBtn);
+  sixthColumn.appendChild(viewBtn);
 
   viewBtn.addEventListener('click', e => {
     window.api.send('patient-data', {_id, method: 'GET'});
@@ -215,8 +230,6 @@ async function resetFilter () {
 /*Reload patient data*/
 async function reloadData() {
 
-  console.log("reload-data", reloadStatus);
-  //showErrorMessage(reloadStatus);
   if (reloadStatus === "reloading")
     return;
 
@@ -235,7 +248,7 @@ async function reloadData() {
       // if (emps.length === 0)
       //   showEmptyMessage();
       // else
-      
+
       emps.forEach( (emp, idx) => populatePatientTable(emp, idx + 1));
 
     }
@@ -313,7 +326,7 @@ function showErrorMessage (msg) {
   const dataContainer = document.getElementById('data-container');
   dataContainer.appendChild(div);
 
-  loadingSpinner.style.display = "none";
+  if (loadingSpinner) loadingSpinner.style.display = "none";
   pagination.style.display = "none";
 }
 
@@ -356,11 +369,11 @@ async function createPaginationButtons () {
         totalPatients = parseInt(count.count);
 
         numPages = totalPatients%limit === 0 ? totalPatients/limit : Math.floor(totalPatients/limit) + 1;
-   
+
       }
 
       if (limit === 0) {
-      	
+
         removePaginationItems();
 
       }
@@ -517,7 +530,7 @@ function togglePaginationButtons () {
 
 
 /**
-# Set Minimun Expiry Date to next five months // M - check if needed 
+# Set Minimun Expiry Date to next five months // M - check if needed
 **/
 function setMinAge (input) {
   const today = new Date();
@@ -526,10 +539,10 @@ function setMinAge (input) {
   let yyyy = today.getFullYear();
   if(dd<10){
     dd='0'+dd
-  } 
+  }
   if(mm<10){
     mm='0'+mm
-  } 
+  }
   let minDate = yyyy+'-'+mm+'-'+dd;
   input.setAttribute("max", minDate);
   }
@@ -541,7 +554,7 @@ function calculateAge(input)
   let age = today.getFullYear() - birthDate.getFullYear();
   console.log(age);
   let m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) 
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate()))
     {
         age--;
     }
@@ -559,23 +572,20 @@ async function createPatient(event) {
     event.preventDefault();
 
     const fullname = document.getElementById('fullname').value;
-    const dob = document.getElementById('inputBOD').value;
-    console.log(dob);
-    const age = calculateAge(dob);
-    console.log(age);
+    const birthday = document.getElementById('inputBOD').value;
     const gender = document.getElementById('gender').value;
     const mobile = document.getElementById('mobile').value;
     const address = document.getElementById('address').value;
     const allergies = document.getElementById('allergies').value;
 
-    if (!fullname || fullname === ''|| !age || age === ''|| !gender || gender === '' || !mobile || mobile === '' || !address || address === '' || !allergies || allergies === '') {
+    if (!fullname || fullname === ''|| !birthday || birthday === ''|| !gender || gender === '' || !mobile || mobile === '' || !address || address === '' || !allergies || allergies === '') {
       throw new Error ("Missing Required Inputs");
     }
 
     const data = {
       fullname,
       gender,
-      age,
+      birthday,
       mobile,
       address,
       allergies
@@ -589,23 +599,37 @@ async function createPatient(event) {
       },
       body: JSON.stringify(data)
     });
-
     if (response && response.ok) {
-      const json = await response.json();
-      window.api.send('form-data-finish', {method: 'CREATE', data: {fullname}, type: 'patient'});
+      const patient = await response.json();
+      showAlertModal(`${fullname}, is successfully created!`, "New Patient Created!", "success");
+      // clear form input
+      clearFormInputs();
+      await reloadData({});
+      createPaginationButtons();
     }
     else {
       const { message } = await response.json();
       const errMessage = message ? `Error Creating New Patient. ${message}`
                             : "Error Creating New Patient. code 300";
 
-      showErorrMessage(errMessage);
+      showAlertModal(errMessage, "Error", "error");
     }
   }
   catch (error) {
     console.log('Error Fetching Create-New-Patient Response', error);
-    //showErorrMessage(error);
+    showAlertModal(error.message, "Error", "error");
   }
+}
+
+
+// clear create patients form inputs
+function clearFormInputs () {
+  (document.getElementById('fullname')).value = '';
+  (document.getElementById('inputBOD')).value = '';
+  (document.getElementById('gender')).value = 'none';
+  (document.getElementById('mobile')).value = '';
+  (document.getElementById('address')).value = '';
+  (document.getElementById('allergies')).value = '';
 }
 
 
@@ -637,6 +661,7 @@ function removeAlertModal (e) {
   if (alertModal)
     alertModal.style.display = "none";
 }
+
 
 
 /***********************************************************************

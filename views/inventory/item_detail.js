@@ -192,13 +192,10 @@ function displayMedicines (med, idx) {
     const sixthColumn = row.insertCell(5);
     const seventhColumn = row.insertCell(6);
 
+    firstColumn.innerHTML = productNumber
+                      ? `<div style="width: 200px;">${productNumber}</div>` 
+                      : '0000xxxx';
     secondColumn.innerHTML = name;
-    if (productNumber) {
-      firstColumn.innerHTML = productNumber;
-    }
-    else {
-      firstColumn.innerHTML = "000000";
-    }
     thirdColumn.innerHTML = (new Date(expiry)).toLocaleDateString();
     forthColumn.innerHTML = qty;
     fifthColumn.innerHTML = price;

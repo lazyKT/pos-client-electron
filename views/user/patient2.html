@@ -1,5 +1,5 @@
 <!-- patient layout -->
--<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
@@ -20,7 +20,7 @@
         </script>
   </head>
 <body>
-  
+
    <header class="d-flex justify-content-between p-2 bg-primary">
       <h4 class="text-white" id='content-title'>Patients</h4>
       <button class="btn btn-primary" id="logout" onclick="logout()">
@@ -34,7 +34,7 @@
       <span>Login Time:&nbsp;<big id="login-time"></big></span>
     </div>
 
-    
+
     <div class="container">
 
     <!-- contents -->
@@ -56,7 +56,7 @@
               Patients
             </button>
           </li>
-          
+
           <li class="nav-item" role="presentation">
             <button
               class="nav-link"
@@ -101,7 +101,7 @@
                     <li onclick="changeNumPerPage(0)"><a class="dropdown-item" href="#">All</a></li>
                   </ul>
 
-  
+
 
                   <button class="btn btn-warning text-white mx-1" id="refresh-page" onclick="refreshPage()">
                     <i class="fas fa-sync-alt"></i>
@@ -111,27 +111,28 @@
               </div>
             </div>
 
-  
+
 
             <div class="card my-2 box" width = 'auto'>
               <div class="card-body" id="data-container">
                 <table class="table" id="patient-table">
                   <thead>
-                    <col style="width: 30%;" />
+                    <col style="width: 15%;" />
                     <col style="width: 20%;" />
                     <col style="width: 15%;" />
-                    <col style="width: 15%">
+                    <col style="width: 15%;" />
                     <col style="width: 20%;" />
+                    <col style="width: 15%;" />
                     <tr class="bg-primary text-white p-1">
                       <th scope="col">ID</th>
                       <th scope="col">Name</th>
-                      <th scope="col">Age</th>
-                     <th scope="col">Gender</th>
-                    <th scope="col">Mobile No</th>
-                    <th scope="col">Action(s)</th>
+                      <th scope="col">Birthday</th>
+                      <th scope="col">Gender</th>
+                      <th scope="col">Mobile No</th>
+                      <th scope="col">Action(s)</th>
                     </tr>
                   </thead>
-                  
+
                 </table>
                 <!-- loading spinner -->
                 <div class="m-auto p-2 w-25 text-center" id="loading-spinner">
@@ -139,7 +140,7 @@
                     <span class="sr-only">Loading...</span>
                   </div>
                 </div>
-                
+
 
                   </div>
                   <nav>
@@ -154,55 +155,58 @@
                   </nav>
               </div>
             </div>
-          
+
           <!-- end of patients tab -->
 
 
           <!-- create tab -->
           <div class="tab-pane fade" id="delete" role="tabpanel" aria-labelledby="delete-tab">
 
-          
 
-            <!-- create/add meds -->
+
+            <!-- create new patient -->
             <div class="card my-2 box" width = 'auto'>
               <div class="card-body">
-                <p><b>Create New Patient</b></p>
+                <h5>Register New Patient</h5>
                 <p style="color:red" id="error-create-item"></p>
                 <form>
-                  
-                    <div class="form-group col-md-3">
+
+                    <div class="form-group col-md-3 mb-2">
                       <label for="fullname">Full Name</label>
                       <input type="text" class="form-control" id="fullname" required>
                     </div>
-                    <div class="form-group col-md-3">
-                        <label for="inputBOD">Age</label>
-                        <input type="date" class="form-control" id="inputBOD" required>
+                    <div class="form-group col-md-3 mb-2">
+                        <label for="inputBOD">Birthday</label>
+                        <input type="date" class="form-control" id="inputBOD" required />
                       </div>
-                    <div class="form-group col-md-2">
+                    <div class="form-group col-md-3 mb-2">
                         <label for="gender">Gender</label>
-                        <select id="gender" class="form-control" required>
+                        <select id="gender" class="form-control" required />
                           <option selected></option>
                           <option value="Male">Male</option>
                           <option value="Female">Female</option>
                           <option value="Others">Others</option>
                         </select>
                     </div>
-                    <div class="form-group col-md-3">
+                    <div class="form-group col-md-3 mb-2">
                       <label for="mobile">Mobile</label>
-                      <input type="text" class="form-control" id="mobile" required>
+                      <input type="text" class="form-control" id="mobile" required />
                     </div>
-                    <div class="form-group col-md-3">
-                      <label for="address">Address</label>
-                      <input type="text" class="form-control" id="address" required>
+
+                    <div class="mb-2">
+                      <label for="exampleFormControlTextarea1" class="form-label">Address</label>
+                      <textarea class="form-control w-50" id="address" rows="2" palceholder="Address"></textarea>
                     </div>
-                   
-                      <div class="form-group col-md-5">
-                        <label for="allergies">Allergies</label>
-                        <input type="text" class="form-control" id="allergies" required>
-                      </div>
-                  
-                    <a type="submit" class="btn btn-primary mt-2"
-                      id="createItem" onclick="createPatient(event)">Submit</a>
+
+                    <div class="mb-2">
+                      <label for="exampleFormControlTextarea1" class="form-label">Allergies</label>
+                      <textarea class="form-control w-50" id="allergies" rows="2" palceholder="Allergies"></textarea>
+                    </div>
+
+                    <a type="submit" class="btn btn-primary mb-2"
+                      id="createItem" onclick="createPatient(event)">
+                      Create
+                    </a>
 
                 </form>
               </div>
@@ -216,7 +220,7 @@
     </div>
 
   </div>
-  <!--alert model --> 
+  <!--alert model -->
  <div id="alert-modal" class="my-alert-modal">
     <div class="my-alert-modal-content" id="alert-modal-content">
       <div id="alert-modal-header" class="p-2">

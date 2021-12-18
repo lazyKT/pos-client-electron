@@ -41,7 +41,7 @@ exports.createPatientWindow = function createPatientWindow () {
 
 
   win.loadFile(path.join(__dirname, "../views/user/patient2.html"));
-  win.openDevTools();
+  // win.openDevTools();
 
   win.once("ready-to-show", () => {
     win.maximize();
@@ -71,9 +71,9 @@ exports.createPatientWindow = function createPatientWindow () {
   ipcMain.on ("form-data-finish", (event, args) => {
       if (win) win.close();
       // reload user
-      //parentWindow.webContents.send("reload-data", "");
+    parentWindow.webContents.send("reload-data", "");
     });
-  
+
 }
 
 
