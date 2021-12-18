@@ -30,8 +30,10 @@ window.onUnload = () => window.api.removeListeners();
 // request for login window to go into new page
 function requestLoginWindow(pageName) {
   //console.log("PageName", pageName);
-
-  showLoginModal(pageName);
+  if (pageName)
+    showLoginModal(pageName);
+  else
+    showComingSoonModal();
 }
 
 
@@ -98,10 +100,13 @@ async function handleRoutesAfterLogin (event, pageName, employee) {
       else
         showErrorMessage("Error. Access Denied!");
     }
-    else {
+    else if (pageName === 'Clinic' || pageName === 'Pharmacy'){
       closeLoginModal(event);
       saveInLocalStorage({name: employee.fullName, _id: employee._id});
       window.api.send("login", {name: employee.fullName, _id: employee._id, page: pageName});
+    }
+    else {
+      showComingSoonModal();
     }
   }
   catch (error) {
@@ -125,6 +130,10 @@ function showLoginModal (pageName) {
   loginModal.style.display = "flex";
   // populate content selection tag based on pageName
   populatePageSelection (pageName);
+}
+
+function showComingSoonModal () {
+  (document.getElementById('info-modal')).style.display = "flex";
 }
 
 
@@ -206,6 +215,11 @@ function closeLoginModal (event) {
   loginModal.style.display="none";
   clearInputs();
   hideErrorMessage();
+}
+
+
+function closeInfoModal () {
+  (document.getElementById('info-modal')).style.display = 'none';
 }
 
 

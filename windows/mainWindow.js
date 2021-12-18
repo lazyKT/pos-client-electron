@@ -47,11 +47,11 @@ exports.createMainWindow = function createMainWindow () {
     });
 
     const mainMenuURL = path.join(__dirname, "../views/main.html");
-    
+
     //
 
     win.loadFile(mainMenuURL);
-    //win.openDevTools();
+    win.openDevTools();
 
     win.once("ready-to-show", () => win.show() );
 
@@ -75,11 +75,11 @@ exports.createMainWindow = function createMainWindow () {
 
 
     ipcMain.on("login-user", (e, args) => {
-      
+
         //win.loadFile(patientMgmtURL);
       loadUserWindows(args);
      //createPatientWindow(win, windowType);
-      
+
     });
 
 
@@ -112,7 +112,7 @@ exports.createMainWindow = function createMainWindow () {
       createEditFormWindow(win, args.method, args._id);
     });
 
-    
+
 
 
     Menu.setApplicationMenu(applicationMenu);

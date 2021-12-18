@@ -22,7 +22,7 @@ exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, c
 
   if (!win) {
    win = new BrowserWindow ({
-     width: 1000,
+     width: 1100,
      height: 800,
      parent: parentWindow,
      modal: true,
@@ -36,7 +36,7 @@ exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, c
    });
 
    win.loadFile(path.join(__dirname, "../views/inventory/item_detail.html"));
-   win.openDevTools();
+   // win.openDevTools();
 
    win.once("ready-to-show", () => win.show());
 
@@ -58,18 +58,3 @@ exports.createDetailFormWindow = function createDetailFormWindow(parentWindow, c
 
   }
 }
-
- // function removeEventListeners (listener, channels) {
- //   try {
- //     channels.forEach(
- //       channel => {
- //         const func = listener.listeners(channel)[0];
- //         if (func)  listener.removeListener(channel, func);
- //         console.log(`${channel} removed from detailFormWindow`);
- //       }
- //     );
- //   }
- //   catch (error) {
- //     console.error("Error removing Event Listeners at detailFormWindow", error);
- //   }
- // }
