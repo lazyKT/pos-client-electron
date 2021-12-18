@@ -34,6 +34,7 @@ let win
      });
 
      win.loadFile(path.join(__dirname, "../views/inventory/edit_show_item.html"));
+     win.openDevTools();
 
      win.once("ready-to-show", () => win.show());
 

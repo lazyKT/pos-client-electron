@@ -46,7 +46,7 @@
           <div
             class="col menu-item card mx-1"
             id="inventory"
-            onclick="requestLoginWindow('service')">
+            onclick="requestLoginWindow()">
             <div class="card-body">
               <i class="fas fa-file-medical-alt"></i>
               <p>Services</p>
@@ -59,7 +59,7 @@
           <div
             class="col order-1 menu-item card mx-1"
             id="setting"
-            onclick="requestLoginWindow('bookings')">
+            onclick="requestLoginWindow()">
             <div class="card-body">
               <i class="fas fa-clipboard-list"></i>
               <p>Bookings</p>
@@ -67,7 +67,7 @@
           </div>
           <div class="col order-5 menu-item card mx-1"
           id="setting"
-          onclick="requestLoginWindow('sales')">
+          onclick="requestLoginWindow()">
             <div class="card-body">
               <i class="fas fa-chart-line"></i>
               <p>Sales</p>
@@ -113,6 +113,16 @@
           <button id="login" onclick="loginUserToUserPannel(event)" class="btn btn-primary w-100 my-1">Login</button>
           <button id="login-cancel" onclick="closeLoginModal(event)" class="btn btn-outline-secondary w-100 my-1">Cancel</button>
         </form>
+      </div>
+    </div>
+
+    <!-- coming soon modal -->
+    <div class="login-modal-container" id="info-modal">
+      <div class="login-modal">
+        <h4>Coming Soon :)</h4>
+        <button class="btn btn-secondary my-2" id="dismiss-info-modal" onclick="closeInfoModal()">
+          Dismiss
+        </button>
       </div>
     </div>
 
