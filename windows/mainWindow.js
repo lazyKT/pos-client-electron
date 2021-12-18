@@ -51,7 +51,7 @@ exports.createMainWindow = function createMainWindow () {
     //
 
     win.loadFile(mainMenuURL);
-    // win.openDevTools();
+    //win.openDevTools();
 
     win.once("ready-to-show", () => win.show() );
 
