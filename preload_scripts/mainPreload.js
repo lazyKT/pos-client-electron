@@ -13,12 +13,15 @@ const ALLOWED_SEND_CHANNELS = [
   'remove-login-event',
   'logout',
   'create-modal',
+  'create-modal2',
   'user-data',
   'item-data',
-  'form-data-finish',
+  "form-data-finish",
   'export-csv',
   'user-logout',
+  'patient-data',
   "close-setting",
+  "patient-form-finish"
 ];
 
 const ALLOWED_RECEIVED_CHANNELS = [
