@@ -5,11 +5,11 @@ let limit = 10;
 let page = 1;
 let order = 1;
 
-
-let  totalPatients, numPages; //M - removed medTags, totalTags,
+let sort = 'fullname';
+let  totalPatients, numPages; 
 let serverURL, empName;
 let filtering = false;
-//let pagination, previous, next,loadingSpinner;
+
 
 
 // DOM Nodes
@@ -17,8 +17,7 @@ window.onload = async () => {
 
   try {
     const loadingSpinner = document.getElementById("loading-spinner");
-    // pagination = document.getElementById("pagination");
-    // previous = document.getElementById("previous");
+   
     next = document.getElementById("next");
     const inputBOD = document.getElementById("inputBOD");
 
@@ -169,7 +168,7 @@ function populatePatientTable(empData, idx=1) {
 }
 
 
-/* filter user data */
+/* filter patient data */
 async function filterPatients () {
   const q = document.getElementById('search-input').value;
 
@@ -179,6 +178,7 @@ async function filterPatients () {
   try {
     filtering = true;
     const response = await searchPatients(q);
+
 
     if (response && response.ok) {
       const patient = await response.json();
@@ -271,7 +271,7 @@ async function reloadData() {
 /**
 # Display Search Results
 **/
-/** display search results */
+
 function displayFilteredResults(results) {
   // get table rows from the current data table
   const oldData = document.querySelectorAll('tr');
@@ -530,7 +530,7 @@ function togglePaginationButtons () {
 
 
 /**
-# Set Minimun Expiry Date to next five months // M - check if needed
+# Set Minimun Expiry Date to next five months 
 **/
 function setMinAge (input) {
   const today = new Date();
@@ -564,7 +564,7 @@ function calculateAge(input)
 
 
 /**
-# Create or Add Medicines
+# Create Patient
 **/
 async function createPatient(event) {
   try {
@@ -670,7 +670,7 @@ function removeAlertModal (e) {
 
 
 
-async function getPatientsCount () { //M - need to update API
+async function getPatientsCount () { 
   try {
     const response = await fetch(`${serverURL}/api/patients/count`, {
       method: "GET",
@@ -688,24 +688,33 @@ async function getPatientsCount () { //M - need to update API
 }
 
 
+/**
+# Fetch Patients with Pagination Properties
+**/
 async function fetchPatients () {
   try {
-    const response = await fetch(`${serverURL}/api/patients`, {
+    let url = `${serverURL}/api/patients?page=${page}&limit=${limit}&order=${order}&sort=${sort}`;
+
+    if (limit === 0)
+      url = `${serverURL}/api/patients?limit=0&order=${order}&sort=${sort}`;
+
+    const response = await fetch(url, {
       method: "GET",
       headers: {
-        "Content-Type" : "application/json",
-        "Accept" : "application/json"
+        "Content-Type": "application/json",
+        "Accept" : "application.json"
       }
     });
 
     return response;
   }
   catch (error) {
-    console.error(error);
+    console.error("Error Getting Medicines Patients/n", error);
   }
 }
 
-/** Search Meds Patients by Keyword **/
+
+/** Search Patients by Keyword **/
 async function searchPatients (q) {
   try {
     const response = await fetch(`${serverURL}/api/patients/search?q=${q}`, {

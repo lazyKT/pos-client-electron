@@ -1,5 +1,5 @@
 /**
- Inventory Window
+Patient Window
  **/
 
 const path = require("path");
@@ -41,7 +41,7 @@ exports.createPatientWindow = function createPatientWindow () {
 
 
   win.loadFile(path.join(__dirname, "../views/user/patient2.html"));
-  // win.openDevTools();
+  //win.openDevTools();
 
   win.once("ready-to-show", () => {
     win.maximize();

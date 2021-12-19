@@ -32,7 +32,7 @@ cancelButton.addEventListener('click', () => {
 })
 
 
-// edit/update user
+// edit/update patient
 editButton.addEventListener('click', async e => {
 
   e.preventDefault();
@@ -193,6 +193,7 @@ function toggleInputs (method) {
   }
 }
 
+/* To convert the input data to yyyy-mm-dd format*/
 function formatDate(input) {
     console.log(input);
     var d = new Date(input),
@@ -225,7 +226,7 @@ function showErrorMessage(message) {
   errorDiv.appendChild(errorNode);
 }
 
-
+/* get patients data by id*/
 async function getPatientById (id) {
   try {
     const response = await fetch(`${serverUrl}/api/patients/${id}`, {
@@ -244,7 +245,7 @@ async function getPatientById (id) {
   }
 }
 
-
+/* edit patient data by id*/
 async function editPatientById (id, data) {
   try {
     const response = await fetch(`${serverUrl}/api/patients/${id}`, {
@@ -264,7 +265,7 @@ async function editPatientById (id, data) {
   }
 }
 
-
+/* delete patient data by id */
 async function deletePatientById (id){
   try {
     const response = await fetch(`${serverUrl}/api/patients/${id}`, {
