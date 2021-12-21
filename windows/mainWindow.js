@@ -15,6 +15,7 @@ const { createPEditWindow } = require("./createPatientEditWindow.js");
 const { createPatientWindow } = require("./PatientWindow.js");
 const { createCashierWindow } = require("./cashierWindow.js");
 const { createInventoryWindow } = require("./inventoryWindow.js");
+const { createBookingsWindow } = require("./bookingsWindow.js");
 const { createFormWindow } = require("./formWindow.js");
 
 const { createEditFormWindow } = require("./editFormWindow.js");
@@ -132,6 +133,9 @@ function openWindow ({name, _id, page}) {
       break;
     case 'Inventory' :
       createInventoryWindow();
+      break;
+    case 'Bookings' :
+      createBookingsWindow(name, _id);
       break;
     default :
       throw new Error ('Unknown Page Name!');
