@@ -33,7 +33,7 @@
  
  
    win.loadFile(path.join(__dirname, "../views/bookings/bookings.html"));
-   // win.openDevTools();
+   win.openDevTools();
  
    win.once("ready-to-show", () => {
      win.maximize();

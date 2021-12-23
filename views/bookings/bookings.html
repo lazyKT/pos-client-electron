@@ -3,7 +3,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>Patient Data</title>
+    <title>Bookings</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
@@ -11,11 +11,11 @@
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous">
     <!-- <link rel="stylesheet" href="main.css"> -->
-    <link rel="stylesheet" href="patient.css">
+    <link rel="stylesheet" href="bookings.css">
+    <script src="bookings.js" data-name="bookings"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!-- JavaScript Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-    <script src="patient2.js" data-name="patient"></script>
   </head>
 
   <body>
@@ -41,7 +41,7 @@
             <li class="nav-item" role="presentation">
               <button
                 class="nav-link active"
-                id="bookingsTable"
+                id="bookingsTable-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#bookingsTable"
                 type="button"
@@ -55,7 +55,7 @@
             <li class="nav-item" role="presentation">
               <button
                 class="nav-link"
-                id="createBookings"
+                id="createBookings-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#createBookings"
                 type="button" 
@@ -69,7 +69,7 @@
             <li class="nav-item" role="presentation">
                 <button
                   class="nav-link"
-                  id="overview"
+                  id="overview-tab"
                   data-bs-toggle="tab"
                   data-bs-target="#overview"
                   type="button" 
@@ -184,7 +184,7 @@
                             </div>
 
                             <div class="form-group col-md-3 mb-2">
-                                <label for="bookingTime">Gender</label>
+                                <label for="bookingTime">Booking Time</label>
                                 <select id="bookingTime" class="form-control" required />
                                   <option selected></option>
                                   <option value="700am">7:00am</option>
@@ -198,10 +198,10 @@
                                 <label for="assignedTo">Assigned To</label>
                                 <input type="text" class="form-control" id="assignedTo" required>
                             </div>
-
+                            
                             <div class="form-group col-md-3 mb-2">
-                                <label for="assignedTo">Assigned To</label>
-                                <input type="text" class="form-control" id="assignedTo" required>
+                                <label for="serviceName">Service</label>
+                                <input type="text" class="form-control" id="service" required>
                             </div>
 
                             <div class="form-group col-md-3 mb-2">
@@ -209,9 +209,31 @@
                                 <input type="text" class="form-control" id="remarks" required>
                             </div>
 
+                            <div class="form-group col-md-3 mb-2">
+                                <button class="btn btn-primary mx-2" id="createBookingButton" onclick="">
+                                    Create
+                                </button>
+                                <button class="btn btn-primary mx-2" id="clearFields" onclick="">
+                                    Clear all
+                                </button>
+                            </div>
                           </form>
                       </div>
                   </div>
+              </div>
+              <!-- overview bookings -->
+              <div class="tab-pane fade" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                <div class="card my-2 box" width="auto">
+                    <div class="card-body">
+                        <form>
+                            <div class="form-group col-md-3 mb-2">
+                                <label for="overviewServiceName">Service</label>
+                                <input type="text" class="form-control" id="overviewServiceName" required>
+                            </div>                            
+                        </form>
+                    
+                    </div>
+                </div>
               </div>
           </div>
         </div>
