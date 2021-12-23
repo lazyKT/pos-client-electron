@@ -1,5 +1,5 @@
 /**
- another form window to edit/show user data
+ another form window to edit/show patient data
  **/
 const path = require("path");
 const {

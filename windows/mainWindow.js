@@ -10,7 +10,7 @@ const {
   session
 } = require('electron');
 
-const { createPFormWindow } = require("./newPatientFormWindow.js");
+
 const { createPEditWindow } = require("./createPatientEditWindow.js");
 const { createPatientWindow } = require("./PatientWindow.js");
 const { createCashierWindow } = require("./cashierWindow.js");
@@ -103,9 +103,6 @@ exports.createMainWindow = function createMainWindow () {
       createFormWindow(win, windowType);
     });
 
-    ipcMain.on('create-modal2', (e, windowType) => {
-      createPFormWindow(win, windowType);
-    });
 
 
     // open edit form
