@@ -7,7 +7,8 @@ const {
   
   
   const ALLOWED_SEND_CHANNELS = [
-    'login'
+    'login',
+    'logout'
   ];
   
   const ALLOWED_RECEIVED_CHANNELS = [
