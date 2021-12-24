@@ -2,12 +2,13 @@
 # Booking Scripts
 **/
 
-let serverUrl, empName;
+let serverUrl, empName, empId;
 const loadingSpinner = document.getElementById('loading-spinner');
 const loadingSpinner2 = document.getElementById('loading-spinner-create-booking');
 const bookingDateInput = document.getElementById('booking-date');
 const bookingInfoInputGroup = document.getElementById('booking-info-inputs');
 const errorAlertCreateBooking = document.getElementById('error-alert-create-booking');
+const createBookingButton = document.getElementById('create-booking-btn');
 
 
 window.onload = async () => {
@@ -20,6 +21,8 @@ window.onload = async () => {
     displayLoginInformation ();
 
     await fetchAllBookings();
+
+    await fetchServicesFromServer();
   }
   catch (error) {
     console.error(error);
@@ -34,6 +37,25 @@ window.onload = async () => {
 }
 
 
+async function fetchServicesFromServer () {
+  try {
+    const response = await fetchServices();
+
+    if (response && response.ok) {
+      const services = await response.json();
+
+      displayServices(services);
+    }
+    else {
+      const errorMessage = await getErrorMessageFromResponse(response);
+      showCreateBookingErrorAlert(errorMessage);
+    }
+  }
+  catch (error) {
+    showCreateBookingErrorAlert(error.message);
+  }
+}
+
 
 /*=============================================================
 ====================== Create Bookings ========================
@@ -41,7 +63,6 @@ window.onload = async () => {
 
 bookingDateInput.addEventListener('change', async (e) => {
   try {
-    console.log('booking date', e.target.value);
     if (e.target.value && e.target.value !== '') {
 
       loadingSpinner2.style.display = 'block'; // show loading spinner
@@ -59,13 +80,13 @@ bookingDateInput.addEventListener('change', async (e) => {
       else {
         const errorMessage = await getErrorMessageFromResponse(response);
         console.error(errorMessage);
-        showCreateBookingErrorAlert(errorMessage);
+        showCreateBookingAlert(errorMessage);
       }
     }
   }
   catch (error) {
     console.error(error.message);
-    showCreateBookingErrorAlert(error.message);
+    showCreateBookingAlert(error.message);
   }
   finally {
     loadingSpinner2.style.display = 'none'; // hide loading spinner
@@ -79,6 +100,8 @@ function displayBookingTimeSlots (slots) {
   if (!timeSlotSelect)
     throw new Error ('Time Slot Select Not Found!');
 
+  clearOptionsFromSelect (timeSlotSelect);
+
   slots.forEach( slot => {
     const option = document.createElement('option');
     option.setAttribute('value', slot._id);
@@ -88,9 +111,92 @@ function displayBookingTimeSlots (slots) {
 }
 
 
+function displayServices (services) {
+  const servicesSelect = document.getElementById('service-select');
+
+  if (!servicesSelect)
+    throw new Error ('Service Select Not Found!');
+
+  clearOptionsFromSelect (servicesSelect);
+
+  services.forEach( service => {
+    const option = document.createElement('option');
+    option.setAttribute('value', service._id);
+    option.innerHTML = service.name;
+    servicesSelect.appendChild(option);
+  });
+}
+
+
+createBookingButton.addEventListener('click', async (e) => {
+  try {
+    e.preventDefault();
+
+    const bookingDate = bookingDateInput.value;
+    const patientName = (document.getElementById('patient-name'))?.value;
+    const patientContact = (document.getElementById('patient-contact'))?.value;
+    const serviceId = (document.getElementById('service-select'))?.value;
+    const timeSlot = (document.getElementById('time-slots'))?.value;
+    const assignedStaffName = (document.getElementById('staff-name'))?.value;
+
+    if ((new Date(bookingDate)) < Date.now()) {
+      throw new Error('Booking Date Must be advance 1 day from now!');
+    }
+
+    if (!patientName || patientName === '' || !patientContact || patientContact === '')
+      throw new Error ('Patient Name and Contact is Required.*');
+
+    if (!serviceId || serviceId === -1 || !assignedStaffName || assignedStaffName === '')
+      throw new Error ('Service and Assigned Staff must not be empty!');
+
+    if (!timeSlot || timeSlot === -1)
+      throw new Error ('Invalid Booking Time Slot!');
+
+    let booking = createBookingObject ({
+      bookingDate, timeSlot, serviceId, patientName, patientContact, assignedStaffName
+    });
+
+    console.log(booking);
+
+    const response = await createNewBooking(booking);
+
+    if (response && response.ok) {
+      let booking = await response.json();
+
+      clearCreateBookingInputs();
+
+      showCreateBookingAlert('New Booking Created', type='info');
+
+      bookingInfoInputGroup.style.display = 'none';
+    }
+    else {
+      const errorMessage = await getErrorMessageFromResponse(response);
+      showCreateBookingAlert (errorMessage);
+    }
+  }
+  catch (error) {
+    showCreateBookingAlert (error.message);
+  }
+});
+
+
+/* clear all inputs */
+function clearCreateBookingInputs () {
+  const inputs = document.querySelectorAll('[data-type]');
+
+  inputs.forEach( i => i.value = '');
+}
+
+
 /*=============================================================
 ======================= All Bookings ==========================
 =============================================================*/
+
+function refreshAllBookingData () {
+  window.location.reload();
+}
+
+
 async function fetchAllBookings () {
   try {
     const response = await fetchAllBookingsRequest();
@@ -123,7 +229,7 @@ function displayAllBookings (bookings) {
     createTableCell(row, 0, booking.bookingId);
     createTableCell(row, 1, booking.patientName);
     createTableCell(row, 2, booking.patientContact);
-    createTableCell(row, 3, booking.bookingDate);
+    createTableCell(row, 3, (new Date(booking.bookingDate)).toLocaleDateString());
     createTableCell(row, 4, booking.bookingTime);
     createTableCell(row, 5, booking.serviceName);
     createTableCell(row, 6, booking.assignedStaffName);
@@ -139,6 +245,11 @@ function displayAllBookings (bookings) {
       row.style.color = 'black';
       row.style.cursor = 'default';
     });
+
+    row.addEventListener('click', e => {
+      console.log('view booking details for booking id : ', booking._id);
+    });
+
   });
 }
 
@@ -175,10 +286,17 @@ function showErrorAlert (message) {
 }
 
 
-function showCreateBookingErrorAlert (message) {
+function showCreateBookingAlert (message, type='error') {
   if (!errorAlertCreateBooking)
     throw new Error('Error: Error Alert at Create Booking Not Found!');
+
   errorAlertCreateBooking.style.display = 'block';
+
+  if (type === 'error')
+    errorAlertCreateBooking.setAttribute('class', 'alert alert-danger');
+  else
+    errorAlertCreateBooking.setAttribute('class', 'alert alert-info');
+
   errorAlertCreateBooking.innerHTML = message;
 }
 
@@ -202,6 +320,7 @@ function loadDataFromLocalStorage () {
   if (!emp || emp === null || !emp.name || emp.name === null)
     throw new Error ("Application Error: Failed to fetch Login User!");
   empName = emp.name;
+  empId = emp._id;
 }
 
 
@@ -229,6 +348,14 @@ function setMinimumBookingDate (input) {
 
   today = `${yyyy}-${mm}-${dd}`;
   input.setAttribute("min", today);
+}
+
+
+/** clear existing child options from select to make room for new data **/
+function clearOptionsFromSelect (select) {
+  while (select.childElementCount > 1) {
+    select.removeChild(select.lastChild);
+  }
 }
 
 
@@ -260,6 +387,18 @@ async function getErrorMessageFromResponse (response) {
 }
 
 
+function createBookingObject (details) {
+
+  return {
+    ...details,
+    patientId: '',
+    receptionistId: empId,
+    receptionistName: empName,
+    status: 'active'
+  };
+}
+
+
 /*=============================================================
 ====================== Network Requests =======================
 =============================================================*/
@@ -267,6 +406,26 @@ async function getErrorMessageFromResponse (response) {
 async function fetchAllBookingsRequest () {
   try {
     const response = await fetch(`${serverUrl}/api/bookings`, {
+      method: 'GET',
+      headers: {
+        'Content-Type' : 'application/json',
+        'Accept' : 'application/json'
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
+
+
+/* get all booking time slots */
+async function fetchAllBookingTimeSlots () {
+  try {
+    const response = await fetch(`${serverUrl}/api/bookings/all-slots`, {
+      method: 'GET',
       headers: {
         'Content-Type' : 'application/json',
         'Accept' : 'application/json'
@@ -285,6 +444,7 @@ async function fetchAllBookingsRequest () {
 async function fetchAvailableSlots (date) {
   try {
     const response = await fetch(`${serverUrl}/api/bookings/available-slots?date=${date}`, {
+      method: 'GET',
       headers: {
         'Content-Type' : 'application/json',
         'Accept' : 'application/json'
@@ -295,5 +455,43 @@ async function fetchAvailableSlots (date) {
   }
   catch (error) {
     console.error(error);
+  }
+}
+
+
+/* fetch medical services */
+async function fetchServices () {
+  try {
+    const response = await fetch(`${serverUrl}/api/services`, {
+      method: 'GET',
+      headers: {
+        'Content-Type' : 'application/json',
+        'Accept' : 'application/json'
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
+
+/* create new booking request */
+async function createNewBooking (booking) {
+  try {
+    const response = await fetch(`${serverUrl}/api/bookings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type' : 'application/json',
+        'Accept' : 'application/json'
+      },
+      body: JSON.stringify(booking)
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error.message);
   }
 }

@@ -108,7 +108,7 @@
                                     <li onclick="changeNumPerPage(0)"><a class="dropdown-item" href="#">All</a></li>
                                 </ul>
 
-                                <button class="btn btn-warning text-white mx-1" id="refresh-page" onclick="refreshPage()">
+                                <button class="btn btn-warning text-white mx-1" id="refresh-page" onclick="refreshAllBookingData()">
                                     <i class="fas fa-sync-alt"></i>
                                 </button>
                             </div>
@@ -121,11 +121,11 @@
                               <thead>
                                   <col style="width: 15%;" />
                                   <col style="width: 15%;" />
-                                  <col style="width: 15%;" />
-                                  <col style="width: 15%;" />
-                                  <col style="width: 10%;" />
-                                  <col style="width: 15%;" />
-                                  <col style="width: 15%;" />
+                                  <col style="width: 12%;" />
+                                  <col style="width: 13%;" />
+                                  <col style="width: 16%;" />
+                                  <col style="width: 17%;" />
+                                  <col style="width: 12%;" />
                                   <tr class="bg-primary text-white p-1">
                                       <th scope="col">ID</th>
                                       <th scope="col">Patient Name</th>
@@ -164,16 +164,21 @@
               <div class="tab-pane fade" id="createBookings" role="tabpanel" aria-labelledby="createBookings-tab">
                   <div class="card my-2 box d-flex justify-content-center align-items-center">
                       <form class="w-50">
-                        <div class="alert alert-danger" role="alert" id="error-alert-create-booking">
+                        <h4>Create New Booking</h4>
+                        <div role="alert" id="error-alert-create-booking">
 
                         </div>
-                        <div class="form-group mb-2">
-                          <label for="exampleInputPassword1">Booking Date</label>
-                          <input type="date" class="form-control" id="booking-date">
+                        <div class="form-group mb-3">
+                          <label class="form-label" for="exampleInputPassword1">Booking Date</label>
+                          <input
+                            type="date" class="form-control"
+                            data-type='create' id="booking-date">
                         </div>
-                        <div class="form-group mb-2">
-                          <label for="time-slots">Choose Slots</label>
-                          <select class="form-control" id="time-slots">
+                        <div class="form-group mb-3">
+                          <label class="form-label" for="time-slots">Choose Booking Time</label>
+                          <select
+                            data-type='create'
+                            class="form-control" id="time-slots">
                             <option value="-1" selected>Choose Time Slot</option>
                           </select>
                         </div>
@@ -184,17 +189,51 @@
                             </div>
                         </div>
                         <div id="booking-info-inputs">
+
+                          <div class="form-group mb-3">
+                            <label class="form-label" for="service-select">Choose Service</label>
+                            <select
+                              data-type='create'
+                              class="form-control" id="service-select">
+                              <option value="-1" selected>Choose Service</option>
+                            </select>
+                          </div>
+
                           <div class="form-group mb-2">
-                            <label for="exampleInputEmail1">Patient Name</label>
+                            <label class="form-label" for="exampleInputEmail1">Patient Name</label>
                             <input
                               type="text"
                               class="form-control"
                               id="patient-name"
-                              aria-describedby="emailHelp"
-                              placeholder="Enter email">
+                              data-type='create'
+                              placeholder="Enter Patient Name">
                           </div>
+
+                          <div class="form-group mb-2">
+                            <label class="form-label" for="exampleInputEmail1">Patient Contact</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="patient-contact"
+                              data-type='create'
+                              placeholder="09-123456789">
+                          </div>
+
+                          <div class="form-group mb-2">
+                            <label class="form-label" for="exampleInputEmail1">Staff Name</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="staff-name"
+                              data-type='create'
+                              placeholder="Enter Staff Name">
+                          </div>
+
+                          <button id="create-booking-btn"
+                            type="submit" class="btn btn-primary">
+                            Create
+                          </button>
                         </div>
-                        <button type="submit" class="btn btn-primary">Submit</button>
                       </form>
                   </div>
               </div>
@@ -221,12 +260,12 @@
                             </div>
                         </div>
 
-                        <table class="table" id="bookings-table">
+                        <table class="table" id="weekly-bookings-view">
                             <thead>
                               <col style="width: 12%;" />
                               <col style="width: 14%;" />
                               <col style="width: 14%;" />
-                              <col style="width: 14%"  />
+                              <col style="width: 14%;"  />
                               <col style="width: 14%;" />
                               <col style="width: 14%;" />
                               <col style="width: 14%;" />
