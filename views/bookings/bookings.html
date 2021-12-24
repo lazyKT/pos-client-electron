@@ -50,14 +50,14 @@
                 Bookings
               </button>
             </li>
-  
+
             <li class="nav-item" role="presentation">
               <button
                 class="nav-link"
                 id="createBookings-tab"
                 data-bs-toggle="tab"
                 data-bs-target="#createBookings"
-                type="button" 
+                type="button"
                 role="tab"
                 aria-controls="createBookings"
                 aria-selected="false">
@@ -71,7 +71,7 @@
                   id="overview-tab"
                   data-bs-toggle="tab"
                   data-bs-target="#overview"
-                  type="button" 
+                  type="button"
                   role="tab"
                   aria-controls="overview"
                   aria-selected="false">
@@ -79,7 +79,8 @@
                 </button>
             </li>
           </ul>
-          
+
+
           <div class="tab-content" id="myTabContent">
               <!-- bookings tab -->
               <div class="tab-pane fade show active" id="bookingsTable" role="tabpanel" aria-labelledby="bookingsTable-tab">
@@ -131,11 +132,11 @@
                                       <th scope="col">Patient Contact</th>
                                       <th scope="col">Booking Date</th>
                                       <th scope="col">Booking Time</th>
-                                      <th scope="col">Assigned to</th>
-                                      <th scope="col">Actions</th>
+                                      <th scope="col">Service</th>
+                                      <th scope="col">Assigned To</th>
                                   </tr>
                               </thead>
-                            
+
                           </table>
 
                           <!-- loading spinner -->
@@ -161,63 +162,40 @@
 
               <!-- create bookings tab -->
               <div class="tab-pane fade" id="createBookings" role="tabpanel" aria-labelledby="createBookings-tab">
-                  <div class="card my-2 box" width="auto">
-                      <div class="card-body">
-                          <h5>Create New Bookings</h5>
-                          <p style="color:red" id="error-create-bookings"></p>
-                          <form>
+                  <div class="card my-2 box d-flex justify-content-center align-items-center">
+                      <form class="w-50">
+                        <div class="alert alert-danger" role="alert" id="error-alert-create-booking">
 
-                            <div class="form-group col-md-3 mb-2">
-                                <label for="patientName">Patient Name</label>
-                                <input type="text" class="form-control" id="patientName" required>
+                        </div>
+                        <div class="form-group mb-2">
+                          <label for="exampleInputPassword1">Booking Date</label>
+                          <input type="date" class="form-control" id="booking-date">
+                        </div>
+                        <div class="form-group mb-2">
+                          <label for="time-slots">Choose Slots</label>
+                          <select class="form-control" id="time-slots">
+                            <option value="-1" selected>Choose Time Slot</option>
+                          </select>
+                        </div>
+                        <!-- loading spinner -->
+                        <div class="m-auto p-2 w-25 text-center" id="loading-spinner-create-booking">
+                            <div class="spinner-border text-primary text-center" role="status">
+                                <span class="sr-only">Loading...</span>
                             </div>
-
-                            <div class="form-group col-md-3 mb-2">
-                                <label for="patientContact">Patient Contact</label>
-                                <input type="text" class="form-control" id="patientContact" required>
-                            </div>
-
-                            <div class="form-group col-md-3">
-                                <label for="bookingDate">Booking Date</label>
-                                <input type="date" class="form-control" id="bookingDate" required>
-                            </div>
-
-                            <div class="form-group col-md-3 mb-2">
-                                <label for="bookingTime">Booking Time</label>
-                                <select id="bookingTime" class="form-control" required />
-                                  <option selected></option>
-                                  <option value="700am">7:00am</option>
-                                  <option value="715am">7:15am</option>
-                                  <option value="730am">7:30am</option>
-                                  <option value="800am">8:00am</option>                                  
-                                </select>
-                            </div>
-
-                            <div class="form-group col-md-3 mb-2">
-                                <label for="assignedTo">Assigned To</label>
-                                <input type="text" class="form-control" id="assignedTo" required>
-                            </div>
-                            
-                            <div class="form-group col-md-3 mb-2">
-                                <label for="serviceName">Service</label>
-                                <input type="text" class="form-control" id="service" required>
-                            </div>
-
-                            <div class="form-group col-md-3 mb-2">
-                                <label for="remarks">Remarks</label>
-                                <input type="text" class="form-control" id="remarks" required>
-                            </div>
-
-                            <div class="form-group col-md-3 mb-2">
-                                <button class="btn btn-primary mx-2" id="createBookingButton" onclick="">
-                                    Create
-                                </button>
-                                <button class="btn btn-primary mx-2" id="clearFields" onclick="">
-                                    Clear all
-                                </button>
-                            </div>
-                          </form>
-                      </div>
+                        </div>
+                        <div id="booking-info-inputs">
+                          <div class="form-group mb-2">
+                            <label for="exampleInputEmail1">Patient Name</label>
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="patient-name"
+                              aria-describedby="emailHelp"
+                              placeholder="Enter email">
+                          </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                      </form>
                   </div>
               </div>
               <!-- overview bookings -->
@@ -239,9 +217,9 @@
                                     <button class="btn btn-primary mx-2" id="next-week" onclick="">
                                         Next Week
                                     </button>
-                                </div>          
+                                </div>
                             </div>
-                        </div>              
+                        </div>
 
                         <table class="table" id="bookings-table">
                             <thead>
@@ -387,9 +365,9 @@
                                 </tr>
 
                             </tbody>
-          
+
                           </table>
-                    
+
                     </div>
                 </div>
               </div>
