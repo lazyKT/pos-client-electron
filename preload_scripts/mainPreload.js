@@ -21,7 +21,9 @@ const ALLOWED_SEND_CHANNELS = [
   'user-logout',
   'patient-data',
   "close-setting",
-  "patient-form-finish"
+  "patient-form-finish",
+  'services-data',
+  'services-form-finish'
 ];
 
 const ALLOWED_RECEIVED_CHANNELS = [

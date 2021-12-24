@@ -17,7 +17,7 @@ const { createCashierWindow } = require("./cashierWindow.js");
 const { createInventoryWindow } = require("./inventoryWindow.js");
 const { createBookingsWindow } = require("./bookingsWindow.js");
 const { createFormWindow } = require("./formWindow.js");
-
+const { createServiceWindow } = require("./serviceWindow.js");
 const { createEditFormWindow } = require("./editFormWindow.js");
 const { createClinicCashierWindow } = require("./clinicCashierWindow.js");
 
@@ -52,7 +52,7 @@ exports.createMainWindow = function createMainWindow () {
     //
 
     win.loadFile(mainMenuURL);
-    // win.openDevTools();
+    //win.openDevTools();
 
     win.once("ready-to-show", () => win.show() );
 
@@ -137,7 +137,11 @@ function openWindow ({name, _id, page}) {
     case 'Bookings' :
       createBookingsWindow(name, _id);
       break;
+    case 'Medical Services':
+      createServiceWindow(name, _id);
+      break;
     default :
+      console.log(page);
       throw new Error ('Unknown Page Name!');
   }
 }
