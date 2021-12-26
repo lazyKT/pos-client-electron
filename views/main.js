@@ -110,6 +110,11 @@ async function handleRoutesAfterLogin (event, pageName, employee) {
       saveInLocalStorage({name: employee.fullName, _id: employee._id});
       window.api.send("login", {name: employee.fullName, _id: employee._id, page: pageName});
     }
+    else if (pageName === 'Medical Services'){
+      closeLoginModal(event);
+      saveInLocalStorage({name: employee.fullName, _id: employee._id});
+      window.api.send("login", {name: employee.fullName, _id: employee._id, page: pageName});
+    }
     else {
       showComingSoonModal();
     }

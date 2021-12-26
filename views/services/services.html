@@ -1,0 +1,221 @@
+<!-- Services layout -->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Medical Services</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous">
+     <link rel="stylesheet" href="services.css">
+   
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <!-- JavaScript Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<script src="services.js" data-name="services">
+
+        </script>
+  </head>
+<body>
+
+   <header class="d-flex justify-content-between p-2 bg-primary">
+      <h4 class="text-white" id='content-title'>Medical Services</h4>
+      <button class="btn btn-primary" id="logout" onclick="logout()">
+        Logout &nbsp;<i class="fas fa-sign-out-alt"></i>
+      </button>
+    </header>
+
+    <!-- login information -->
+    <div class="bg-info text-white d-flex justify-content-between py-1 px-2">
+      <span>Name :&nbsp;<big id="login-name"></big></span>
+      <span>Login Time:&nbsp;<big id="login-time"></big></span>
+    </div>
+
+
+    <div class="container">
+
+    <!-- contents -->
+    <div class="card my-2 box" width = 'auto'>
+      <div class="card-body">
+
+        <!-- top nav bar -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active"
+              id="patient2-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#patient2"
+              type="button"
+              role="tab"
+              aria-controls="patient2"
+              aria-selected="true">
+              Services
+            </button>
+          </li>
+
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="delete-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#delete"
+              type="button" role="tab"
+              aria-controls="delete"
+              aria-selected="false">
+              New
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+
+          <!-- patients tab -->
+          <div class="tab-pane fade show active" id="patient2" role="tabpanel" aria-labelledby="patient2-tab">
+
+            <!-- pagination tab -->
+            <div class= "container">
+              <div class="row mt-2 justify-content-between">
+                <div class="col-5">
+                  <div class="input-group">
+                    <input class="form-control search-input" id='search-input' type="text" name="" value="" placeholder="Search Services" onkeyup= "onKeyUp(event)">
+                    <button onclick="filterServices()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
+                    <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button" style='display:none'>Cancel</button>
+                  </div>
+                </div>
+                <div class="col-5">
+
+                  <a class="btn btn-secondary dropdown-toggle"
+                    href="#" role="button"
+                    id="numPersPageDropDown" data-bs-toggle="dropdown" aria-expanded="false">
+                    Items per page
+                  </a>
+
+                  <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <li onclick="changeNumPerPage(5)"><a class="dropdown-item" href="#">5</a></li>
+                    <li onclick="changeNumPerPage(10)"><a class="dropdown-item" href="#">10</a></li>
+                    <li onclick="changeNumPerPage(15)"><a class="dropdown-item" href="#">15</a></li>
+                    <li onclick="changeNumPerPage(0)"><a class="dropdown-item" href="#">All</a></li>
+                  </ul>
+
+
+
+                  <button class="btn btn-warning text-white mx-1" id="refresh-page" onclick="refreshPage()">
+                    <i class="fas fa-sync-alt"></i>
+                  </button>
+
+                </div>
+              </div>
+            </div>
+
+
+
+            <div class="card my-2 box" width = 'auto'>
+              <div class="card-body" id="data-container">
+                <table class="table" id="services-table">
+                  <thead>
+                    <col style="width: 15%;" />
+                    <col style="width: 20%;" />
+                    <col style="width: 15%;" />
+                    <col style="width: 15%;" />
+                    <col style="width: 20%;" />
+                    <col style="width: 15%;" />
+                    <tr class="bg-primary text-white p-1">
+                      <th scope="col">ID</th>
+                      <th scope="col">Service Name</th>
+                      <th scope="col">Price</th>
+                      <th scope="col">Remarks</th>
+                      <th scope="col">Action(s)</th>
+                    </tr>
+                  </thead>
+
+                </table>
+                <!-- loading spinner -->
+                <div class="m-auto p-2 w-25 text-center" id="loading-spinner">
+                  <div class="spinner-border text-primary text-center" role="status">
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                </div>
+
+
+                  </div>
+                  <nav>
+                  <ul class="pagination justify-content-center mt-2" id="pagination2">
+                    <li class="page-item disabled" id="previous">
+                      <a class="page-link" onclick="prevPaginationClick(event)" href="#" tabindex="-1"aria-disabled="true">Previous</a>
+                    </li>
+                    <li class="page-item" id="next">
+                      <a class="page-link" onclick="nextPaginationClick(event)" href="#">Next</a>
+                    </li>
+                  </ul>
+                  </nav>
+              </div>
+            </div>
+
+          <!-- end of patients tab -->
+
+
+          <!-- create tab -->
+          <div class="tab-pane fade" id="delete" role="tabpanel" aria-labelledby="delete-tab">
+
+
+
+            <!-- create new patient -->
+            <div class="card my-2 box" width = 'auto'>
+              <div class="card-body">
+                <h5>Add new Service</h5>
+                <p style="color:red" id="error-create-item"></p>
+                <form>
+
+                    <div class="form-group col-md-3 mb-2">
+                      <label for="servicename">Service Name</label>
+                      <input type="text" class="form-control" id="servicename" required>
+                    </div>
+                    <div class="form-group col-md-3 mb-2">
+                      <label for="price">Price</label>
+                      <input type="text" class="form-control" id="price" required />
+                    </div>
+                    <div class="form-group col-md-3 mb-2">
+                      <label for="remarks">Remarks</label>
+                      <input type="text" class="form-control" id="remarks" required />
+                    </div>
+
+                    <a type="submit" class="btn btn-primary mb-2"
+                      id="createItem" onclick="createService(event)">
+                      Create
+                    </a>
+
+                </form>
+              </div>
+            </div>
+          </div>
+          <!-- end of creat tab -->
+
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!--alert model -->
+ <div id="alert-modal" class="my-alert-modal">
+    <div class="my-alert-modal-content" id="alert-modal-content">
+      <div id="alert-modal-header" class="p-2">
+
+      </div>
+      <div id="my-alert-modal-message" class="p-2">
+        
+      </div>
+      <div class="d-flex justify-content-center p-1">
+        <button class="btn btn-primary my-1" onclick="removeAlertModal(event)">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  </body>
+</html>
