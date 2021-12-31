@@ -20,7 +20,8 @@
   "dependencies": {
     "csv-writer": "^1.6.0",
     "electron-packager": "^15.4.0",
-    "electron-store": "^8.0.1"
+    "electron-store": "^8.0.1",
+    "fullcalendar": "^5.10.1"
   },
   "repository": {
     "type": "git",
