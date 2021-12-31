@@ -74,11 +74,11 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
         }
         else if (mode === PRINT_MODE_PRODUCTION) {
           // print with printer
-          if ((findPrinters(win.webContents.getPrinters(), printer)).length > 0) {
+          if ((findPrinters(win.webContents.getPrinters(), name)).length > 0) {
             // console.log('printer found', printer);
             const options = {
               silent: true,
-              deviceName: printer
+              deviceName: name
             }
 
             win.webContents.print(options, (success, errorType) => {
@@ -99,7 +99,7 @@ exports.createReceiptWindow = function (parentWindow, invoice) {
           else {
             dialog.showMessageBox({
               title : "Printing Receipt",
-              message: `Error: Printer, ${printer} not found!`
+              message: `Error: Printer, ${name} not found!`
           })
             .then (() => {
               win.close();

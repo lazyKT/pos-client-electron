@@ -7,16 +7,17 @@
    BrowserWindow,
    ipcMain
  } = require("electron");
- 
- 
+
+
  const { removeEventListeners } = require("../ipcHelper.js");
- 
- 
+ const { createBookingDetailsWindow } = require('./bookingDetailsWindow.js');
+
+
  let win
- 
- 
+
+
  exports.createBookingsWindow = function createBookingsWindow (name, id) {
- 
+
    if (!win || win === null) {
      win = new BrowserWindow({
        width: 1200,
@@ -30,32 +31,36 @@
        }
      });
    }
- 
- 
+
+
    win.loadFile(path.join(__dirname, "../views/bookings/bookings.html"));
    win.openDevTools();
- 
+
    win.once("ready-to-show", () => {
      win.maximize();
      win.show();
    });
- 
- 
+
+
    win.on("close", () => {
      removeEventListeners(ipcMain, ["logout"]);
      if (win) win = null;
    });
- 
+
    /** LogOut **/
    ipcMain.on("logout", () => {
      if (win)
        win.close();
    });
- 
+
+   ipcMain.on('open-booking-details', (event, args) => {
+     createBookingDetailsWindow(win, args.bookingId);
+   });
+
  }
- 
- 
- 
+
+
+
  /**
  # Remove Listeners from ipcMain
  **/

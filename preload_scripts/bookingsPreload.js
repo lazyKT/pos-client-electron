@@ -4,17 +4,17 @@ const {
     contextBridge,
     dialog
   } = require('electron');
-  
-  
+
+
   const ALLOWED_SEND_CHANNELS = [
-    'login',
-    'logout'
+    'logout',
+    'open-booking-details'
   ];
-  
+
   const ALLOWED_RECEIVED_CHANNELS = [
     'redirect-page'
   ];
-  
+
   /*
    expose some of the functionalities from main process using ContextBridge.
    This approach emphasizes safety and security by limiting renderer processing to access required functions only.
@@ -59,4 +59,3 @@ const {
       }
     }
   );
-  

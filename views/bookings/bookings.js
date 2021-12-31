@@ -23,6 +23,8 @@ window.onload = async () => {
     await fetchAllBookings();
 
     await fetchServicesFromServer();
+
+    displayWeeklyViewCalendar();
   }
   catch (error) {
     console.error(error);
@@ -56,6 +58,11 @@ async function fetchServicesFromServer () {
   }
 }
 
+
+function logout () {
+  clearUserLocalStorageData();
+  window.bookingsAPI.send('logout');
+}
 
 /*=============================================================
 ====================== Create Bookings ========================
@@ -248,6 +255,7 @@ function displayAllBookings (bookings) {
 
     row.addEventListener('click', e => {
       console.log('view booking details for booking id : ', booking._id);
+      window.bookingsAPI.send('open-booking-details', { bookingId: booking._id });
     });
 
   });
@@ -257,6 +265,21 @@ function displayAllBookings (bookings) {
 function createTableCell (row, pos, data) {
   const cell = row.insertCell(pos);
   cell.innerHTML = data ? data : '-- --';
+}
+
+
+/*=============================================================
+======================== Weekly View ==========================
+=============================================================*/
+
+function displayWeeklyViewCalendar () {
+  const weeklyView = document.getElementById('weekly-bookings-view');
+
+  const calendar = new FullCalendar.Calendar(weeklyView, {
+    initialView: 'timeGridWeek'
+  });
+
+  calendar.render();
 }
 
 
@@ -331,6 +354,11 @@ function displayLoginInformation () {
   const loginTime = document.getElementById("login-time");
   const now = new Date();
   loginTime.innerHTML = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+}
+
+
+function clearUserLocalStorageData () {
+  localStorage.removeItem("user");
 }
 
 
