@@ -41,7 +41,7 @@ function loadHeader (dom, value) {
 
 
 function loadPrice (dom, title, value) {
-  dom.innerHTML = `${value}ks : <strong>${value}ks</strong>`;
+  dom.innerHTML = `${title} : <strong>${value}ks</strong>`;
 }
 
 
