@@ -82,7 +82,7 @@ async function loginUserToUserPannel(event) {
 
 async function handleRoutesAfterLogin (event, pageName, employee) {
   try {
-    if (pageName === 'Employee' || pageName === 'Doctor' || pageName === 'Patient') {
+    if (pageName === 'Employee' || pageName === 'Medical Staffs' || pageName === 'Patient') {
       if (parseInt(employee.level) === 3) {
         closeLoginModal(event);
         saveInLocalStorage({name: employee.fullName, _id: employee._id});
@@ -155,7 +155,7 @@ function populatePageSelection (pageName) {
     const pageSelectionSelect = document.getElementById("content-selection");
     switch (pageName) {
       case "user":
-        syncOptionsForPageSelection (pageSelectionSelect, ["Doctor", "Employee", "Patient"]);
+        syncOptionsForPageSelection (pageSelectionSelect, ["Medical Staffs", "Employee", "Patient"]);
         break;
       case "bookings":
         syncOptionsForPageSelection (pageSelectionSelect, ["Bookings"]);

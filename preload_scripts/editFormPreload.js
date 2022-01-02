@@ -14,6 +14,7 @@ const ALLOWED_RECEIVED_CHANNELS = [
   "response-patient-data",
   "response-edit-item-data",
   "response-services-data",
+  "response-doctor-data"
 ];
 
 
@@ -23,7 +24,8 @@ const ALLOWED_SEND_CHANNELS = [
   "item-form-data-finish",
   "dismiss-edit-item-form-window",
   'patient-form-finish',
-  'services-form-finish'
+  'services-form-finish',
+  'doctor-form-finish',
 ];
 
 

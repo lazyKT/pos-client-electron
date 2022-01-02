@@ -1,0 +1,121 @@
+.badge {
+    position: relative;
+    top: -15px;
+    right: -15px;
+    padding: 5px 10px;
+    border-radius: 50%;
+    background-color: red;
+    color: white;
+    visibility: visible
+  }
+header {
+  background: dodgerblue;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 15px;
+  font-weight: bold;
+  border-bottom: silver;
+}
+
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0px;
+}
+
+
+.top-header h4 {
+  color: dodgerblue;
+}
+
+
+.box {
+  box-shadow: 1px 1px 1px rgb(0 0 0 / 20%);
+  border-radius: 10px;
+  padding: 20px 5px;
+}
+
+.search-div {
+  display: flex;
+  justify-content: center;
+}
+
+
+.search-div input {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 0.7px solid gainsboro;
+  outline-color: dodgerblue;
+}
+
+
+.search-div div {
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+.action-button {
+  border: none;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.input-group>input.search-input {flex: 0 1 180px;}
+.input-group>input.search-input-med {flex: 0 1 180px;}
+
+.med-row {
+  cursor: pointer;
+}
+
+
+.my-alert-modal {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: none;
+  justify-content: center;
+  top: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.my-alert-modal-content {
+  width: 250px;
+  height: fit-content;
+  margin-top: 80px;
+  border: none;
+  border-radius: 10px;
+  background-color: white;
+}
+
+.border-top-radius {
+  border: none;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+}
+
+
+.hide {
+  display: "none";
+}
+
+label, input {
+    display: block;
+    margin-bottom: 10px;
+}
+
+.multi-select-box{
+  width :100%;
+  margin : 20px auto;
+}
+
+.mutli-select-box select{
+  width: 100%;
+}
+
+.mutli-select-box button{
+  background-color: darkblue !important;
+  color: #fff !important;
+  padding : 15px 25px;
+}

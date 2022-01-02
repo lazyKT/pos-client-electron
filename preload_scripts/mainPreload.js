@@ -23,7 +23,8 @@ const ALLOWED_SEND_CHANNELS = [
   "close-setting",
   "patient-form-finish",
   'services-data',
-  'services-form-finish'
+  'services-form-finish',
+  'doctor-data'
 ];
 
 const ALLOWED_RECEIVED_CHANNELS = [

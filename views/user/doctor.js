@@ -1,4 +1,4 @@
-//patient with menu tabs
+
 let reloadStatus = "ready";
 // for pagination
 let limit = 10;
@@ -6,7 +6,7 @@ let page = 1;
 let order = 1;
 
 let sort = 'fullname';
-let  totalPatients, numPages; 
+let  totalDoctors, numPages; 
 let serverURL, empName;
 let filtering = false;
 
@@ -17,11 +17,7 @@ window.onload = async () => {
 
   try {
     const loadingSpinner = document.getElementById("loading-spinner");
-   
-    next = document.getElementById("next");
-    const inputBOD = document.getElementById("inputBOD");
-
-    setMinAge(inputBOD);
+    const workingDays = document.getElementById('workingDays');
 
     loadDataFromLocalStorage();
     displayLoginInformation();
@@ -106,7 +102,7 @@ async function changeNumPerPage (num) {
 ***/
 async function onKeyUp(event) {
   if (event.key === 'Enter')
-      filterPatients(event);
+      filterDoctors(event);
 }
 
 function formatDate(input) {
@@ -125,23 +121,19 @@ function formatDate(input) {
 }
 
 
-function populatePatientTable(empData, idx=1) {
-  const { _id,patientId, fullname, birthday, gender, mobile, address, allergies } = empData;
-  const patientTable = document.getElementById('patient-table');
+function populateDoctorTable(empData, idx=1) {
+  const { _id,doctorId, name, specialization, starttime, endtime } = empData;
+  const doctorTable = document.getElementById('doctor-table');
 
-  const row = patientTable.insertRow(idx);
+  const row = doctorTable.insertRow(idx);
   const firstColumn = row.insertCell(0);
   const secondColumn = row.insertCell(1);
   const thirdColumn = row.insertCell(2);
   const forthColumn = row.insertCell(3);
-  const fifthColumn = row.insertCell(4);
-  const sixthColumn = row.insertCell(5);
-
-  firstColumn.innerHTML = patientId;
-  secondColumn.innerHTML = fullname;
-  thirdColumn.innerHTML = formatDate(birthday);
-  forthColumn.innerHTML = gender;
-  fifthColumn.innerHTML = mobile;
+ 
+  firstColumn.innerHTML = doctorId;
+  secondColumn.innerHTML = name;
+  thirdColumn.innerHTML = specialization;
 
   const actionDiv = document.createElement('div');
 
@@ -150,26 +142,26 @@ function populatePatientTable(empData, idx=1) {
   editBtn.setAttribute('class', 'btn mx-1 btn-primary');
   editBtn.setAttribute('data-id', _id);
   editBtn.innerHTML = '<i class="fas fa-pen"></i>';
-  sixthColumn.appendChild(editBtn);
+  forthColumn.appendChild(editBtn);
   //
   editBtn.addEventListener('click', e => {
-    window.api.send('patient-data', {_id, method: 'PUT'});
+    window.api.send('doctor-data', {_id, method: 'PUT'});
   });
   /* View Details button */
   const viewBtn = document.createElement('button');
   viewBtn.setAttribute('class', 'btn mx-1 btn-info');
   viewBtn.setAttribute('data-id', _id);
   viewBtn.innerHTML = '<i class="fas fa-info-circle"></i>';
-  sixthColumn.appendChild(viewBtn);
+  forthColumn.appendChild(viewBtn);
 
   viewBtn.addEventListener('click', e => {
-    window.api.send('patient-data', {_id, method: 'GET'});
+    window.api.send('doctor-data', {_id, method: 'GET'});
   })
 }
 
 
-/* filter patient data */
-async function filterPatients () {
+/* filter doctor data */
+async function filterDoctors () {
   const q = document.getElementById('search-input').value;
 
   if (!q || q === '')
@@ -177,28 +169,28 @@ async function filterPatients () {
 
   try {
     filtering = true;
-    const response = await searchPatients(q);
+    const response = await searchDoctors(q);
 
 
     if (response && response.ok) {
-      const patient = await response.json();
-      if (patient.length === 0) {
+      const doctor = await response.json();
+      if (doctor.length === 0) {
         // show empty message
         showEmptyMessage(q);
       }
       else{
-        displayFilteredResults(patient);
+        displayFilteredResults(doctor);
       }
-      totalPatients = patient.length
-      numPages = Math.floor(totalPatients/limit) + 1
+      totalDoctors = doctor.length
+      numPages = Math.floor(totalDoctors/limit) + 1
       await createPaginationButtons();
     }
     else {
       const { message } = await response.json();
       if (message)
-        showAlertModal(`Error Searching Patients`, message, "error");
+        showAlertModal(`Error Searching Doctors`, message, "error");
       else
-        showAlertModal("Error Searching Patients. Code : 500", "Network Connection Error", "error");
+        showAlertModal("Error Searching Doctors. Code : 500", "Network Connection Error", "error");
     }
     // displayFilteredResults(results);
   }
@@ -221,13 +213,13 @@ async function resetFilter () {
    emptyMessageBox.remove();
 
   // window.api.send('form-data-finish', {method: 'GET', type: 'user'});
-  reloadData({method: 'GET', type: 'patient'});
+  reloadData({method: 'GET', type: 'doctor'});
   await createPaginationButtons();
 };
 
 
 
-/*Reload patient data*/
+/*Reload doctor data*/
 async function reloadData() {
 
   if (reloadStatus === "reloading")
@@ -240,16 +232,12 @@ async function reloadData() {
     clearDataContainer();
 
     // reload the data by fetching data based on the data type, and populate the table again
-    const response = await fetchPatients();
+    const response = await fetchDoctors();
 
     if (response && response.ok) {
       const emps = await response.json();
 
-      // if (emps.length === 0)
-      //   showEmptyMessage();
-      // else
-
-      emps.forEach( (emp, idx) => populatePatientTable(emp, idx + 1));
+      emps.forEach( (emp, idx) => populateDoctorTable(emp, idx + 1));
 
     }
     else {
@@ -279,7 +267,7 @@ function displayFilteredResults(results) {
   clearDataContainer();
 
   if (results.length > 0)
-    results.forEach( (result, idx) => populatePatientTable(result, idx + 1));
+    results.forEach( (result, idx) => populateDoctorTable(result, idx + 1));
   else
     showEmptyMessage();
 }
@@ -361,14 +349,14 @@ function clearUserLocalStorageData () {
 async function createPaginationButtons () {
   try {
 
-    const response = await getPatientsCount();
+    const response = await getDoctorsCount();
     if (response && response.ok) {
       if (!filtering && limit !== 0) {
         const count = await response.json();
 
-        totalPatients = parseInt(count.count);
+        totalDoctors = parseInt(count.count);
 
-        numPages = totalPatients%limit === 0 ? totalPatients/limit : Math.floor(totalPatients/limit) + 1;
+        numPages = totalDoctors%limit === 0 ? totalDoctors/limit : Math.floor(totalDoctors/limit) + 1;
 
       }
 
@@ -384,12 +372,12 @@ async function createPaginationButtons () {
     else {
       const { message } = await response.json();
       const errMessage = message ? message : "Network Connection Error!";
-      showAlertModal(`Error Searching Patients`, message, "error");
+      showAlertModal(`Error Searching Doctors`, message, "error");
     }
   }
   catch (error) {
   	console.log(error);
-    showAlertModal(`Error Searching Patients`, "Application Error! Contact Developer!", "error");
+    showAlertModal(`Error Searching Doctors`, "Application Error! Contact Developer!", "error");
   }
 }
 
@@ -524,7 +512,7 @@ function togglePaginationButtons () {
 
 
 /***********************************************************************
-################## CREATE NEW PATIENTS TAB ###################
+################## CREATE NEW Doctors TAB ###################
 ***********************************************************************/
 
 
@@ -564,34 +552,31 @@ function calculateAge(input)
 
 
 /**
-# Create Patient
+# Create Doctor
 **/
-async function createPatient(event) {
+async function createDoctor(event) {
   try {
     // prevent default behaviour on form submit
     event.preventDefault();
 
-    const fullname = document.getElementById('fullname').value;
-    const birthday = document.getElementById('inputBOD').value;
-    const gender = document.getElementById('gender').value;
-    const mobile = document.getElementById('mobile').value;
-    const address = document.getElementById('address').value;
-    const allergies = document.getElementById('allergies').value;
-
-    if (!fullname || fullname === ''|| !birthday || birthday === ''|| !gender || gender === '' || !mobile || mobile === '' || !address || address === '' || !allergies || allergies === '') {
+    const name = document.getElementById('fullname').value;
+    const specialization = document.getElementById('specialization').value;
+    const starttime = document.getElementById('startTime').value;
+    const endtime = document.getElementById('endTime').value;
+    const workingDays = "[1, 2, 3, 4, 5]";
+    if (!name || name === ''|| !specialization || specialization === ''|| !starttime || starttime === '' || !endtime || endtime === '') {
       throw new Error ("Missing Required Inputs");
     }
 
     const data = {
-      fullname,
-      gender,
-      birthday,
-      mobile,
-      address,
-      allergies
+      name,
+      specialization,
+      workingDays,
+      starttime,
+      endtime
     }
 
-    const response = await fetch(`${serverURL}/api/patients`, {
+    const response = await fetch(`${serverURL}/api/doctors`, {
       method: "POST",
       headers: {
         "Content-Type" : "application/json",
@@ -600,8 +585,9 @@ async function createPatient(event) {
       body: JSON.stringify(data)
     });
     if (response && response.ok) {
-      const patient = await response.json();
-      showAlertModal(`${fullname}, is successfully created!`, "New Patient Created!", "success");
+      const doctor = await response.json();
+      console.log(doctor); 
+      showAlertModal(`${name}, is successfully created!`, "New Doctor Created!", "success");
       // clear form input
       clearFormInputs();
       await reloadData({});
@@ -609,27 +595,25 @@ async function createPatient(event) {
     }
     else {
       const { message } = await response.json();
-      const errMessage = message ? `Error Creating New Patient. ${message}`
-                            : "Error Creating New Patient. code 300";
+      const errMessage = message ? `Error Creating New Doctor. ${message}`
+                            : "Error Creating New Doctor. code 300";
 
       showAlertModal(errMessage, "Error", "error");
     }
   }
   catch (error) {
-    console.log('Error Fetching Create-New-Patient Response', error);
+    console.log('Error Fetching Create-New-Doctor Response', error);
     showAlertModal(error.message, "Error", "error");
   }
 }
 
 
-// clear create patients form inputs
+// clear create doctors form inputs
 function clearFormInputs () {
   (document.getElementById('fullname')).value = '';
-  (document.getElementById('inputBOD')).value = '';
-  (document.getElementById('gender')).value = 'none';
-  (document.getElementById('mobile')).value = '';
-  (document.getElementById('address')).value = '';
-  (document.getElementById('allergies')).value = '';
+  (document.getElementById('specialization')).value = '';
+  (document.getElementById('startTime')).value = '';
+  (document.getElementById('endTime')).value = '';
 }
 
 
@@ -670,9 +654,9 @@ function removeAlertModal (e) {
 
 
 
-async function getPatientsCount () { 
+async function getDoctorsCount () { 
   try {
-    const response = await fetch(`${serverURL}/api/patients/count`, {
+    const response = await fetch(`${serverURL}/api/doctors/count`, {
       method: "GET",
       headers: {
         "Content-Type" : "application/json",
@@ -689,14 +673,14 @@ async function getPatientsCount () {
 
 
 /**
-# Fetch Patients with Pagination Properties
+# Fetch Doctors with Pagination Properties
 **/
-async function fetchPatients () {
+async function fetchDoctors () {
   try {
-    let url = `${serverURL}/api/patients?page=${page}&limit=${limit}&order=${order}&sort=${sort}`;
+    let url = `${serverURL}/api/doctors?page=${page}&limit=${limit}&order=${order}&sort=${sort}`;
 
     if (limit === 0)
-      url = `${serverURL}/api/patients?limit=0&order=${order}&sort=${sort}`;
+      url = `${serverURL}/api/doctors?limit=0&order=${order}&sort=${sort}`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -709,15 +693,15 @@ async function fetchPatients () {
     return response;
   }
   catch (error) {
-    console.error("Error Getting  Patients/n", error);
+    console.error("Error Getting  Doctors/n", error);
   }
 }
 
 
-/** Search Patients by Keyword **/
-async function searchPatients (q) {
+/** Search Doctors by Keyword **/
+async function searchDoctors (q) {
   try {
-    const response = await fetch(`${serverURL}/api/patients/search?q=${q}`, {
+    const response = await fetch(`${serverURL}/api/doctors/search?q=${q}`, {
       method: "GET",
       headers: {
         "Content-Type" : "application/json",
@@ -728,7 +712,7 @@ async function searchPatients (q) {
     return response;
   }
   catch (error) {
-    console.error(`Error Search Patients: ${error}`);
+    console.error(`Error Search Doctors: ${error}`);
   }
 }
 
