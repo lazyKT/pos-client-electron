@@ -1132,8 +1132,7 @@ function clearPrescriptionCart () {
 // reset prescription object with default values
 function resetPrescriptionObject () {
 	prescription = {
-		employee: null,
-		employeeID: null,
+		... prescription,
 		patient: null,
 		doctor: null,
 		total: 0,
