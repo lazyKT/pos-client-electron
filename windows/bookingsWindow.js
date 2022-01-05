@@ -20,7 +20,7 @@
 
    if (!win || win === null) {
      win = new BrowserWindow({
-       width: 1200,
+       width: 1000,
        height: 900,
        show: false,
        // fullscreen: true,
@@ -37,7 +37,7 @@
    win.openDevTools();
 
    win.once("ready-to-show", () => {
-     win.maximize();
+     // win.maximize();
      win.show();
    });
 
