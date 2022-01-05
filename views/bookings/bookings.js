@@ -5,6 +5,7 @@
 let serverUrl, empName, empId, calendar;
 const loadingSpinner = document.getElementById('loading-spinner');
 const loadingSpinner2 = document.getElementById('loading-spinner-create-booking');
+const loadingSpinner3 = document.getElementById('loading-spinner-weekly-view');
 const bookingDateInput = document.getElementById('booking-date');
 const bookingInfoInputGroup = document.getElementById('booking-info-inputs');
 const errorAlertCreateBooking = document.getElementById('error-alert-create-booking');
@@ -21,13 +22,13 @@ window.onload = async () => {
     // display login name and login time
     displayLoginInformation ();
 
+    displayWeeklyViewCalendar();
+
     await getAllDoctors();
 
     await fetchAllBookings();
 
     await fetchServicesFromServer();
-
-    displayWeeklyViewCalendar();
   }
   catch (error) {
     console.error(error);
@@ -36,6 +37,7 @@ window.onload = async () => {
   finally {
     loadingSpinner.style.display = 'none';
     loadingSpinner2.style.display = 'none';
+    loadingSpinner3.style.display = 'none';
     bookingInfoInputGroup.style.display = 'none';
     errorAlertCreateBooking.style.display = 'none';
   }
@@ -282,10 +284,7 @@ function displayWeeklyViewCalendar () {
     height: '700px',
     initialView: 'timeGridWeek',
     slotMinTime: '09:00:00',
-    slotMaxTime: '20:00:00',
-    datesSet: () => {
-      console.log('datesSet!');
-    }
+    slotMaxTime: '20:00:00'
   });
 
   calendar.render();
@@ -298,6 +297,9 @@ function displayWeeklyViewCalendar () {
     try {
       const doctorId = doctorSelect?.value;
       if (doctorId && doctorId !== '') {
+
+        loadingSpinner3.style.display = 'block';
+
         const response = await fetchDoctorById(doctorId);
 
         if (response && response.ok) {
@@ -312,6 +314,9 @@ function displayWeeklyViewCalendar () {
     }
     catch (error) {
       console.error(error.message);
+    }
+    finally {
+      loadingSpinner3.style.display = 'none';
     }
   });
 }
@@ -357,6 +362,11 @@ function fillUpDoctorSelectInput (doctors) {
 doctorSelect.addEventListener('change', async (e) => {
   try {
     if (e.target.value !== '') {
+
+      loadingSpinner3.style.display = 'block';
+
+      removeAllEvents();
+
       const response = await fetchDoctorById(e.target.value);
 
       if (response && response.ok) {
@@ -372,10 +382,23 @@ doctorSelect.addEventListener('change', async (e) => {
   catch (error) {
     console.error(error.message);
   }
+  finally {
+    loadingSpinner3.style.display = 'none';
+  }
 
 });
 
 
+// remove all events from calendar
+function removeAllEvents () {
+
+  const events = calendar.getEvents();
+
+  events.forEach(e => e.remove());
+}
+
+
+// display doctor schedule on the calendar
 function addScheduleToCalendar (workingSchedule, title) {
 
   workingSchedule.forEach( (ws, idx) => {
@@ -390,7 +413,7 @@ function addScheduleToCalendar (workingSchedule, title) {
 }
 
 
-
+// create calendar events from doctor working schedules
 function createCalendarEventsFromSchedule (schedule, title) {
   const yyyy = calendar.getDate().getFullYear();
   let mm = calendar.getDate().getMonth() + 1;
@@ -491,7 +514,7 @@ function to24HourFormat (time) {
   const period = time.slice(time.length - 2, time.length);
   let hr = parseInt(time.split(':')[0]);
   let hrStr = '';
-  console.log(period.toLowerCase());
+
   if (period.toLowerCase() === 'pm') {
     hrStr = hr === 12 ? '12' : (hr + 12).toString();
   }
