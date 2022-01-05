@@ -2,13 +2,14 @@
 # Booking Scripts
 **/
 
-let serverUrl, empName, empId;
+let serverUrl, empName, empId, calendar;
 const loadingSpinner = document.getElementById('loading-spinner');
 const loadingSpinner2 = document.getElementById('loading-spinner-create-booking');
 const bookingDateInput = document.getElementById('booking-date');
 const bookingInfoInputGroup = document.getElementById('booking-info-inputs');
 const errorAlertCreateBooking = document.getElementById('error-alert-create-booking');
 const createBookingButton = document.getElementById('create-booking-btn');
+const doctorSelect = document.getElementById('doctor-select');
 
 
 window.onload = async () => {
@@ -19,6 +20,8 @@ window.onload = async () => {
     loadDataFromLocalStorage ();
     // display login name and login time
     displayLoginInformation ();
+
+    await getAllDoctors();
 
     await fetchAllBookings();
 
@@ -272,14 +275,83 @@ function createTableCell (row, pos, data) {
 ======================== Weekly View ==========================
 =============================================================*/
 
+// get all doctors data from server
+async function getAllDoctors () {
+  try {
+    const response = await fetchAllDoctors();
+
+    if (response && response.ok) {
+      const doctors = await response.json();
+
+      // fill doctor names in select
+      fillUpDoctorSelectInput(doctors);
+    }
+    else {
+      const errorMessage = await getErrorMessageFromResponse(response);
+      console.error(errorMessage);
+      showErrorAlert(errorMessage);
+    }
+  }
+  catch (error) {
+    console.error(error);
+    showErrorAlert(error.message);
+  }
+}
+
+
+// fill doctor data in select input
+function fillUpDoctorSelectInput (doctors) {
+  doctors.forEach (doc => {
+    const option = document.createElement('option');
+    option.setAttribute('value', doc._id);
+    option.innerHTML = doc.name;
+    doctorSelect.appendChild(option);
+  });
+}
+
+
+// doctorSelect Input On Change event
+// Based on the selected doctor value, display the schedule in calendar
+doctorSelect.addEventListener('change', (e) => {
+  console.log(e.target.value);
+
+  let todayStr = new Date().toISOString().replace(/T.*$/, '') // YYYY-MM-DD of today
+
+  const INITIAL_EVENTS = [
+    {
+      id: 1,
+      title: 'All-day event',
+      start: todayStr
+    },
+    {
+      id: 2,
+      title: 'Timed event',
+      start: todayStr + 'T12:00:00'
+    }
+  ];
+
+  if (e.target.value !== '') {
+    calendar.setOption('initailEvents', INITIAL_EVENTS);
+  }
+
+});
+
+
 function displayWeeklyViewCalendar () {
   const weeklyView = document.getElementById('weekly-bookings-view');
 
-  const calendar = new FullCalendar.Calendar(weeklyView, {
-    initialView: 'timeGridWeek'
+  calendar = new FullCalendar.Calendar(weeklyView, {
+    height: '700px',
+    initialView: 'timeGridWeek',
+    slotMinTime: '09:00:00',
+    slotMaxTime: '20:00:00',
   });
 
   calendar.render();
+
+  calendar.on('dateClick', (info) => {
+    console.log('click on', info);
+  });
 }
 
 
@@ -430,6 +502,27 @@ function createBookingObject (details) {
 /*=============================================================
 ====================== Network Requests =======================
 =============================================================*/
+
+
+async function fetchAllDoctors () {
+  try {
+    const response = await fetch(`${serverUrl}/api/doctors`, {
+      headers: {
+        'Content-Type' : 'application/json',
+        'Accept' : 'application/json'
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
+
+
+
+
 
 async function fetchAllBookingsRequest () {
   try {
