@@ -331,7 +331,7 @@ doctorSelect.addEventListener('change', (e) => {
   ];
 
   if (e.target.value !== '') {
-    calendar.setOption('initailEvents', INITIAL_EVENTS);
+    calendar.addEventSource(INITIAL_EVENTS);
   }
 
 });
