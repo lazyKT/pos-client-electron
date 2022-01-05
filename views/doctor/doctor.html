@@ -19,7 +19,7 @@
 <script src="doctor.js" data-name="doctor">
 
         </script>
-        <script type="text/javascript" src ="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js"></script>
+       
   </head>
 <body>
 
@@ -178,36 +178,25 @@
                       <label for="mobile">Specialization</label>
                       <input type="text" class="form-control" id="specialization" required />
                     </div>
-                    <div class="multi-select-box ">
-                      <label for="workingDays">Working Days </label>
-                      <select class="multi-select w-40" multiple  id="workingDays">
-                        <option>Monday</option>
-                        <option>Tuesday</option>
-                        <option>Wednesday</option>
-                        <option>Thursday</option>
-                        <option>Friday</option>
-                        <option>Saturday</option>
-                        <option>Sunday</option>
-                      </select>
+                    
+                    <div class="card-body">
+                      <button class="w3-bar-item w3-button w3-red" type="" onclick="addForm(event)">Add Working Hours +  </button>
+
+                      <div class="container" id="container1">
+                        
+                      
+                      
                     </div>
 
+                   
 
-                    <form>
-                      <label for="startTime">Start time: </label>
-                        <input type="time" id="startTime">
-                      </form>
-
-                   <form>
-                      <label for="endTime">End time: </label>
-                        <input type="time" id="endTime">
-                      </form>
-
-                    <a type="submit" class="btn btn-primary mb-2"
+                </form>
+                <div>
+                </div>
+                 <a type="submit" class="btn btn-primary mb-2"
                       id="createItem" onclick="createDoctor(event)">
                       Create
                     </a>
-
-                </form>
               </div>
             </div>
           </div>

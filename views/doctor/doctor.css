@@ -100,22 +100,52 @@ header {
   display: "none";
 }
 
-label, input {
-    display: block;
-    margin-bottom: 10px;
+.button {
+  padding : 10px;
+}
+.input {
+  padding: 10px;
+}
+/* Dropdown Button */
+.dropbtn {
+  background-color: #3498DB;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
 }
 
-.multi-select-box{
-  width :100%;
-  margin : 20px auto;
+
+.dropbtn:hover, .dropbtn:focus {
+  background-color: #2980B9;
 }
 
-.mutli-select-box select{
-  width: 100%;
+.dropdown {
+  position: relative;
+  display: inline-block;
 }
 
-.mutli-select-box button{
-  background-color: darkblue !important;
-  color: #fff !important;
-  padding : 15px 25px;
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
 }
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #ddd}
+
+
+.show {display:block;}

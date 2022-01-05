@@ -9,16 +9,17 @@ let sort = 'fullname';
 let  totalDoctors, numPages; 
 let serverURL, empName;
 let filtering = false;
+let counter = 1;
 
 
+let workCount = 0;
 
 // DOM Nodes
 window.onload = async () => {
 
   try {
     const loadingSpinner = document.getElementById("loading-spinner");
-    const workingDays = document.getElementById('workingDays');
-
+    
     loadDataFromLocalStorage();
     displayLoginInformation();
 
@@ -28,7 +29,6 @@ window.onload = async () => {
   catch (error) {
     showAlertModal(error.message, "Error!", "error");
   }
-
 }
 
 /**
@@ -94,7 +94,83 @@ async function changeNumPerPage (num) {
 }
 
 
+/*  Adding new inputs for working hours */
+async function addForm(event){
+workCount+= 1;
+  const container = document.getElementById("container1");
+  console.log(container.childElementCount);
 
+  var values = ["Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+ 
+    var select = document.createElement("select");
+    select.name = "days";
+    select.id = "days" +workCount;
+ 
+    for (const val of values)
+    {
+        var option = document.createElement("option");
+        option.value = values.indexOf(val);
+        option.text = val.charAt(0).toUpperCase() + val.slice(1);
+        select.appendChild(option);
+    }
+ 
+    var label = document.createElement("label");
+    label.innerHTML = "Working Days: "
+    label.htmlFor = "days";
+    label.id = "wLabel";
+ 
+    container.appendChild(label).appendChild(select);
+
+
+  container.appendChild(document.createTextNode("Start Time"));
+  let input1 = document.createElement("input");
+  input1.type = "time";
+  input1.name = "startTime";
+  input1.id = "startTime" + workCount;
+  container.appendChild(input1);
+
+
+  container.appendChild(document.createTextNode("End Time"));
+  let input2 = document.createElement("input");
+  input2.type = "time";
+  input2.name = "endTime";
+  input1.id = "endTime" + workCount;
+  container.appendChild(input2);
+
+  let removeBtn = document.createElement('button');
+  removeBtn.setAttribute('class', 'w3-bar-item w3-button w3-red');
+  removeBtn.innerHTML = 'Remove';
+  container.appendChild(removeBtn);
+
+  removeBtn.addEventListener('click', e => {
+    for(i=0; i< 6; i++){
+      container.removeChild(container.lastChild);
+    }
+    console.log(container.childElementCount);
+    workCount--;
+  
+  });
+
+}
+
+
+function myFunction() {
+  document.getElementById("myDropdown").classList.toggle("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
 
 
 /***
@@ -104,6 +180,8 @@ async function onKeyUp(event) {
   if (event.key === 'Enter')
       filterDoctors(event);
 }
+
+
 
 function formatDate(input) {
     console.log(input);
@@ -157,6 +235,19 @@ function populateDoctorTable(empData, idx=1) {
   viewBtn.addEventListener('click', e => {
     window.api.send('doctor-data', {_id, method: 'GET'});
   })
+  /* Work Schedule Edit button */
+  const scheduleBtn = document.createElement('button');
+  scheduleBtn.setAttribute('class', 'btn mx-1 btn-primary');
+  scheduleBtn.setAttribute('data-id', _id);
+  scheduleBtn.innerHTML = '<i class="fas fa-clock"></i>';
+  forthColumn.appendChild(scheduleBtn);
+
+  scheduleBtn.addEventListener('click', e => {
+    window.api.send('doctor-data', {_id, method: 'GET'});
+  })
+
+
+  
 }
 
 
@@ -386,7 +477,7 @@ async function createPaginationButtons () {
 async function displayPagination () {
   // populate pagination elements here
   const pagination = document.getElementById('pagination2');
-  console.log(pagination);
+  //console.log(pagination);
   removePaginationItems();
 
   for (let i = 0; i < numPages; i++) {
@@ -549,6 +640,18 @@ function calculateAge(input)
     return age;
 }
 
+function timeConvert (time) {
+  // Check correct time format and split into components
+  time = time.toString ().match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+
+  if (time.length > 1) { // If time format correct
+    time = time.slice (1);  // Remove full string match value
+    time[5] = +time[0] < 12 ? ' AM' : ' PM'; // Set AM/PM
+    time[0] = +time[0] % 12 || 12; // Adjust hours
+    time[0] = time[0] < 10 ? '0' + time[0] : time[0];
+  }
+  return time.join (''); // return adjusted time or original string
+}
 
 
 /**
@@ -557,23 +660,38 @@ function calculateAge(input)
 async function createDoctor(event) {
   try {
     // prevent default behaviour on form submit
+    let workingschedule =[];
+    let z = 0;
     event.preventDefault();
+    const container = document.getElementById('container1');
+    const child = container.children;
+    console.log(child.length);
+    for (var i = 1; i <= child.length/4; i++)
+    {
+      
+      workingday = document.getElementById("days" + i).value;
+      workSTime = timeConvert(document.getElementsByName('startTime')[z].value);
+      workETime = timeConvert(document.getElementsByName('endTime')[z].value);
+      z++;
+      workingschedule.push({startTime : workSTime , endTime : workETime , day : workingday});
+      // console.log(workingSch);
+      // workingschedule.push(workSch);
+     
+    }
+    console.log(workingschedule);
+
 
     const name = document.getElementById('fullname').value;
     const specialization = document.getElementById('specialization').value;
-    const starttime = document.getElementById('startTime').value;
-    const endtime = document.getElementById('endTime').value;
-    const workingDays = "[1, 2, 3, 4, 5]";
-    if (!name || name === ''|| !specialization || specialization === ''|| !starttime || starttime === '' || !endtime || endtime === '') {
+    //const workingDays = "[1, 2, 3, 4, 5]";
+    if (!name || name === ''|| !specialization || specialization === ''|| !workingschedule || workingschedule === '' ) {
       throw new Error ("Missing Required Inputs");
     }
 
     const data = {
       name,
       specialization,
-      workingDays,
-      starttime,
-      endtime
+      workingSchedule : workingschedule
     }
 
     const response = await fetch(`${serverURL}/api/doctors`, {
@@ -612,8 +730,12 @@ async function createDoctor(event) {
 function clearFormInputs () {
   (document.getElementById('fullname')).value = '';
   (document.getElementById('specialization')).value = '';
-  (document.getElementById('startTime')).value = '';
-  (document.getElementById('endTime')).value = '';
+  const container = document.getElementById('container1');
+  var child = container.lastChild; 
+        while (child) {
+            container.removeChild(child);
+            child = container.lastChild;
+          }
 }
 
 

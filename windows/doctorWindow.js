@@ -40,7 +40,7 @@ exports.createDoctorWindow = function createDoctorWindow () {
   }
 
 
-  win.loadFile(path.join(__dirname, "../views/user/doctor.html"));
+  win.loadFile(path.join(__dirname, "../views/doctor/doctor.html"));
   win.openDevTools();
 
   win.once("ready-to-show", () => {

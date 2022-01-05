@@ -1,5 +1,5 @@
 /**
- another form window to edit/show doctor data
+ another form window to edit/show doctor schedule
  **/
 const path = require("path");
 const {
@@ -35,7 +35,7 @@ exports.createDocEditWindow = function createDocEditWindow(parentWindow, type, c
     });
 
 
-    win.loadFile(path.join(__dirname, "../views/doctor/editDoctor.html"));
+    win.loadFile(path.join(__dirname, "../views/user/editDoctor.html"));
     //win.openDevTools();
 
 
