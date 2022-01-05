@@ -5,6 +5,7 @@
 let serverUrl, empName, empId, calendar;
 const loadingSpinner = document.getElementById('loading-spinner');
 const loadingSpinner2 = document.getElementById('loading-spinner-create-booking');
+const loadingSpinner3 = document.getElementById('loading-spinner-weekly-view');
 const bookingDateInput = document.getElementById('booking-date');
 const bookingInfoInputGroup = document.getElementById('booking-info-inputs');
 const errorAlertCreateBooking = document.getElementById('error-alert-create-booking');
@@ -21,13 +22,13 @@ window.onload = async () => {
     // display login name and login time
     displayLoginInformation ();
 
+    displayWeeklyViewCalendar();
+
     await getAllDoctors();
 
     await fetchAllBookings();
 
     await fetchServicesFromServer();
-
-    displayWeeklyViewCalendar();
   }
   catch (error) {
     console.error(error);
@@ -36,6 +37,7 @@ window.onload = async () => {
   finally {
     loadingSpinner.style.display = 'none';
     loadingSpinner2.style.display = 'none';
+    loadingSpinner3.style.display = 'none';
     bookingInfoInputGroup.style.display = 'none';
     errorAlertCreateBooking.style.display = 'none';
   }
@@ -275,6 +277,51 @@ function createTableCell (row, pos, data) {
 ======================== Weekly View ==========================
 =============================================================*/
 
+function displayWeeklyViewCalendar () {
+  const weeklyView = document.getElementById('weekly-bookings-view');
+
+  calendar = new FullCalendar.Calendar(weeklyView, {
+    height: '700px',
+    initialView: 'timeGridWeek',
+    slotMinTime: '09:00:00',
+    slotMaxTime: '20:00:00'
+  });
+
+  calendar.render();
+
+  calendar.on('dateClick', (info) => {
+    console.log('click on', info);
+  });
+
+  calendar.on('datesSet', async (info) => {
+    try {
+      const doctorId = doctorSelect?.value;
+      if (doctorId && doctorId !== '') {
+
+        loadingSpinner3.style.display = 'block';
+
+        const response = await fetchDoctorById(doctorId);
+
+        if (response && response.ok) {
+          const doctor = await response.json();
+          addScheduleToCalendar (doctor.workingSchedule, doctor.name);
+        }
+        else {
+          const errorMessage = await getErrorMessageFromResponse(response);
+          console.error(errorMessage);
+        }
+      }
+    }
+    catch (error) {
+      console.error(error.message);
+    }
+    finally {
+      loadingSpinner3.style.display = 'none';
+    }
+  });
+}
+
+
 // get all doctors data from server
 async function getAllDoctors () {
   try {
@@ -312,47 +359,76 @@ function fillUpDoctorSelectInput (doctors) {
 
 // doctorSelect Input On Change event
 // Based on the selected doctor value, display the schedule in calendar
-doctorSelect.addEventListener('change', (e) => {
-  console.log(e.target.value);
+doctorSelect.addEventListener('change', async (e) => {
+  try {
+    if (e.target.value !== '') {
 
-  let todayStr = new Date().toISOString().replace(/T.*$/, '') // YYYY-MM-DD of today
+      loadingSpinner3.style.display = 'block';
 
-  const INITIAL_EVENTS = [
-    {
-      id: 1,
-      title: 'All-day event',
-      start: todayStr
-    },
-    {
-      id: 2,
-      title: 'Timed event',
-      start: todayStr + 'T12:00:00'
+      removeAllEvents();
+
+      const response = await fetchDoctorById(e.target.value);
+
+      if (response && response.ok) {
+        const doctor = await response.json();
+        addScheduleToCalendar (doctor.workingSchedule, doctor.name);
+      }
+      else {
+        const errorMessage = await getErrorMessageFromResponse(response);
+        console.error(errorMessage);
+      }
     }
-  ];
-
-  if (e.target.value !== '') {
-    calendar.addEventSource(INITIAL_EVENTS);
+  }
+  catch (error) {
+    console.error(error.message);
+  }
+  finally {
+    loadingSpinner3.style.display = 'none';
   }
 
 });
 
 
-function displayWeeklyViewCalendar () {
-  const weeklyView = document.getElementById('weekly-bookings-view');
+// remove all events from calendar
+function removeAllEvents () {
 
-  calendar = new FullCalendar.Calendar(weeklyView, {
-    height: '700px',
-    initialView: 'timeGridWeek',
-    slotMinTime: '09:00:00',
-    slotMaxTime: '20:00:00',
-  });
+  const events = calendar.getEvents();
 
-  calendar.render();
+  events.forEach(e => e.remove());
+}
 
-  calendar.on('dateClick', (info) => {
-    console.log('click on', info);
+
+// display doctor schedule on the calendar
+function addScheduleToCalendar (workingSchedule, title) {
+
+  workingSchedule.forEach( (ws, idx) => {
+    const e = createCalendarEventsFromSchedule (ws, title);
+
+    const _e = calendar.getEventById(e.id);
+    if (_e) _e.remove(); // remove existing event
+
+    // add new event
+    calendar.addEvent(e);
   });
 }
+
+
+// create calendar events from doctor working schedules
+function createCalendarEventsFromSchedule (schedule, title) {
+  const yyyy = calendar.getDate().getFullYear();
+  let mm = calendar.getDate().getMonth() + 1;
+  let dd = calendar.getDate().getDate() - (calendar.getDate().getDay() - parseInt(schedule.day));
+  if (mm < 10) mm = '0' + mm;
+  if (dd < 10) dd = '0' + dd;
+  const eventDate = `${yyyy}-${mm}-${dd}`;
+  return {
+    id: `${eventDate}T${to24HourFormat(schedule.startTime)}`,
+    title: title,
+    start: `${eventDate}T${to24HourFormat(schedule.startTime)}`,
+    end: `${eventDate}T${to24HourFormat(schedule.endTime)}`
+  };
+}
+
 
 
 /*=============================================================
@@ -431,6 +507,24 @@ function displayLoginInformation () {
 
 function clearUserLocalStorageData () {
   localStorage.removeItem("user");
+}
+
+
+function to24HourFormat (time) {
+  const period = time.slice(time.length - 2, time.length);
+  let hr = parseInt(time.split(':')[0]);
+  let hrStr = '';
+
+  if (period.toLowerCase() === 'pm') {
+    hrStr = hr === 12 ? '12' : (hr + 12).toString();
+  }
+  else {
+    hrStr = hr === 12
+        ? '00' : ( hr < 10
+        ? '0' + hr : hr.toString());
+  }
+
+  return `${hrStr}:00:00`;
 }
 
 
@@ -521,7 +615,21 @@ async function fetchAllDoctors () {
 }
 
 
+async function fetchDoctorById (id) {
+  try {
+    const response = await fetch(`${serverUrl}/api/doctors/${id}`, {
+      headers: {
+        'Content-Type' : 'application/json',
+        'Accept' : 'application/json'
+      }
+    });
 
+    return response;
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
 
 
 async function fetchAllBookingsRequest () {
