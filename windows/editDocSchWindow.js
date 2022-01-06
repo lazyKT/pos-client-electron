@@ -17,11 +17,11 @@ const { removeEventListeners } = require("../ipcHelper.js");
 let win
 
 
-exports.createDocEditWindow = function createDocEditWindow(parentWindow, type, contents) {
+exports.createDocSchEditWindow = function createDocSchEditWindow(parentWindow, type, contents) {
 
   if (!win || win === null) {
     win = new BrowserWindow ({
-      width: 550,
+      width: 1000,
       height: 700,
       parent: parentWindow,
       modal: true,
@@ -36,7 +36,7 @@ exports.createDocEditWindow = function createDocEditWindow(parentWindow, type, c
 
 
     win.loadFile(path.join(__dirname, "../views/doctor/editDocSchedule.html"));
-    //win.openDevTools();
+    win.openDevTools();
 
 
     win.once("ready-to-show", () => win.show());

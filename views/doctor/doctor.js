@@ -134,7 +134,7 @@ workCount+= 1;
   let input2 = document.createElement("input");
   input2.type = "time";
   input2.name = "endTime";
-  input1.id = "endTime" + workCount;
+  input2.id = "endTime" + workCount;
   container.appendChild(input2);
 
   let removeBtn = document.createElement('button');
@@ -183,22 +183,6 @@ async function onKeyUp(event) {
 
 
 
-function formatDate(input) {
-    console.log(input);
-    var d = new Date(input),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-    if (month.length < 2)
-        month = '0' + month;
-    if (day.length < 2)
-        day = '0' + day;
-
-    return [year, month, day].join('-');
-}
-
-
 function populateDoctorTable(empData, idx=1) {
   const { _id,doctorId, name, specialization, starttime, endtime } = empData;
   const doctorTable = document.getElementById('doctor-table');
@@ -243,7 +227,7 @@ function populateDoctorTable(empData, idx=1) {
   forthColumn.appendChild(scheduleBtn);
 
   scheduleBtn.addEventListener('click', e => {
-    window.api.send('doctor-data', {_id, method: 'GET'});
+    window.api.send('doctor-schedule-data', {_id, method: 'PUT'});
   })
 
 
@@ -626,18 +610,9 @@ function setMinAge (input) {
   input.setAttribute("max", minDate);
   }
 
-function calculateAge(input)
+function validateTime(time)
 {
-  const today = new Date();
-  const birthDate = new Date(input);
-  let age = today.getFullYear() - birthDate.getFullYear();
-  console.log(age);
-  let m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate()))
-    {
-        age--;
-    }
-    return age;
+
 }
 
 function timeConvert (time) {
@@ -670,9 +645,18 @@ async function createDoctor(event) {
     {
       
       workingday = document.getElementById("days" + i).value;
-      workSTime = timeConvert(document.getElementsByName('startTime')[z].value);
-      workETime = timeConvert(document.getElementsByName('endTime')[z].value);
+      workSTime = document.getElementsByName('startTime')[z].value;
+      workETime = document.getElementsByName('endTime')[z].value;
+      if (workETime < workSTime)
+      {
+        throw new Error("End Time must be Greater than Start Time");
+      }
+
+      workSTime = timeConvert(workSTime);
+      workETime = timeConvert(workETime);
       z++;
+      
+
       workingschedule.push({startTime : workSTime , endTime : workETime , day : workingday});
       // console.log(workingSch);
       // workingschedule.push(workSch);

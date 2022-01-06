@@ -14,7 +14,8 @@ const {
 
 
 
-const { createDocEditWindow } = require("./createDocEditWindow.js")
+const { createDocEditWindow } = require("./createDocEditWindow.js");
+const { createDocSchEditWindow } = require("./editDocSchWindow.js")
 
 
 const { removeEventListeners } = require("../ipcHelper.js");
@@ -41,7 +42,7 @@ exports.createDoctorWindow = function createDoctorWindow () {
 
 
   win.loadFile(path.join(__dirname, "../views/doctor/doctor.html"));
-  win.openDevTools();
+  //win.openDevTools();
 
   win.once("ready-to-show", () => {
     win.maximize();
@@ -66,6 +67,10 @@ exports.createDoctorWindow = function createDoctorWindow () {
 
   ipcMain.on("doctor-data", (event, args) => {
         createDocEditWindow(win, args.method, args._id);
+      });
+
+  ipcMain.on("doctor-schedule-data", (event, args) => {
+        createDocSchEditWindow(win, args.method, args._id);
       });
 
   ipcMain.on ("form-data-finish", (event, args) => {

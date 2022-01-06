@@ -24,7 +24,8 @@ const ALLOWED_SEND_CHANNELS = [
   "patient-form-finish",
   'services-data',
   'services-form-finish',
-  'doctor-data'
+  'doctor-data',
+  'doctor-schedule-data'
 ];
 
 const ALLOWED_RECEIVED_CHANNELS = [

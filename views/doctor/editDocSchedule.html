@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Create New Doctor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+      crossorigin="anonymous">
+  </head>
+  <body style="background: white;">
+    <div class="container mt-3">
+      <div class="d-flex justify-content-center">
+        <p>Edit Doctor</p>
+      </div>
+      <div id="error">
+
+      </div>
+      <div class="card mx-1">
+        <div class="card-body">
+          <form>
+            <div class="mb-3">
+              <label class="form-label">ID</label>
+              <input type="text" class="form-control" id="id" readonly>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Doctor ID</label>
+              <input type="text" class="form-control" id="doctorId" readonly>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-control" id="name" required>
+            </div>
+            
+            <div class="container" id="currentContainer">
+                      
+            </div>
+
+            <button style="margin:10px;" onclick="addForm()" class="mx-1 btn btn-light" id="addButton" type="button" name="addButton" >Add Working Hours + </button>
+
+            <div class="container" id="newContainer">
+                      
+            </div>
+
+            
+            <button type="submit" style="display: none;" id="edit-doctor" class="btn btn-primary w-100 my-1">Edit</button>
+            <a id="delete-doctor" style="display: none;" class="btn btn-outline-danger">Delete</a>
+            <a id="dismiss-window" class="btn btn-outline-secondary w-100 my-1">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="editDocSchedule.js">
+    </script>
+  </body>
+</html>
