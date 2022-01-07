@@ -1,11 +1,11 @@
 // DOM Nodes
 const cancelButton = document.getElementById('dismiss-window');
-const deleteButton = document.getElementById('delete-doctor-sch');
-const editButton = document.getElementById('edit-doctor-sch');
+const deleteButton = document.getElementById('delete-doctor');
+const editButton = document.getElementById('edit-doctor');
 const errorDiv = document.getElementById('error');
 let serverUrl
 let workCount = 0;
-
+let id
 // clean up
 window.onUnload = () => window.editContentAPI.removeListeners();
 
@@ -32,7 +32,7 @@ cancelButton.addEventListener('click', () => {
 })
 
 
-// edit/update doctor
+// edit/update doctor //need to be updated - M
 editButton.addEventListener('click', async e => {
 
   e.preventDefault();
@@ -41,8 +41,7 @@ editButton.addEventListener('click', async e => {
 
   try {
 
-    const id = document.getElementById('id')?.value;
-    const dId = document.getElementById('doctorId')?.value;
+    
     const name = document.getElementById('name')?.value;
     const workingSch = document.getElementById('workingSchedule')?.value;
 
@@ -88,7 +87,7 @@ deleteButton.addEventListener("click", async e => {
     e.target.setAttribute("disabled", true);
     e.target.innerHTML = "Loading ...";
 
-    const id = document.getElementById("id")?.value;
+    
 
     const response = await deleteDoctorById (id);
 
@@ -142,7 +141,7 @@ async function addForm(event){
     row1.id = "row1";
     row1.class = "row";
 
-    var values = ["Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    var values = ["Sunday", "Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
  
     var select = document.createElement("select");
     select.name = "days";
@@ -170,7 +169,7 @@ async function addForm(event){
     input1.type = "time";
     input1.name = "startTime";
     input1.id = "startTime" + workCount;
-    
+    input1.style = "margin:10px;";
     row1.appendChild(input1);
 
 
@@ -179,21 +178,23 @@ async function addForm(event){
     input2.type = "time";
     input2.name = "endTime";
     input2.id = "endTime" + workCount;
+    input2.style = "margin:10px;";
     
     row1.appendChild(input2);
 
     let removeBtn = document.createElement('button');
-    removeBtn.setAttribute('class', 'w3-bar-item w3-button w3-red');
+    removeBtn.setAttribute('class', 'btn btn-danger');
     removeBtn.innerHTML = 'Remove';
+    removeBtn.style = "margin:10px;";
     row1.appendChild(removeBtn);
     container.appendChild(row1);
 
 
     removeBtn.addEventListener('click', e => {
       for(i=0; i< 6; i++){
-        row1.removeChild(container.lastChild);
+        row1.removeChild(row1.lastChild);
       }
-      console.log(container.childElementCount);
+      console.log(row1.childElementCount);
       workCount--;
     
     });
@@ -204,16 +205,14 @@ async function addForm(event){
 
 function displayDoctorData(emp) {
 
-  const id = document.getElementById('id');
-  const dId = document.getElementById('doctorId');
+  
   const name = document.getElementById('name');
   const container = document.getElementById('currentContainer');
 
   const { fullname } = emp;
 
-  id.value = emp._id;
-  dId.value = emp.doctorId;
-  name.value = emp.name;
+  id =emp._id;
+  name.innerHTML = "Edit Doctor " + emp.name + " 's Schedule";
   const workingSch = emp.workingSchedule;
   console.log(workingSch.length);
   for (var i = 0; i < workingSch.length ; i++)
@@ -223,7 +222,7 @@ function displayDoctorData(emp) {
     row1.class = "row";
 
 
-    var values = ["Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    var values = ["Sunday", "Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
  
     var select = document.createElement("select");
     select.name = "days";
@@ -238,9 +237,11 @@ function displayDoctorData(emp) {
     }
  
     var label = document.createElement("label");
-    label.innerHTML = "Working Days: "
+    label.innerHTML = "Working Days: ";
     label.htmlFor = "days";
     label.id = "wLabel";
+
+
     select.value = workingSch[i].day;
   
  
@@ -252,7 +253,10 @@ function displayDoctorData(emp) {
     input1.type = "time";
     input1.name = "startTime";
     input1.id = "startTime" + workCount;
-    input1.value = workingSch[i].startTime;
+    input1.style = "margin:10px;";
+    var convertedTime = moment(workingSch[i].startTime, 'hh:mm A').format('HH:mm');
+
+    input1.value = convertedTime;
     row1.appendChild(input1);
 
 
@@ -260,14 +264,17 @@ function displayDoctorData(emp) {
     let input2 = document.createElement("input");
     input2.type = "time";
     input2.name = "endTime";
-    input2.value = workingSch[i].endTime;
     input2.id = "endTime" + workCount;
+    input2.style = "margin:10px;";
+    var convertedTime1 = moment(workingSch[i].endTime, 'hh:mm A').format('HH:mm');
+    input2.value = convertedTime1;
 
     row1.appendChild(input2);
 
     let removeBtn = document.createElement('button');
-    removeBtn.setAttribute('class', 'w3-bar-item w3-button w3-red');
+    removeBtn.setAttribute('class', 'btn btn-danger');
     removeBtn.innerHTML = 'Remove';
+    removeBtn.style = "margin:10px;";
     row1.appendChild(removeBtn);
     container.appendChild(row1);
 
@@ -276,7 +283,7 @@ function displayDoctorData(emp) {
       for(i=0; i< 6; i++){
         row1.removeChild(row1.lastChild);
       }
-      console.log(container.childElementCount);
+      
       workCount--;
     
     });

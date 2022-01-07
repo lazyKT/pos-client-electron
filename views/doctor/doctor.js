@@ -96,11 +96,15 @@ async function changeNumPerPage (num) {
 
 /*  Adding new inputs for working hours */
 async function addForm(event){
-workCount+= 1;
+  workCount+= 1;
   const container = document.getElementById("container1");
   console.log(container.childElementCount);
 
-  var values = ["Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  var row1 = document.createElement("div");
+    row1.id = "row1";
+    row1.class = "row";
+
+    var values = ["Sunday", "Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
  
     var select = document.createElement("select");
     select.name = "days";
@@ -118,38 +122,45 @@ workCount+= 1;
     label.innerHTML = "Working Days: "
     label.htmlFor = "days";
     label.id = "wLabel";
+    
  
-    container.appendChild(label).appendChild(select);
+    row1.appendChild(label).appendChild(select);
 
 
-  container.appendChild(document.createTextNode("Start Time"));
-  let input1 = document.createElement("input");
-  input1.type = "time";
-  input1.name = "startTime";
-  input1.id = "startTime" + workCount;
-  container.appendChild(input1);
+    row1.appendChild(document.createTextNode("Start Time"));
+    let input1 = document.createElement("input");
+    input1.type = "time";
+    input1.name = "startTime";
+    input1.id = "startTime" + workCount;
+    input1.style = "margin:10px;";
+    row1.appendChild(input1);
 
 
-  container.appendChild(document.createTextNode("End Time"));
-  let input2 = document.createElement("input");
-  input2.type = "time";
-  input2.name = "endTime";
-  input2.id = "endTime" + workCount;
-  container.appendChild(input2);
+    row1.appendChild(document.createTextNode("End Time"));
+    let input2 = document.createElement("input");
+    input2.type = "time";
+    input2.name = "endTime";
+    input2.id = "endTime" + workCount;
+    input2.style = "margin:10px;";
+    
+    row1.appendChild(input2);
 
-  let removeBtn = document.createElement('button');
-  removeBtn.setAttribute('class', 'w3-bar-item w3-button w3-red');
-  removeBtn.innerHTML = 'Remove';
-  container.appendChild(removeBtn);
+    let removeBtn = document.createElement('button');
+    removeBtn.setAttribute('class', 'btn btn-danger');
+    removeBtn.innerHTML = 'Remove';
+    removeBtn.style = "margin:10px;";
+    row1.appendChild(removeBtn);
+    container.appendChild(row1);
 
-  removeBtn.addEventListener('click', e => {
-    for(i=0; i< 6; i++){
-      container.removeChild(container.lastChild);
-    }
-    console.log(container.childElementCount);
-    workCount--;
-  
-  });
+
+    removeBtn.addEventListener('click', e => {
+      for(i=0; i< 6; i++){
+        row1.removeChild(row1.lastChild);
+      }
+      console.log(row1.childElementCount);
+      workCount--;
+    
+    });
 
 }
 
@@ -211,7 +222,7 @@ function populateDoctorTable(empData, idx=1) {
   });
   /* View Details button */
   const viewBtn = document.createElement('button');
-  viewBtn.setAttribute('class', 'btn mx-1 btn-info');
+  viewBtn.setAttribute('class', 'btn  btn-info');
   viewBtn.setAttribute('data-id', _id);
   viewBtn.innerHTML = '<i class="fas fa-info-circle"></i>';
   forthColumn.appendChild(viewBtn);
@@ -221,9 +232,9 @@ function populateDoctorTable(empData, idx=1) {
   })
   /* Work Schedule Edit button */
   const scheduleBtn = document.createElement('button');
-  scheduleBtn.setAttribute('class', 'btn mx-1 btn-primary');
+  scheduleBtn.setAttribute('class', 'btn mx-1 btn-secondary');
   scheduleBtn.setAttribute('data-id', _id);
-  scheduleBtn.innerHTML = '<i class="fas fa-clock"></i>';
+  scheduleBtn.innerHTML = '<i class="far fa-calendar-alt"></i>';
   forthColumn.appendChild(scheduleBtn);
 
   scheduleBtn.addEventListener('click', e => {
