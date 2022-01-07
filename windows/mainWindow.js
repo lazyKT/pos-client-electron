@@ -20,7 +20,7 @@ const { createFormWindow } = require("./formWindow.js");
 const { createServiceWindow } = require("./serviceWindow.js");
 const { createEditFormWindow } = require("./editFormWindow.js");
 const { createClinicCashierWindow } = require("./clinicCashierWindow.js");
-
+const { createDoctorWindow } = require("./doctorWindow.js");
 
 const userMangementURL = path.join(__dirname, "../views/user/user.html");
 const patientMgmtURL = path.join(__dirname, "../views/user/patient2.html");
@@ -145,8 +145,8 @@ function openWindow ({name, _id, page}) {
 function loadUserWindows({name, _id, page})
 {
   switch (page){
-    case 'Doctor' :
-      win.loadFile(userMangementURL);
+    case 'Medical Staffs' :
+      createDoctorWindow(name,_id);
       break;
     case 'Patient' :
       createPatientWindow(name, _id);
