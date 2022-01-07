@@ -217,6 +217,10 @@ function displayDoctorData(emp) {
   console.log(workingSch.length);
   for (var i = 0; i < workingSch.length ; i++)
   {
+    var startTime = workingSch[i].startTime;
+    var endTime = workingSch[i].endTime;
+    var day = workingSch[i].day;
+
     var row1 = document.createElement("div");
     row1.id = "row2";
     row1.class = "row";
@@ -242,7 +246,7 @@ function displayDoctorData(emp) {
     label.id = "wLabel";
 
 
-    select.value = workingSch[i].day;
+    select.value = day;
   
  
     row1.appendChild(label).appendChild(select);
@@ -254,7 +258,7 @@ function displayDoctorData(emp) {
     input1.name = "startTime";
     input1.id = "startTime" + workCount;
     input1.style = "margin:10px;";
-    var convertedTime = moment(workingSch[i].startTime, 'hh:mm A').format('HH:mm');
+    var convertedTime = moment(startTime, 'hh:mm A').format('HH:mm');
 
     input1.value = convertedTime;
     row1.appendChild(input1);
@@ -266,12 +270,12 @@ function displayDoctorData(emp) {
     input2.name = "endTime";
     input2.id = "endTime" + workCount;
     input2.style = "margin:10px;";
-    var convertedTime1 = moment(workingSch[i].endTime, 'hh:mm A').format('HH:mm');
+    var convertedTime1 = moment(endTime, 'hh:mm A').format('HH:mm');
     input2.value = convertedTime1;
 
     row1.appendChild(input2);
 
-    let removeBtn = document.createElement('button');
+    const removeBtn = document.createElement('button');
     removeBtn.setAttribute('class', 'btn btn-danger');
     removeBtn.innerHTML = 'Remove';
     removeBtn.style = "margin:10px;";
@@ -279,12 +283,41 @@ function displayDoctorData(emp) {
     container.appendChild(row1);
 
 
-    removeBtn.addEventListener('click', e => {
-      for(i=0; i< 6; i++){
-        row1.removeChild(row1.lastChild);
+    removeBtn.addEventListener('click', async e => {
+      try {
+        e.target.setAttribute("disabled", true);
+        e.target.innerHTML = "Loading ...";
+
+
+        const response = await deleteDoctorSchedule ( {
+          doctorId : id,
+          startTime, 
+          endTime,
+          day
+        });
+
+        if (response && response.ok) {
+          console.log("successfully removed!");
+        }
+        else {
+          const { message } = await response.json();
+          const errorMessage = message ? message : "Error: deleting doctor. code 500";
+          showErrorMessage(errorMessage);
+        }
       }
+      catch (error) {
+        console.log(error);
+        showErrorMessage(`Application Error: code 300`);
+      }
+      finally {
+        for(i=0; i< 6; i++){
+        row1.removeChild(row1.lastChild);
+        }
+        
+        workCount--;
+      }
+
       
-      workCount--;
     
     });
   }
@@ -414,3 +447,25 @@ async function deleteDoctorById (id){
     console.error(error);
   }
 }
+
+/* delete doctor schedule by id */
+async function deleteDoctorSchedule(data){
+  try {
+    const response = await fetch(`${serverUrl}/api/doctors/remove-schedule`, {
+      method: "PUT",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
+
+
+
