@@ -22,7 +22,7 @@ exports.createDocSchEditWindow = function createDocSchEditWindow(parentWindow, t
   if (!win || win === null) {
     win = new BrowserWindow ({
       width: 1000,
-      height: 700,
+      height: 620,
       parent: parentWindow,
       modal: true,
       show: false,
