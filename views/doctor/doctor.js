@@ -1,4 +1,4 @@
-//patient with menu tabs
+
 let reloadStatus = "ready";
 // for pagination
 let limit = 10;
@@ -6,22 +6,19 @@ let page = 1;
 let order = 1;
 
 let sort = 'fullname';
-let  totalPatients, numPages; 
+let  totalDoctors, numPages;
 let serverURL, empName;
 let filtering = false;
+let counter = 1;
 
 
+let workCount = 0;
 
 // DOM Nodes
 window.onload = async () => {
 
   try {
     const loadingSpinner = document.getElementById("loading-spinner");
-   
-    next = document.getElementById("next");
-    const inputBOD = document.getElementById("inputBOD");
-
-    setMinAge(inputBOD);
 
     loadDataFromLocalStorage();
     displayLoginInformation();
@@ -32,7 +29,6 @@ window.onload = async () => {
   catch (error) {
     showAlertModal(error.message, "Error!", "error");
   }
-
 }
 
 /**
@@ -98,7 +94,94 @@ async function changeNumPerPage (num) {
 }
 
 
+/*  Adding new inputs for working hours */
+async function addForm(event){
+  workCount+= 1;
+  const container = document.getElementById("container1");
+  console.log(container.childElementCount);
 
+  var row1 = document.createElement("div");
+    row1.id = "row1";
+    row1.class = "row";
+
+    var values = ["Sunday", "Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
+
+    var select = document.createElement("select");
+    select.name = "days";
+    select.id = "days" +workCount;
+
+    for (const val of values)
+    {
+        var option = document.createElement("option");
+        option.value = values.indexOf(val);
+        option.text = val.charAt(0).toUpperCase() + val.slice(1);
+        select.appendChild(option);
+    }
+
+    var label = document.createElement("label");
+    label.innerHTML = "Working Days: "
+    label.htmlFor = "days";
+    label.id = "wLabel";
+
+
+    row1.appendChild(label).appendChild(select);
+
+
+    row1.appendChild(document.createTextNode("Start Time"));
+    let input1 = document.createElement("input");
+    input1.type = "time";
+    input1.name = "startTime";
+    input1.id = "startTime" + workCount;
+    input1.style = "margin:10px;";
+    row1.appendChild(input1);
+
+
+    row1.appendChild(document.createTextNode("End Time"));
+    let input2 = document.createElement("input");
+    input2.type = "time";
+    input2.name = "endTime";
+    input2.id = "endTime" + workCount;
+    input2.style = "margin:10px;";
+
+    row1.appendChild(input2);
+
+    let removeBtn = document.createElement('button');
+    removeBtn.setAttribute('class', 'btn btn-danger');
+    removeBtn.innerHTML = 'Remove';
+    removeBtn.style = "margin:10px;";
+    row1.appendChild(removeBtn);
+    container.appendChild(row1);
+
+
+    removeBtn.addEventListener('click', e => {
+      for(i=0; i< 6; i++){
+        row1.removeChild(row1.lastChild);
+      }
+      console.log(row1.childElementCount);
+      workCount--;
+
+    });
+
+}
+
+
+function myFunction() {
+  document.getElementById("myDropdown").classList.toggle("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
 
 
 /***
@@ -106,42 +189,24 @@ async function changeNumPerPage (num) {
 ***/
 async function onKeyUp(event) {
   if (event.key === 'Enter')
-      filterPatients(event);
-}
-
-function formatDate(input) {
-    console.log(input);
-    var d = new Date(input),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-    if (month.length < 2)
-        month = '0' + month;
-    if (day.length < 2)
-        day = '0' + day;
-
-    return [year, month, day].join('-');
+      filterDoctors(event);
 }
 
 
-function populatePatientTable(empData, idx=1) {
-  const { _id,patientId, fullname, birthday, gender, mobile, address, allergies } = empData;
-  const patientTable = document.getElementById('patient-table');
 
-  const row = patientTable.insertRow(idx);
+function populateDoctorTable(empData, idx=1) {
+  const { _id,doctorId, name, specialization, starttime, endtime } = empData;
+  const doctorTable = document.getElementById('doctor-table');
+
+  const row = doctorTable.insertRow(idx);
   const firstColumn = row.insertCell(0);
   const secondColumn = row.insertCell(1);
   const thirdColumn = row.insertCell(2);
   const forthColumn = row.insertCell(3);
-  const fifthColumn = row.insertCell(4);
-  const sixthColumn = row.insertCell(5);
 
-  firstColumn.innerHTML = patientId;
-  secondColumn.innerHTML = fullname;
-  thirdColumn.innerHTML = formatDate(birthday);
-  forthColumn.innerHTML = gender;
-  fifthColumn.innerHTML = mobile;
+  firstColumn.innerHTML = doctorId;
+  secondColumn.innerHTML = name;
+  thirdColumn.innerHTML = specialization;
 
   const actionDiv = document.createElement('div');
 
@@ -150,26 +215,39 @@ function populatePatientTable(empData, idx=1) {
   editBtn.setAttribute('class', 'btn mx-1 btn-primary');
   editBtn.setAttribute('data-id', _id);
   editBtn.innerHTML = '<i class="fas fa-pen"></i>';
-  sixthColumn.appendChild(editBtn);
+  forthColumn.appendChild(editBtn);
   //
   editBtn.addEventListener('click', e => {
-    window.api.send('patient-data', {_id, method: 'PUT'});
+    window.api.send('doctor-data', {_id, method: 'PUT'});
   });
   /* View Details button */
   const viewBtn = document.createElement('button');
-  viewBtn.setAttribute('class', 'btn mx-1 btn-info');
+  viewBtn.setAttribute('class', 'btn  btn-info');
   viewBtn.setAttribute('data-id', _id);
   viewBtn.innerHTML = '<i class="fas fa-info-circle"></i>';
-  sixthColumn.appendChild(viewBtn);
+  forthColumn.appendChild(viewBtn);
 
   viewBtn.addEventListener('click', e => {
-    window.api.send('patient-data', {_id, method: 'GET'});
+    window.api.send('doctor-data', {_id, method: 'GET'});
   })
+  /* Work Schedule Edit button */
+  const scheduleBtn = document.createElement('button');
+  scheduleBtn.setAttribute('class', 'btn mx-1 btn-secondary');
+  scheduleBtn.setAttribute('data-id', _id);
+  scheduleBtn.innerHTML = '<i class="far fa-calendar-alt"></i>';
+  forthColumn.appendChild(scheduleBtn);
+
+  scheduleBtn.addEventListener('click', e => {
+    window.api.send('doctor-schedule-data', {_id, method: 'PUT'});
+  })
+
+
+
 }
 
 
-/* filter patient data */
-async function filterPatients () {
+/* filter doctor data */
+async function filterDoctors () {
   const q = document.getElementById('search-input').value;
 
   if (!q || q === '')
@@ -177,28 +255,28 @@ async function filterPatients () {
 
   try {
     filtering = true;
-    const response = await searchPatients(q);
+    const response = await searchDoctors(q);
 
 
     if (response && response.ok) {
-      const patient = await response.json();
-      if (patient.length === 0) {
+      const doctor = await response.json();
+      if (doctor.length === 0) {
         // show empty message
         showEmptyMessage(q);
       }
       else{
-        displayFilteredResults(patient);
+        displayFilteredResults(doctor);
       }
-      totalPatients = patient.length
-      numPages = Math.floor(totalPatients/limit) + 1
+      totalDoctors = doctor.length
+      numPages = Math.floor(totalDoctors/limit) + 1
       await createPaginationButtons();
     }
     else {
       const { message } = await response.json();
       if (message)
-        showAlertModal(`Error Searching Patients`, message, "error");
+        showAlertModal(`Error Searching Doctors`, message, "error");
       else
-        showAlertModal("Error Searching Patients. Code : 500", "Network Connection Error", "error");
+        showAlertModal("Error Searching Doctors. Code : 500", "Network Connection Error", "error");
     }
     // displayFilteredResults(results);
   }
@@ -221,13 +299,13 @@ async function resetFilter () {
    emptyMessageBox.remove();
 
   // window.api.send('form-data-finish', {method: 'GET', type: 'user'});
-  reloadData({method: 'GET', type: 'patient'});
+  reloadData({method: 'GET', type: 'doctor'});
   await createPaginationButtons();
 };
 
 
 
-/*Reload patient data*/
+/*Reload doctor data*/
 async function reloadData() {
 
   if (reloadStatus === "reloading")
@@ -240,16 +318,12 @@ async function reloadData() {
     clearDataContainer();
 
     // reload the data by fetching data based on the data type, and populate the table again
-    const response = await fetchPatients();
+    const response = await fetchDoctors();
 
     if (response && response.ok) {
       const emps = await response.json();
 
-      // if (emps.length === 0)
-      //   showEmptyMessage();
-      // else
-
-      emps.forEach( (emp, idx) => populatePatientTable(emp, idx + 1));
+      emps.forEach( (emp, idx) => populateDoctorTable(emp, idx + 1));
 
     }
     else {
@@ -279,7 +353,7 @@ function displayFilteredResults(results) {
   clearDataContainer();
 
   if (results.length > 0)
-    results.forEach( (result, idx) => populatePatientTable(result, idx + 1));
+    results.forEach( (result, idx) => populateDoctorTable(result, idx + 1));
   else
     showEmptyMessage();
 }
@@ -361,14 +435,14 @@ function clearUserLocalStorageData () {
 async function createPaginationButtons () {
   try {
 
-    const response = await getPatientsCount();
+    const response = await getDoctorsCount();
     if (response && response.ok) {
       if (!filtering && limit !== 0) {
         const count = await response.json();
 
-        totalPatients = parseInt(count.count);
+        totalDoctors = parseInt(count.count);
 
-        numPages = totalPatients%limit === 0 ? totalPatients/limit : Math.floor(totalPatients/limit) + 1;
+        numPages = totalDoctors%limit === 0 ? totalDoctors/limit : Math.floor(totalDoctors/limit) + 1;
 
       }
 
@@ -384,12 +458,12 @@ async function createPaginationButtons () {
     else {
       const { message } = await response.json();
       const errMessage = message ? message : "Network Connection Error!";
-      showAlertModal(`Error Searching Patients`, message, "error");
+      showAlertModal(`Error Searching Doctors`, message, "error");
     }
   }
   catch (error) {
   	console.log(error);
-    showAlertModal(`Error Searching Patients`, "Application Error! Contact Developer!", "error");
+    showAlertModal(`Error Searching Doctors`, "Application Error! Contact Developer!", "error");
   }
 }
 
@@ -398,7 +472,7 @@ async function createPaginationButtons () {
 async function displayPagination () {
   // populate pagination elements here
   const pagination = document.getElementById('pagination2');
-  console.log(pagination);
+  //console.log(pagination);
   removePaginationItems();
 
   for (let i = 0; i < numPages; i++) {
@@ -524,13 +598,13 @@ function togglePaginationButtons () {
 
 
 /***********************************************************************
-################## CREATE NEW PATIENTS TAB ###################
+################## CREATE NEW Doctors TAB ###################
 ***********************************************************************/
 
 
 
 /**
-# Set Minimun Expiry Date to next five months 
+# Set Minimun Expiry Date to next five months
 **/
 function setMinAge (input) {
   const today = new Date();
@@ -547,51 +621,75 @@ function setMinAge (input) {
   input.setAttribute("max", minDate);
   }
 
-function calculateAge(input)
+function validateTime(time)
 {
-  const today = new Date();
-  const birthDate = new Date(input);
-  let age = today.getFullYear() - birthDate.getFullYear();
-  console.log(age);
-  let m = today.getMonth() - birthDate.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate()))
-    {
-        age--;
-    }
-    return age;
+
+}
+
+function timeConvert (time) {
+  // Check correct time format and split into components
+  time = time.toString ().match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+
+  if (time.length > 1) { // If time format correct
+    time = time.slice (1);  // Remove full string match value
+    time[5] = +time[0] < 12 ? ' AM' : ' PM'; // Set AM/PM
+    time[0] = +time[0] % 12 || 12; // Adjust hours
+    time[0] = time[0] < 10 ? '0' + time[0] : time[0];
+  }
+  return time.join (''); // return adjusted time or original string
 }
 
 
-
 /**
-# Create Patient
+# Create Doctor
 **/
-async function createPatient(event) {
+async function createDoctor(event) {
   try {
     // prevent default behaviour on form submit
+    let workingschedule =[];
+    let z = 0;
     event.preventDefault();
+    const container = document.getElementById('container1');
+    const child = container.children;
+    console.log(child.length);
+    for (var i = 1; i <= child.length/4; i++)
+    {
 
-    const fullname = document.getElementById('fullname').value;
-    const birthday = document.getElementById('inputBOD').value;
-    const gender = document.getElementById('gender').value;
-    const mobile = document.getElementById('mobile').value;
-    const address = document.getElementById('address').value;
-    const allergies = document.getElementById('allergies').value;
+      workingday = document.getElementById("days" + i).value;
+      workSTime = document.getElementsByName('startTime')[z].value;
+      workETime = document.getElementsByName('endTime')[z].value;
+      if (workETime < workSTime)
+      {
+        throw new Error("End Time must be Greater than Start Time");
+      }
 
-    if (!fullname || fullname === ''|| !birthday || birthday === ''|| !gender || gender === '' || !mobile || mobile === '' || !address || address === '' || !allergies || allergies === '') {
+      workSTime = timeConvert(workSTime);
+      workETime = timeConvert(workETime);
+      z++;
+
+
+      workingschedule.push({startTime : workSTime , endTime : workETime , day : workingday});
+      // console.log(workingSch);
+      // workingschedule.push(workSch);
+
+    }
+    console.log(workingschedule);
+
+
+    const name = document.getElementById('fullname').value;
+    const specialization = document.getElementById('specialization').value;
+    //const workingDays = "[1, 2, 3, 4, 5]";
+    if (!name || name === ''|| !specialization || specialization === ''|| !workingschedule || workingschedule === '' ) {
       throw new Error ("Missing Required Inputs");
     }
 
     const data = {
-      fullname,
-      gender,
-      birthday,
-      mobile,
-      address,
-      allergies
+      name,
+      specialization,
+      workingSchedule : workingschedule
     }
-
-    const response = await fetch(`${serverURL}/api/patients`, {
+    console.log(data);
+    const response = await fetch(`${serverURL}/api/doctors`, {
       method: "POST",
       headers: {
         "Content-Type" : "application/json",
@@ -600,8 +698,9 @@ async function createPatient(event) {
       body: JSON.stringify(data)
     });
     if (response && response.ok) {
-      const patient = await response.json();
-      showAlertModal(`${fullname}, is successfully created!`, "New Patient Created!", "success");
+      const doctor = await response.json();
+      console.log(doctor);
+      showAlertModal(`${name}, is successfully created!`, "New Doctor Created!", "success");
       // clear form input
       clearFormInputs();
       await reloadData({});
@@ -609,27 +708,29 @@ async function createPatient(event) {
     }
     else {
       const { message } = await response.json();
-      const errMessage = message ? `Error Creating New Patient. ${message}`
-                            : "Error Creating New Patient. code 300";
+      const errMessage = message ? `Error Creating New Doctor. ${message}`
+                            : "Error Creating New Doctor. code 300";
 
       showAlertModal(errMessage, "Error", "error");
     }
   }
   catch (error) {
-    console.log('Error Fetching Create-New-Patient Response', error);
+    console.log('Error Fetching Create-New-Doctor Response', error);
     showAlertModal(error.message, "Error", "error");
   }
 }
 
 
-// clear create patients form inputs
+// clear create doctors form inputs
 function clearFormInputs () {
   (document.getElementById('fullname')).value = '';
-  (document.getElementById('inputBOD')).value = '';
-  (document.getElementById('gender')).value = 'none';
-  (document.getElementById('mobile')).value = '';
-  (document.getElementById('address')).value = '';
-  (document.getElementById('allergies')).value = '';
+  (document.getElementById('specialization')).value = '';
+  const container = document.getElementById('container1');
+  var child = container.lastChild;
+        while (child) {
+            container.removeChild(child);
+            child = container.lastChild;
+          }
 }
 
 
@@ -670,9 +771,9 @@ function removeAlertModal (e) {
 
 
 
-async function getPatientsCount () { 
+async function getDoctorsCount () {
   try {
-    const response = await fetch(`${serverURL}/api/patients/count`, {
+    const response = await fetch(`${serverURL}/api/doctors/count`, {
       method: "GET",
       headers: {
         "Content-Type" : "application/json",
@@ -689,14 +790,14 @@ async function getPatientsCount () {
 
 
 /**
-# Fetch Patients with Pagination Properties
+# Fetch Doctors with Pagination Properties
 **/
-async function fetchPatients () {
+async function fetchDoctors () {
   try {
-    let url = `${serverURL}/api/patients?page=${page}&limit=${limit}&order=${order}&sort=${sort}`;
+    let url = `${serverURL}/api/doctors?page=${page}&limit=${limit}&order=${order}&sort=${sort}`;
 
     if (limit === 0)
-      url = `${serverURL}/api/patients?limit=0&order=${order}&sort=${sort}`;
+      url = `${serverURL}/api/doctors?limit=0&order=${order}&sort=${sort}`;
 
     const response = await fetch(url, {
       method: "GET",
@@ -709,15 +810,15 @@ async function fetchPatients () {
     return response;
   }
   catch (error) {
-    console.error("Error Getting  Patients/n", error);
+    console.error("Error Getting  Doctors/n", error);
   }
 }
 
 
-/** Search Patients by Keyword **/
-async function searchPatients (q) {
+/** Search Doctors by Keyword **/
+async function searchDoctors (q) {
   try {
-    const response = await fetch(`${serverURL}/api/patients/search?q=${q}`, {
+    const response = await fetch(`${serverURL}/api/doctors/search?q=${q}`, {
       method: "GET",
       headers: {
         "Content-Type" : "application/json",
@@ -728,7 +829,7 @@ async function searchPatients (q) {
     return response;
   }
   catch (error) {
-    console.error(`Error Search Patients: ${error}`);
+    console.error(`Error Search Doctors: ${error}`);
   }
 }
 

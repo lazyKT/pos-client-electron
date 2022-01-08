@@ -11,6 +11,7 @@
 
  const { removeEventListeners } = require("../ipcHelper.js");
  const { createBookingDetailsWindow } = require('./bookingDetailsWindow.js');
+ const { createBookingListWindow } = require('./bookingListWindow.js');
 
 
  let win
@@ -43,7 +44,7 @@
 
 
    win.on("close", () => {
-     removeEventListeners(ipcMain, ["logout"]);
+     removeEventListeners(ipcMain, ["logout", 'open-booking-list', 'open-booking-details']);
      if (win) win = null;
    });
 
@@ -56,6 +57,10 @@
    ipcMain.on('open-booking-details', (event, args) => {
      createBookingDetailsWindow(win, args.bookingId);
    });
+
+   ipcMain.on('open-booking-list', (event, args) => {
+     createBookingListWindow(win, args);
+   })
 
  }
 

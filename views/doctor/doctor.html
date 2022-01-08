@@ -1,28 +1,30 @@
-<!-- Services layout -->
+<!-- doctor layout -->
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>Medical Services</title>
+    <title>Medical Staffs Data</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
       integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
       crossorigin="anonymous">
-     <link rel="stylesheet" href="services.css">
-   
+    <!-- <link rel="stylesheet" href="main.css"> -->
+    <link rel="stylesheet" href="doctor.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/css/bootstrap-select.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <!-- JavaScript Bundle with Popper -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-<script src="services.js" data-name="services">
+<script src="doctor.js" data-name="doctor">
 
         </script>
+       
   </head>
 <body>
 
    <header class="d-flex justify-content-between p-2 bg-primary">
-      <h4 class="text-white" id='content-title'>Medical Services</h4>
+      <h4 class="text-white" id='content-title'>Medical Staffs</h4>
       <button class="btn btn-primary" id="logout" onclick="logout()">
         Logout &nbsp;<i class="fas fa-sign-out-alt"></i>
       </button>
@@ -46,14 +48,14 @@
           <li class="nav-item" role="presentation">
             <button
               class="nav-link active"
-              id="patient2-tab"
+              id="doctor-tab"
               data-bs-toggle="tab"
-              data-bs-target="#patient2"
+              data-bs-target="#doctor"
               type="button"
               role="tab"
-              aria-controls="patient2"
+              aria-controls="doctor"
               aria-selected="true">
-              Services
+              Medical Staffs
             </button>
           </li>
 
@@ -73,20 +75,20 @@
 
         <div class="tab-content" id="myTabContent">
 
-          <!-- patients tab -->
-          <div class="tab-pane fade show active" id="patient2" role="tabpanel" aria-labelledby="patient2-tab">
+          <!-- doctors tab -->
+          <div class="tab-pane fade show active" id="doctor" role="tabpanel" aria-labelledby="doctor-tab">
 
             <!-- pagination tab -->
             <div class= "container">
               <div class="row mt-2 justify-content-between">
-                <div class="col-5">
+                <div class="col-8">
                   <div class="input-group">
-                    <input class="form-control search-input" id='search-input' type="text" name="" value="" placeholder="Search Services" onkeyup= "onKeyUp(event)">
-                    <button onclick="filterServices()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
-                    <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button" style='display:none'>Cancel</button>
+                    <input class="form-control search-input" id='search-input' type="text" name="" value="" placeholder="Search Doctors" onkeyup= "onKeyUp(event)">
+                    <button onclick="filterDoctors()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
+                    <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button" >Cancel</button>
                   </div>
                 </div>
-                <div class="col-5">
+                <div class="col-4">
 
                   <a class="btn btn-secondary dropdown-toggle"
                     href="#" role="button"
@@ -115,18 +117,16 @@
 
             <div class="card my-2 box" width = 'auto'>
               <div class="card-body" id="data-container">
-                <table class="table" id="services-table">
+                <table class="table" id="doctor-table">
                   <thead>
                     <col style="width: 15%;" />
                     <col style="width: 20%;" />
                     <col style="width: 15%;" />
                     <col style="width: 15%;" />
-                    <col style="width: 20%;" />
                     <tr class="bg-primary text-white p-1">
                       <th scope="col">ID</th>
-                      <th scope="col">Service Name</th>
-                      <th scope="col">Price</th>
-                      <th scope="col">Remarks</th>
+                      <th scope="col">Name</th>
+                      <th scope="col">Specialization</th>
                       <th scope="col">Action(s)</th>
                     </tr>
                   </thead>
@@ -154,7 +154,7 @@
               </div>
             </div>
 
-          <!-- end of patients tab -->
+          <!-- end of doctors tab -->
 
 
           <!-- create tab -->
@@ -162,32 +162,38 @@
 
 
 
-            <!-- create new patient -->
+            <!-- create new medical staff -->
             <div class="card my-2 box" width = 'auto'>
               <div class="card-body">
-                <h5>Add new Service</h5>
+                <h5>Register New Medical Staff</h5>
                 <p style="color:red" id="error-create-item"></p>
                 <form>
 
                     <div class="form-group col-md-3 mb-2">
-                      <label for="servicename">Service Name</label>
-                      <input type="text" class="form-control" id="servicename" required>
+                      <label for="fullname">Full Name</label>
+                      <input type="text" class="form-control" id="fullname" required>
                     </div>
+                
                     <div class="form-group col-md-3 mb-2">
-                      <label for="price">Price</label>
-                      <input type="text" class="form-control" id="price" required />
+                      <label for="mobile">Specialization</label>
+                      <input type="text" class="form-control" id="specialization" required />
                     </div>
-                    <div class="form-group col-md-3 mb-2">
-                      <label for="remarks">Remarks</label>
-                      <input type="text" class="form-control" id="remarks" required />
+                    
+                    <button style="margin:10px;" onclick="addForm(event)" class="mx-1 btn btn-success" id="addButton" type="button" name="addButton" >Add Working Hours + </button>
+
+                      <div class="container" id="container1">
+                      
                     </div>
 
-                    <a type="submit" class="btn btn-primary mb-2"
-                      id="createItem" onclick="createService(event)">
-                      Create
-                    </a>
+                   
 
                 </form>
+                <div>
+                </div>
+                 <a type="submit" class="btn btn-primary mb-2"
+                      id="createItem" onclick="createDoctor(event)">
+                      Create
+                    </a>
               </div>
             </div>
           </div>
@@ -206,7 +212,7 @@
 
       </div>
       <div id="my-alert-modal-message" class="p-2">
-        
+
       </div>
       <div class="d-flex justify-content-center p-1">
         <button class="btn btn-primary my-1" onclick="removeAlertModal(event)">
