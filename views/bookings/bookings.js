@@ -287,9 +287,18 @@ function displayWeeklyViewCalendar () {
 
   calendar.render();
 
-  calendar.on('dateClick', (info) => {
-    console.log('click on', info);
-  });
+  // calendar.on('dateClick', (info) => {
+  //   console.log('click on', info, showBooking.checked);
+  // });
+
+  calendar.on('eventClick', e => {
+    console.log('Event Info', e.event._def);
+    const bookingDateTime = new Date(e.event._def.publicId);
+    window.bookingsAPI.send('open-booking-list', {
+      doctor: doctorSelect?.value,
+      dateTime: e.event._def.publicId
+    });
+  })
 
   calendar.on('datesSet', async (info) => {
     try {
