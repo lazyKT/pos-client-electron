@@ -1,10 +1,11 @@
+// DOM Nodes
+const closeButton = document.getElementById('close-button');
+
 let serverUrl, doctorName, bookingDateTime
-console.log('booking_list.js running...');
 
 window.bookingListAPI.receive('filter', async (filter) => {
   try {
     loadDataFromLocalStorage();
-    console.log('filter', filter);
 
     bookingDateTime = filter.dateTime;
 
@@ -25,6 +26,11 @@ window.bookingListAPI.receive('filter', async (filter) => {
   catch (error) {
     console.error(error.message);
   }
+});
+
+
+closeButton.addEventListener('click', e => {
+  bookingListAPI.send('close-booking-list');
 });
 
 
@@ -57,18 +63,27 @@ function displayBookings (bookings) {
     const div = document.createElement('div');
     div.setAttribute('class', 'p-2');
 
-    const tokenNumber = document.createElement('h6');
+    const tokenNumber = document.createElement('h5');
+    tokenNumber.setAttribute('class', 'text-muted');
     tokenNumber.innerHTML = `Token #${booking.bookingId}`;
     div.appendChild(tokenNumber);
 
     const infoRow = document.createElement('div');
-    infoRow.setAttribute('class', 'row my-2');
+    infoRow.setAttribute('class', 'row mt-2');
 
     createDataColumn(infoRow, 'Patient Name', booking.patientName);
     createDataColumn(infoRow, 'Patient Contact', booking.patientContact);
     createDataColumn(infoRow, 'Doctor Name', booking.doctorName);
 
     div.appendChild(infoRow);
+
+    const timeRow = document.createElement('div');
+    timeRow.setAttribute('class', 'row mt-2');
+
+    createDataColumn(timeRow, 'Booking Date', (new Date(booking.dateTime)).toLocaleString());
+
+    div.appendChild(timeRow);
+
     container.appendChild(div);
 
     const hr = document.createElement('hr');
@@ -82,10 +97,10 @@ function createDataColumn (row, title, data) {
   const col = document.createElement('div');
   col.setAttribute('class', 'col');
 
-  const p = document.createElement('p');
-  p.setAttribute('class', 'text-muted');
-  p.innerHTML = title;
-  col.appendChild(p);
+  const span = document.createElement('span');
+  span.setAttribute('class', 'text-muted');
+  span.innerHTML = title;
+  col.appendChild(span);
 
   const h6 = document.createElement('h6');
   h6.innerHTML = data;

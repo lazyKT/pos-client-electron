@@ -22,6 +22,7 @@ exports.createBookingListWindow = function (parent, filter) {
       height: 600,
       show: false,
       parent: parent,
+      modal: true,
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
