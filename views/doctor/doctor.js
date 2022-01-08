@@ -6,7 +6,7 @@ let page = 1;
 let order = 1;
 
 let sort = 'fullname';
-let  totalDoctors, numPages; 
+let  totalDoctors, numPages;
 let serverURL, empName;
 let filtering = false;
 let counter = 1;
@@ -19,7 +19,7 @@ window.onload = async () => {
 
   try {
     const loadingSpinner = document.getElementById("loading-spinner");
-    
+
     loadDataFromLocalStorage();
     displayLoginInformation();
 
@@ -96,16 +96,20 @@ async function changeNumPerPage (num) {
 
 /*  Adding new inputs for working hours */
 async function addForm(event){
-workCount+= 1;
+  workCount+= 1;
   const container = document.getElementById("container1");
   console.log(container.childElementCount);
 
-  var values = ["Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
- 
+  var row1 = document.createElement("div");
+    row1.id = "row1";
+    row1.class = "row";
+
+    var values = ["Sunday", "Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
+
     var select = document.createElement("select");
     select.name = "days";
     select.id = "days" +workCount;
- 
+
     for (const val of values)
     {
         var option = document.createElement("option");
@@ -113,43 +117,50 @@ workCount+= 1;
         option.text = val.charAt(0).toUpperCase() + val.slice(1);
         select.appendChild(option);
     }
- 
+
     var label = document.createElement("label");
     label.innerHTML = "Working Days: "
     label.htmlFor = "days";
     label.id = "wLabel";
- 
-    container.appendChild(label).appendChild(select);
 
 
-  container.appendChild(document.createTextNode("Start Time"));
-  let input1 = document.createElement("input");
-  input1.type = "time";
-  input1.name = "startTime";
-  input1.id = "startTime" + workCount;
-  container.appendChild(input1);
+    row1.appendChild(label).appendChild(select);
 
 
-  container.appendChild(document.createTextNode("End Time"));
-  let input2 = document.createElement("input");
-  input2.type = "time";
-  input2.name = "endTime";
-  input2.id = "endTime" + workCount;
-  container.appendChild(input2);
+    row1.appendChild(document.createTextNode("Start Time"));
+    let input1 = document.createElement("input");
+    input1.type = "time";
+    input1.name = "startTime";
+    input1.id = "startTime" + workCount;
+    input1.style = "margin:10px;";
+    row1.appendChild(input1);
 
-  let removeBtn = document.createElement('button');
-  removeBtn.setAttribute('class', 'w3-bar-item w3-button w3-red');
-  removeBtn.innerHTML = 'Remove';
-  container.appendChild(removeBtn);
 
-  removeBtn.addEventListener('click', e => {
-    for(i=0; i< 6; i++){
-      container.removeChild(container.lastChild);
-    }
-    console.log(container.childElementCount);
-    workCount--;
-  
-  });
+    row1.appendChild(document.createTextNode("End Time"));
+    let input2 = document.createElement("input");
+    input2.type = "time";
+    input2.name = "endTime";
+    input2.id = "endTime" + workCount;
+    input2.style = "margin:10px;";
+
+    row1.appendChild(input2);
+
+    let removeBtn = document.createElement('button');
+    removeBtn.setAttribute('class', 'btn btn-danger');
+    removeBtn.innerHTML = 'Remove';
+    removeBtn.style = "margin:10px;";
+    row1.appendChild(removeBtn);
+    container.appendChild(row1);
+
+
+    removeBtn.addEventListener('click', e => {
+      for(i=0; i< 6; i++){
+        row1.removeChild(row1.lastChild);
+      }
+      console.log(row1.childElementCount);
+      workCount--;
+
+    });
 
 }
 
@@ -192,7 +203,7 @@ function populateDoctorTable(empData, idx=1) {
   const secondColumn = row.insertCell(1);
   const thirdColumn = row.insertCell(2);
   const forthColumn = row.insertCell(3);
- 
+
   firstColumn.innerHTML = doctorId;
   secondColumn.innerHTML = name;
   thirdColumn.innerHTML = specialization;
@@ -211,7 +222,7 @@ function populateDoctorTable(empData, idx=1) {
   });
   /* View Details button */
   const viewBtn = document.createElement('button');
-  viewBtn.setAttribute('class', 'btn mx-1 btn-info');
+  viewBtn.setAttribute('class', 'btn  btn-info');
   viewBtn.setAttribute('data-id', _id);
   viewBtn.innerHTML = '<i class="fas fa-info-circle"></i>';
   forthColumn.appendChild(viewBtn);
@@ -221,9 +232,9 @@ function populateDoctorTable(empData, idx=1) {
   })
   /* Work Schedule Edit button */
   const scheduleBtn = document.createElement('button');
-  scheduleBtn.setAttribute('class', 'btn mx-1 btn-primary');
+  scheduleBtn.setAttribute('class', 'btn mx-1 btn-secondary');
   scheduleBtn.setAttribute('data-id', _id);
-  scheduleBtn.innerHTML = '<i class="fas fa-clock"></i>';
+  scheduleBtn.innerHTML = '<i class="far fa-calendar-alt"></i>';
   forthColumn.appendChild(scheduleBtn);
 
   scheduleBtn.addEventListener('click', e => {
@@ -231,7 +242,7 @@ function populateDoctorTable(empData, idx=1) {
   })
 
 
-  
+
 }
 
 
@@ -593,7 +604,7 @@ function togglePaginationButtons () {
 
 
 /**
-# Set Minimun Expiry Date to next five months 
+# Set Minimun Expiry Date to next five months
 **/
 function setMinAge (input) {
   const today = new Date();
@@ -643,7 +654,7 @@ async function createDoctor(event) {
     console.log(child.length);
     for (var i = 1; i <= child.length/4; i++)
     {
-      
+
       workingday = document.getElementById("days" + i).value;
       workSTime = document.getElementsByName('startTime')[z].value;
       workETime = document.getElementsByName('endTime')[z].value;
@@ -655,12 +666,12 @@ async function createDoctor(event) {
       workSTime = timeConvert(workSTime);
       workETime = timeConvert(workETime);
       z++;
-      
+
 
       workingschedule.push({startTime : workSTime , endTime : workETime , day : workingday});
       // console.log(workingSch);
       // workingschedule.push(workSch);
-     
+
     }
     console.log(workingschedule);
 
@@ -677,7 +688,7 @@ async function createDoctor(event) {
       specialization,
       workingSchedule : workingschedule
     }
-
+    console.log(data);
     const response = await fetch(`${serverURL}/api/doctors`, {
       method: "POST",
       headers: {
@@ -688,7 +699,7 @@ async function createDoctor(event) {
     });
     if (response && response.ok) {
       const doctor = await response.json();
-      console.log(doctor); 
+      console.log(doctor);
       showAlertModal(`${name}, is successfully created!`, "New Doctor Created!", "success");
       // clear form input
       clearFormInputs();
@@ -715,7 +726,7 @@ function clearFormInputs () {
   (document.getElementById('fullname')).value = '';
   (document.getElementById('specialization')).value = '';
   const container = document.getElementById('container1');
-  var child = container.lastChild; 
+  var child = container.lastChild;
         while (child) {
             container.removeChild(child);
             child = container.lastChild;
@@ -760,7 +771,7 @@ function removeAlertModal (e) {
 
 
 
-async function getDoctorsCount () { 
+async function getDoctorsCount () {
   try {
     const response = await fetch(`${serverURL}/api/doctors/count`, {
       method: "GET",
