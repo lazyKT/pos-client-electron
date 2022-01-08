@@ -1,7 +1,7 @@
 // DOM Nodes
 const cancelButton = document.getElementById('dismiss-window');
-const deleteButton = document.getElementById('delete-doctor-sch');
-const editButton = document.getElementById('edit-doctor-sch');
+const deleteButton = document.getElementById('delete-doctor');
+const editButton = document.getElementById('edit-doctor');
 const errorDiv = document.getElementById('error');
 let serverUrl
 let workCount = 0;
@@ -48,7 +48,7 @@ editButton.addEventListener('click', async e => {
 
 
     //const specialization = document.getElementById('specialization')?.value;
-    
+
 
     if (!id || id === '' ||!dId || dId === '' ||!name || name === '' ||!workingSch || workingSch === '' ) {
       throw new Error ("Missing Required Inputs");
@@ -57,7 +57,7 @@ editButton.addEventListener('click', async e => {
     const response = await editDoctorById(id, {
       name,
       specialization,
-    
+
     });
     console.log(response);
     if (response && response.ok) {
@@ -143,11 +143,11 @@ async function addForm(event){
     row1.class = "row";
 
     var values = ["Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
- 
+
     var select = document.createElement("select");
     select.name = "days";
     select.id = "days" +workCount;
- 
+
     for (const val of values)
     {
         var option = document.createElement("option");
@@ -155,13 +155,13 @@ async function addForm(event){
         option.text = val.charAt(0).toUpperCase() + val.slice(1);
         select.appendChild(option);
     }
- 
+
     var label = document.createElement("label");
     label.innerHTML = "Working Days: "
     label.htmlFor = "days";
     label.id = "wLabel";
-    
- 
+
+
     row1.appendChild(label).appendChild(select);
 
 
@@ -170,7 +170,7 @@ async function addForm(event){
     input1.type = "time";
     input1.name = "startTime";
     input1.id = "startTime" + workCount;
-    
+
     row1.appendChild(input1);
 
 
@@ -179,7 +179,7 @@ async function addForm(event){
     input2.type = "time";
     input2.name = "endTime";
     input2.id = "endTime" + workCount;
-    
+
     row1.appendChild(input2);
 
     let removeBtn = document.createElement('button');
@@ -195,7 +195,7 @@ async function addForm(event){
       }
       console.log(container.childElementCount);
       workCount--;
-    
+
     });
 
 }
@@ -224,11 +224,11 @@ function displayDoctorData(emp) {
 
 
     var values = ["Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
- 
+
     var select = document.createElement("select");
     select.name = "days";
     select.id = "days" +workCount;
- 
+
     for (const val of values)
     {
         var option = document.createElement("option");
@@ -236,14 +236,14 @@ function displayDoctorData(emp) {
         option.text = val.charAt(0).toUpperCase() + val.slice(1);
         select.appendChild(option);
     }
- 
+
     var label = document.createElement("label");
     label.innerHTML = "Working Days: "
     label.htmlFor = "days";
     label.id = "wLabel";
     select.value = workingSch[i].day;
-  
- 
+
+
     row1.appendChild(label).appendChild(select);
 
 
@@ -278,7 +278,7 @@ function displayDoctorData(emp) {
       }
       console.log(container.childElementCount);
       workCount--;
-    
+
     });
   }
 

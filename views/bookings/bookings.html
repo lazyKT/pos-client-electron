@@ -94,9 +94,15 @@
                       <div class="w-75">
                         <div class="w-50 mb-3">
                           <label class="form-label my-2 text-muted"><strong>Select Doctor:</strong></label>
-                          <select class="form-control w-50" id="doctor-select">
+                          <select class="form-control w-50 mb-2" id="doctor-select">
                             <option value="">-- --</option>
                           </select>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="show-booking">
+                            <label class="form-check-label" for="defaultCheck1">
+                              Show Bookings
+                            </label>
+                          </div>
                         </div>
                         <div class="m-auto p-2 w-25 text-center" id="loading-spinner-weekly-view">
                             <div class="spinner-border text-primary text-center" role="status">
@@ -147,20 +153,20 @@
                           <table class="table" id="bookings-table">
                               <thead>
                                   <col style="width: 15%;" />
+                                  <col style="width: 10%;" />
+                                  <col style="width: 20%;" />
                                   <col style="width: 15%;" />
-                                  <col style="width: 12%;" />
-                                  <col style="width: 13%;" />
-                                  <col style="width: 16%;" />
-                                  <col style="width: 17%;" />
-                                  <col style="width: 12%;" />
+                                  <col style="width: 10%;" />
+                                  <col style="width: 10%;" />
+                                  <col style="width: 20%;" />
                                   <tr class="bg-primary text-white p-1">
                                       <th scope="col">ID</th>
+                                      <th scope='col'>Token Number</th>
                                       <th scope="col">Patient Name</th>
                                       <th scope="col">Patient Contact</th>
                                       <th scope="col">Booking Date</th>
                                       <th scope="col">Booking Time</th>
-                                      <th scope="col">Service</th>
-                                      <th scope="col">Assigned To</th>
+                                      <th scope="col">Doctor Name</th>
                                   </tr>
                               </thead>
 
@@ -195,37 +201,41 @@
                         <div role="alert" id="error-alert-create-booking">
 
                         </div>
+
                         <div class="form-group mb-3">
-                          <label class="form-label" for="exampleInputPassword1">Booking Date</label>
+                          <label class="form-label">Doctor:</label>
+                          <select
+                            data-type='create'
+                            class="form-control" id="doctors-select-create-booking">
+                            <option value="" selected>-- --</option>
+                          </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                          <label class="form-label">Booking Date</label>
                           <input
                             type="date" class="form-control"
                             data-type='create' id="booking-date">
                         </div>
+
                         <div class="form-group mb-3">
-                          <label class="form-label" for="time-slots">Choose Booking Time</label>
+                          <label class="form-label">Booking Time</label>
                           <select
                             data-type='create'
-                            class="form-control" id="time-slots">
-                            <option value="-1" selected>Choose Time Slot</option>
+                            class="form-control" id="booking-time">
+                            <option value="" selected>-- --</option>
                           </select>
                         </div>
-                        <!-- loading spinner -->
-                        <div class="m-auto p-2 w-25 text-center" id="loading-spinner-create-booking">
-                            <div class="spinner-border text-primary text-center" role="status">
-                                <span class="sr-only">Loading...</span>
-                            </div>
-                        </div>
-                        <div id="booking-info-inputs">
 
-                          <div class="form-group mb-3">
-                            <label class="form-label" for="service-select">Choose Service</label>
-                            <select
-                              data-type='create'
-                              class="form-control" id="service-select">
-                              <option value="-1" selected>Choose Service</option>
-                            </select>
+                        <button id="check-schedule-btn"
+                          class="btn btn-primary">
+                          Check Schedule
+                        </button>
+
+                        <div class="mt-2" id="patient-info-inputs">
+                          <div class="alert alert-warning" id="schedule-warning">
+
                           </div>
-
                           <div class="form-group mb-2">
                             <label class="form-label" for="exampleInputEmail1">Patient Name</label>
                             <input
@@ -246,21 +256,19 @@
                               placeholder="09-123456789">
                           </div>
 
-                          <div class="form-group mb-2">
-                            <label class="form-label" for="exampleInputEmail1">Staff Name</label>
-                            <input
-                              type="text"
-                              class="form-control"
-                              id="staff-name"
-                              data-type='create'
-                              placeholder="Enter Staff Name">
-                          </div>
-
                           <button id="create-booking-btn"
                             type="submit" class="btn btn-primary">
                             Create
                           </button>
                         </div>
+
+                        <!-- loading spinner -->
+                        <div class="m-auto p-2 w-25 text-center" id="loading-spinner-create-booking">
+                            <div class="spinner-border text-primary text-center" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+
                       </form>
                   </div>
               </div>

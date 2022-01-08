@@ -7,10 +7,14 @@ const loadingSpinner = document.getElementById('loading-spinner');
 const loadingSpinner2 = document.getElementById('loading-spinner-create-booking');
 const loadingSpinner3 = document.getElementById('loading-spinner-weekly-view');
 const bookingDateInput = document.getElementById('booking-date');
-const bookingInfoInputGroup = document.getElementById('booking-info-inputs');
+const patientInfoInputs = document.getElementById('patient-info-inputs');
+const scheduleWarning = document.getElementById('schedule-warning');
 const errorAlertCreateBooking = document.getElementById('error-alert-create-booking');
+// a button to check whether the chosen booking slot is tally with doctor schedule
+const checkScheduleButton = document.getElementById('check-schedule-btn');
 const createBookingButton = document.getElementById('create-booking-btn');
 const doctorSelect = document.getElementById('doctor-select');
+const showBooking = document.getElementById('show-booking');
 
 
 window.onload = async () => {
@@ -28,7 +32,7 @@ window.onload = async () => {
 
     await fetchAllBookings();
 
-    await fetchServicesFromServer();
+    fillUpBookingTimeSelect();
   }
   catch (error) {
     console.error(error);
@@ -38,7 +42,7 @@ window.onload = async () => {
     loadingSpinner.style.display = 'none';
     loadingSpinner2.style.display = 'none';
     loadingSpinner3.style.display = 'none';
-    bookingInfoInputGroup.style.display = 'none';
+    patientInfoInputs.style.display = 'none';
     errorAlertCreateBooking.style.display = 'none';
   }
 }
@@ -73,121 +77,115 @@ function logout () {
 ====================== Create Bookings ========================
 =============================================================*/
 
-bookingDateInput.addEventListener('change', async (e) => {
+function fillUpBookingTimeSelect () {
+  const bookingTimeSelect = document.getElementById('booking-time');
+  for (let i = 9; i < 20; i++) {
+    const option = document.createElement('option');
+    option.setAttribute('value', i);
+    if (i < 12)
+      option.innerHTML = i + ':00 AM';
+    else if (i === 12)
+      option.innerHTML = '12:00 PM';
+    else
+      option.innerHTML = (i % 12) + ':00 PM';
+
+    bookingTimeSelect.appendChild(option);
+  }
+}
+
+
+// check whether the chosen booking date and time fall inside the chosen doctor's working schedule
+checkScheduleButton.addEventListener('click', async (e) => {
   try {
-    if (e.target.value && e.target.value !== '') {
+    e.preventDefault();
 
-      loadingSpinner2.style.display = 'block'; // show loading spinner
-      hideCreateBookingErrorAlert();
+    loadingSpinner2.style.display = 'block';
 
-      const response = await fetchAvailableSlots(e.target.value);
+    const doctorId = document.getElementById('doctors-select-create-booking')?.value;
+    const bookingDate = document.getElementById('booking-date')?.value;
+    const bookingTime = document.getElementById('booking-time')?.value;
 
-      if (response && response.ok) {
-        const slots = await response.json();
+    if (!doctorId || doctorId === '' || !bookingDate || bookingDate === '' || !bookingTime || bookingTime === 0)
+      throw new Error('Missing Required Input(s)');
 
-        displayBookingTimeSlots(slots);
+    let bookingDateTime = {
+      doctorId,
+      day: (new Date(bookingDate)).getDay(),
+      time: bookingTime
+    }
 
-        bookingInfoInputGroup.style.display = 'block';
+    const response = await checkBookingWithDoctorSchedule (bookingDateTime);
+
+    if (response && response.ok) {
+      const { doctor, isRegular } = await response.json();
+      console.log(doctor, isRegular);
+      if (isRegular) {
+        scheduleWarning.style.display = 'none';
       }
       else {
-        const errorMessage = await getErrorMessageFromResponse(response);
-        console.error(errorMessage);
-        showCreateBookingAlert(errorMessage);
+        scheduleWarning.style.display = 'block';
+        scheduleWarning.innerHTML = `The chosen booking time is out of ${doctor}'s schedule'`;
       }
+      patientInfoInputs.style.display = 'block';
+    }
+    else {
+      const errorMessage = await getErrorMessageFromResponse(response);
+      showCreateBookingAlert(errorMessage);
     }
   }
   catch (error) {
-    console.error(error.message);
     showCreateBookingAlert(error.message);
   }
   finally {
-    loadingSpinner2.style.display = 'none'; // hide loading spinner
+    loadingSpinner2.style.display = 'none';
   }
 });
 
 
-function displayBookingTimeSlots (slots) {
-  const timeSlotSelect = document.getElementById('time-slots');
-
-  if (!timeSlotSelect)
-    throw new Error ('Time Slot Select Not Found!');
-
-  clearOptionsFromSelect (timeSlotSelect);
-
-  slots.forEach( slot => {
-    const option = document.createElement('option');
-    option.setAttribute('value', slot._id);
-    option.innerHTML = `${slot.startTime} - ${slot.endTime}`;
-    timeSlotSelect.appendChild(option);
-  });
-}
-
-
-function displayServices (services) {
-  const servicesSelect = document.getElementById('service-select');
-
-  if (!servicesSelect)
-    throw new Error ('Service Select Not Found!');
-
-  clearOptionsFromSelect (servicesSelect);
-
-  services.forEach( service => {
-    const option = document.createElement('option');
-    option.setAttribute('value', service._id);
-    option.innerHTML = service.name;
-    servicesSelect.appendChild(option);
-  });
-}
-
-
+// create booking
 createBookingButton.addEventListener('click', async (e) => {
   try {
     e.preventDefault();
+    loadingSpinner2.style.display = 'block';
 
-    const bookingDate = bookingDateInput.value;
-    const patientName = (document.getElementById('patient-name'))?.value;
-    const patientContact = (document.getElementById('patient-contact'))?.value;
-    const serviceId = (document.getElementById('service-select'))?.value;
-    const timeSlot = (document.getElementById('time-slots'))?.value;
-    const assignedStaffName = (document.getElementById('staff-name'))?.value;
+    const doctorId = document.getElementById('doctors-select-create-booking')?.value;
+    const bookingDate = document.getElementById('booking-date')?.value;
+    const bookingTime = document.getElementById('booking-time')?.value;
+    const patientName = document.getElementById('patient-name')?.value;
+    const patientContact = document.getElementById('patient-contact')?.value;
 
-    if ((new Date(bookingDate)) < Date.now()) {
-      throw new Error('Booking Date Must be advance 1 day from now!');
-    }
+    if (!doctorId || doctorId === '' || !bookingDate || bookingDate === '' || !bookingTime || bookingTime === ''
+            || !patientName || patientName === '' || !patientContact || patientContact === '')
+      throw new Error ('Missing Required Fields');
 
-    if (!patientName || patientName === '' || !patientContact || patientContact === '')
-      throw new Error ('Patient Name and Contact is Required.*');
-
-    if (!serviceId || serviceId === -1 || !assignedStaffName || assignedStaffName === '')
-      throw new Error ('Service and Assigned Staff must not be empty!');
-
-    if (!timeSlot || timeSlot === -1)
-      throw new Error ('Invalid Booking Time Slot!');
-
-    let booking = createBookingObject ({
-      bookingDate, timeSlot, serviceId, patientName, patientContact, assignedStaffName
-    });
-
-    console.log(booking);
-
+    let booking = {
+      receptionistId : empId,
+      doctorId : doctorId,
+      patientName: patientName,
+      patientContact: patientContact,
+      dateTime: `${bookingDate}T${bookingTime}:00:00`
+    };
     const response = await createNewBooking(booking);
 
     if (response && response.ok) {
-      let booking = await response.json();
-
+      booking = await response.json();
+      console.log(booking);
       clearCreateBookingInputs();
-
-      showCreateBookingAlert('New Booking Created', type='info');
-
-      bookingInfoInputGroup.style.display = 'none';
+      scheduleWarning.style.display = 'none';
+      patientInfoInputs.style.display = 'none';
+      showCreateBookingAlert(`New Booking Created!`, 'success');
     }
     else {
       const errorMessage = await getErrorMessageFromResponse(response);
-      showCreateBookingAlert (errorMessage);
+      showCreateBookingAlert(errorMessage);
     }
   }
   catch (error) {
+    console.error(error.message);
     showCreateBookingAlert (error.message);
+  }
+  finally {
+    loadingSpinner2.style.display = 'none';
   }
 });
 
@@ -238,13 +236,13 @@ function displayAllBookings (bookings) {
   bookings.forEach( (booking, idx) => {
     const row = table.insertRow(idx+1);
 
-    createTableCell(row, 0, booking.bookingId);
-    createTableCell(row, 1, booking.patientName);
-    createTableCell(row, 2, booking.patientContact);
-    createTableCell(row, 3, (new Date(booking.bookingDate)).toLocaleDateString());
-    createTableCell(row, 4, booking.bookingTime);
-    createTableCell(row, 5, booking.serviceName);
-    createTableCell(row, 6, booking.assignedStaffName);
+    createTableCell(row, 0, booking._id);
+    createTableCell(row, 1, booking.bookingId);
+    createTableCell(row, 2, booking.patientName);
+    createTableCell(row, 3, booking.patientContact);
+    createTableCell(row, 4, (new Date(booking.dateTime)).toLocaleDateString());
+    createTableCell(row, 5, (new Date(booking.dateTime)).toLocaleTimeString());
+    createTableCell(row, 6, booking.doctorName);
 
     row.addEventListener('mouseover', e => {
       row.style.background = 'cornflowerblue';
@@ -295,21 +293,29 @@ function displayWeeklyViewCalendar () {
 
   calendar.on('datesSet', async (info) => {
     try {
+      loadingSpinner3.style.display = 'block';
       const doctorId = doctorSelect?.value;
-      if (doctorId && doctorId !== '') {
 
-        loadingSpinner3.style.display = 'block';
+      // clear existing bookings and make room for newly updated bookings/schedules
+      removeAllEvents();
 
-        const response = await fetchDoctorById(doctorId);
+      if (showBooking.checked) {
+        // show bookings
+        const response = await fetchBookingsByDoctor (doctorId);
 
         if (response && response.ok) {
-          const doctor = await response.json();
-          addScheduleToCalendar (doctor.workingSchedule, doctor.name);
+          const bookings = await response.json();
+          console.log(bookings);
+          displayDoctorBookings(bookings);
         }
         else {
           const errorMessage = await getErrorMessageFromResponse(response);
           console.error(errorMessage);
         }
+      }
+      else {
+        // show schedules
+        await fetchDoctorSchedules(doctorId);
       }
     }
     catch (error) {
@@ -331,7 +337,9 @@ async function getAllDoctors () {
       const doctors = await response.json();
 
       // fill doctor names in select
-      fillUpDoctorSelectInput(doctors);
+      fillUpDoctorSelectInput(doctors, doctorSelect);
+
+      fillUpDoctorSelectInput(doctors, document.getElementById('doctors-select-create-booking'));
     }
     else {
       const errorMessage = await getErrorMessageFromResponse(response);
@@ -347,12 +355,16 @@ async function getAllDoctors () {
 
 
 // fill doctor data in select input
-function fillUpDoctorSelectInput (doctors) {
+function fillUpDoctorSelectInput (doctors, select) {
+
+  if (!select)
+    throw new Error('Error. fillUpDoctorSelectInput: Invalid Select!');
+
   doctors.forEach (doc => {
     const option = document.createElement('option');
     option.setAttribute('value', doc._id);
-    option.innerHTML = doc.name;
-    doctorSelect.appendChild(option);
+    option.innerHTML = `${doc.name} (${doc.specialization})`;
+    select.appendChild(option);
   });
 }
 
@@ -367,7 +379,87 @@ doctorSelect.addEventListener('change', async (e) => {
 
       removeAllEvents();
 
-      const response = await fetchDoctorById(e.target.value);
+      await fetchDoctorSchedules(e.target.value);
+    }
+  }
+  catch (error) {
+    console.error(error.message);
+  }
+  finally {
+    loadingSpinner3.style.display = 'none';
+  }
+
+});
+
+
+// show booking checkbox onChange event
+// if the checkbox is checked, show bookings with the selected doctor
+showBooking.addEventListener('change', async (e) => {
+  try {
+    console.log(e.target.checked);
+    const doctorId = doctorSelect?.value;
+    loadingSpinner3.style.display = 'block';
+    removeAllEvents();
+    if (e.target.checked) {
+      const response = await fetchBookingsByDoctor (doctorId);
+
+      if (response && response.ok) {
+        const bookings = await response.json();
+        console.log(bookings);
+        displayDoctorBookings(bookings);
+      }
+      else {
+        const errorMessage = await getErrorMessageFromResponse(response);
+        console.error(errorMessage);
+      }
+    }
+    else {
+      await fetchDoctorSchedules(doctorId);
+    }
+  }
+  catch (error) {
+    console.error(error.message);
+  }
+  finally {
+    loadingSpinner3.style.display = 'none';
+  }
+});
+
+
+// display doctor bookings in Calendar
+function displayDoctorBookings (bookings) {
+  bookings.forEach( booking => {
+
+    let e = calendar.getEventById(booking.dateTime);
+
+    if (e) {
+      e.remove(); // remove the existing booking to make room for newly updated booking slot
+      e = {
+        id: booking.dateTime,
+        title: (new RegExp(/\d/)).test(e.title) ? `${parseInt(e.title) + 1} Bookings` : '2 Bookings',
+        start: booking.dateTime
+      }
+
+    }
+    else {
+      e = {
+        id: booking.dateTime,
+        title: booking.patientName,
+        start: booking.dateTime
+      }
+    }
+
+    calendar.addEvent(e);
+  });
+}
+
+
+// display doctor schedules
+async function fetchDoctorSchedules (doctorId) {
+  try {
+    if (doctorId && doctorId !== '') {
+
+      const response = await fetchDoctorById(doctorId);
 
       if (response && response.ok) {
         const doctor = await response.json();
@@ -382,18 +474,13 @@ doctorSelect.addEventListener('change', async (e) => {
   catch (error) {
     console.error(error.message);
   }
-  finally {
-    loadingSpinner3.style.display = 'none';
-  }
-
-});
+}
 
 
 // remove all events from calendar
 function removeAllEvents () {
 
   const events = calendar.getEvents();
-
   events.forEach(e => e.remove());
 }
 
@@ -632,47 +719,26 @@ async function fetchDoctorById (id) {
 }
 
 
+async function fetchBookingsByDoctor (doctorId) {
+  try {
+    const response = await fetch(`${serverUrl}/api/bookings/search?doctor=${doctorId}`, {
+      headers: {
+        'Content-Type' : 'application/json',
+        'Accept' : 'application/json'
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
+
+
 async function fetchAllBookingsRequest () {
   try {
     const response = await fetch(`${serverUrl}/api/bookings`, {
-      method: 'GET',
-      headers: {
-        'Content-Type' : 'application/json',
-        'Accept' : 'application/json'
-      }
-    });
-
-    return response;
-  }
-  catch (error) {
-    console.error(error);
-  }
-}
-
-
-/* get all booking time slots */
-async function fetchAllBookingTimeSlots () {
-  try {
-    const response = await fetch(`${serverUrl}/api/bookings/all-slots`, {
-      method: 'GET',
-      headers: {
-        'Content-Type' : 'application/json',
-        'Accept' : 'application/json'
-      }
-    });
-
-    return response;
-  }
-  catch (error) {
-    console.error(error);
-  }
-}
-
-
-/* get avaialble time slots for the given date */
-async function fetchAvailableSlots (date) {
-  try {
-    const response = await fetch(`${serverUrl}/api/bookings/available-slots?date=${date}`, {
       method: 'GET',
       headers: {
         'Content-Type' : 'application/json',
@@ -705,6 +771,26 @@ async function fetchServices () {
     console.error(error);
   }
 }
+
+
+/* check bookgin Date TIme with Doctor Working Schedule */
+async function checkBookingWithDoctorSchedule ({doctorId, time, day}) {
+  try {
+    const url = `${serverUrl}/api/doctors/check-schedule`;
+    const response = await fetch(`${url}?doctor=${doctorId}&time=${time}&day=${day}`, {
+      headers: {
+        'Content-Type' : 'application/json',
+        'Accept' : 'application/json'
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
+
 
 /* create new booking request */
 async function createNewBooking (booking) {
