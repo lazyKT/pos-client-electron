@@ -14,7 +14,8 @@ const loadingSpinner = document.getElementById("loading");
 
 const itemInput = document.getElementById("item-input");
 const addItemBtn = document.getElementById("add-item");
-const searchBtn = document.getElementById("search-item");
+const searchList = document.getElementById("search-items-options");
+const searchInput = document.getElementById("item-search-input");
 const addFeesBtn = document.getElementById("add-fees");
 const givenAmountInput = document.getElementById("given-amount");
 const checkoutBtn = document.getElementById("checkout-btn");
@@ -37,7 +38,7 @@ toggleButtonState(checkoutBtn, false);
 toggleButtonState(discardBtn, false);
 
 
-window.cashierAPI.receive("user-details", details => {
+window.cashierAPI.receive("user-details", async (details) => {
 
   try {
     const loginTimeDOM = document.getElementById("login-time");
@@ -50,6 +51,8 @@ window.cashierAPI.receive("user-details", details => {
       serverUrl = localStorage.getItem("serverUrl");
     else
       throw new Error ("Server Url not found!");
+
+    await populateDataList(searchList);
 
     onDidLoadedPage(mainContents, loadingSpinner);
   }
@@ -71,6 +74,34 @@ function setEmployeeDetails (dom, name, id) {
 function displayLoginTime (dom) {
   const now = new Date();
   dom.innerHTML = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+}
+
+
+async function populateDataList (dataList) {
+  try {
+    if (!dataList)
+      throw new Error ('PopulateDataList: DataList Not Found!');
+    console.log(dataList);
+    const response = await getAllMedicines();
+
+    if (response && response.ok) {
+      const medicines = await response.json();
+
+      medicines.forEach (med => {
+        const option = document.createElement('option');
+        option.setAttribute('value', med.name);
+        option.setAttribute('data-med-id', med._id);
+        dataList.appendChild(option);
+      });
+    }
+    else {
+      const errorMessage = await getErrorMessageFromResponse(response);
+      console.error(errorMessage);
+    }
+  }
+  catch (error) {
+    console.error(error.message);
+  }
 }
 
 
@@ -161,14 +192,10 @@ function toggleAddButton (button, done) {
 }
 
 
-searchBtn.addEventListener("click", async e => {
+searchInput.addEventListener('change', async (e) => {
   try {
-    const searchInput = document.getElementById("item-search-input");
-
-    if (!searchInput || searchInput.value === '')
+    if (e.target.value === '')
       return;
-
-    toggleSearchButton(e.target, done=false);
 
     const response = await searchProducts(searchInput.value);
 
@@ -194,6 +221,10 @@ searchBtn.addEventListener("click", async e => {
     toggleSearchButton(e.target, done=true);
   }
 });
+
+// searchBtn.addEventListener("click", async e => {
+
+// });
 
 
 function toggleSearchButton (button, done) {
@@ -933,6 +964,25 @@ function removeCheckOutError () {
 /*=============================================================
 ======================= Network Requests ======================
 =============================================================*/
+
+// get all medicines
+async function getAllMedicines () {
+  try {
+    const response = await fetch(`${serverUrl}/api/meds`, {
+      method: 'GET',
+      headers: {
+        'Content-Type' : 'application/json',
+        'Accept' : 'application/json'
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error.message);
+  }
+}
+
 
 // get item by product code
 async function getItemByProductCode (code) {
