@@ -325,7 +325,6 @@ checkoutBtn.addEventListener("click", async e => {
           invoice = await response.json();
           // console.log(invoice);
           showHidePostPaymentLoading(postPaymentLoadingDOM, "hide");
-          clearShoppingCartAndUI();
           window.cashierAPI.send("show-receipt", invoice);
         }
         else {

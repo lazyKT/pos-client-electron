@@ -24,8 +24,8 @@ const doctorNameInput = document.getElementById('doctor-name');
 const patientNameInput = document.getElementById('patient-name');
 const addToCartButton = document.getElementById('add-item-to-cart');
 const productCodeInput = document.getElementById('prod-code-input');
-const searchMedsInput = document.getElementById('item-search-input');
-const searchMedsButton = document.getElementById('search-item');
+const searchList = document.getElementById("search-items-options");
+const searchInput = document.getElementById("item-search-input");
 const addFeesButton = document.getElementById('add-fees-to-cart');
 const cartDOM = document.getElementById('cart');
 const clearCartButton = document.getElementById('discard-btn');
@@ -35,7 +35,7 @@ const givenAmountInput = document.getElementById('given-amount');
 
 
 
-window.onload = () => {
+window.onload = async () => {
 	try {
 		onPageLoad (mainContents, loadingSpinner);
 
@@ -43,6 +43,8 @@ window.onload = () => {
 		displayLoginInformation();
 
 		onPageDidLoaded (mainContents, loadingSpinner);
+
+		await populateDataList(searchList);
 	}
 	catch (error) {
 		console.error(error);
@@ -50,6 +52,33 @@ window.onload = () => {
 	}
 }
 
+
+async function populateDataList (dataList) {
+  try {
+    if (!dataList)
+      throw new Error ('PopulateDataList: DataList Not Found!');
+    console.log(dataList);
+    const response = await getAllMedicines();
+
+    if (response && response.ok) {
+      const medicines = await response.json();
+
+      medicines.forEach (med => {
+        const option = document.createElement('option');
+        option.setAttribute('value', med.name);
+        option.setAttribute('data-med-id', med._id);
+        dataList.appendChild(option);
+      });
+    }
+    else {
+      const errorMessage = await getErrorMessageFromResponse(response);
+      console.error(errorMessage);
+    }
+  }
+  catch (error) {
+    console.error(error.message);
+  }
+}
 
 
 //////////////////////////////////////////////////////////////
@@ -605,13 +634,11 @@ addFeesButton.addEventListener('click', e => {
 ///////////////////// Search Products ////////////////////////
 //////////////////////////////////////////////////////////////
 
-searchMedsInput.addEventListener('keyup', async e => {
+searchInput.addEventListener('change', async e => {
 	try {
-		if (e.key === 'Enter') {
-			if (e.target.value !== '') {
-				// send search meds network request
-				await searchMeds(e.target.value);
-			}
+		if (e.target.value !== '') {
+			// send search meds network request
+			await searchMeds(e.target.value);
 		}
 	}
 	catch (error) {
@@ -620,18 +647,6 @@ searchMedsInput.addEventListener('keyup', async e => {
 });
 
 
-searchMedsButton.addEventListener('click', async e => {
-	try {
-		const q = (document.getElementById('item-search-input'))?.value;
-
-		if (q && q !== '') {
-			await searchMeds (q);
-		}
-	}
-	catch (error) {
-		showErrorModal (error);
-	}
-});
 
 
 async function searchMeds (q) {
@@ -875,13 +890,9 @@ checkoutButton.addEventListener('click', async e => {
 				if (response && response.ok) {
 					const invoice = await response.json();
 
-					console.log(invoice);
-
 					window.clinicCashierAPI.send('print-clinic-receipt', invoice);
 
 					onPageDidLoaded (mainContents, loadingSpinner);
-					// clear cart
-					clearPrescriptionCart();
 				}
 				else {
 					const errorMessage = await getErrorMessageFromResponse(response);
@@ -1148,6 +1159,24 @@ function resetPrescriptionObject () {
 //////////////////////////////////////////////////////////////
 ///////////////////// Network Requests ///////////////////////
 //////////////////////////////////////////////////////////////
+
+// get all medicines
+async function getAllMedicines () {
+  try {
+    const response = await fetch(`${serverUrl}/api/meds`, {
+      method: 'GET',
+      headers: {
+        'Content-Type' : 'application/json',
+        'Accept' : 'application/json'
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error.message);
+  }
+}
 
 async function searchMedsNetworkRequest (q) {
 	try {
