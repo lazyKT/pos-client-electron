@@ -38,8 +38,8 @@
 
     <!-- contents -->
 
-    <div class="card my-2 box" width="auto">
-        <div class="card-body">
+    <div class="my-2 p-2" width="auto">
+        <div class="">
            <!-- top nav bar -->
           <ul class="nav nav-tabs" id="myTab" role="tablist">
             <li class="nav-item" role="presentation">
@@ -91,8 +91,8 @@
               <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
                 <div class="card my-2 box">
                     <div class="card-body d-flex align-items-center justify-content-center">
-                      <div class="w-75">
-                        <div class="w-50 mb-3">
+                      <div class="w-75" id="calendar-container">
+                        <div class="w-50 mb-3" id="doctor-container-calendar">
                           <label class="form-label my-2 text-muted"><strong>Select Doctor:</strong></label>
                           <select class="form-control w-50 mb-2" id="doctor-select">
                             <option value="">-- --</option>
@@ -116,80 +116,92 @@
               </div>
 
               <!-- bookings tab -->
-              <div class="tab-pane fade" id="bookingsTable" role="tabpanel" aria-labelledby="bookingsTable-tab">
-                  <!-- pagination tab -->
-                  <div class="container">
-                      <div class="row mt-2 justify-content-between">
-                          <div class="col-5">
-                              <div class="input-group">
-                                  <input class="form-control search-input" id="search-input" type="text" name="" value="" placeholder="Search Bookings" onkeyup="">
-                                  <button onclick="filterBookings()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
-                                  <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button" style='display:none'>Cancel</button>
-                              </div>
-                          </div>
-                            <div class="col-5">
-                                <a class="btn btn-secondary dropdown-toggle"
-                                    href="#" role="button"
-                                    id="numPersPageDropDown" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Bookings per page
-                                </a>
+              <div class="tab-pane fade container" id="bookingsTable" role="tabpanel" aria-labelledby="bookingsTable-tab">
+                <!-- pagination tab -->
+                <div class="row mt-2">
+                  <div class="col">
+                    <div class="input-group w-100">
+                        <input
+                          class="form-control search-input"
+                          id="search-input" type="text"
+                          placeholder="Search bookings by patients, doctors ..."
+                        >
+                        <button
+                          class="mx-1 btn btn-primary"
+                          id="search-btn"
+                        >
+                          Search
+                        </button>
+                        <button
+                          onclick="resetFilter()" class="mx-1 btn btn-light"
+                          id="cancel-search" type="button" name="button" style='display:none'
+                        >
+                          Cancel
+                        </button>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <a class="btn btn-secondary dropdown-toggle"
+                        href="#" role="button"
+                        id="numPersPageDropDown" data-bs-toggle="dropdown" aria-expanded="false">
+                        Bookings per page
+                    </a>
 
-                                <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                    <li onclick="changeNumPerPage(5)"><a class="dropdown-item" href="#">5</a></li>
-                                    <li onclick="changeNumPerPage(10)"><a class="dropdown-item" href="#">10</a></li>
-                                    <li onclick="changeNumPerPage(15)"><a class="dropdown-item" href="#">15</a></li>
-                                    <li onclick="changeNumPerPage(0)"><a class="dropdown-item" href="#">All</a></li>
-                                </ul>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <li onclick="changeNumPerPage(5)"><a class="dropdown-item" href="#">5</a></li>
+                        <li onclick="changeNumPerPage(10)"><a class="dropdown-item" href="#">10</a></li>
+                        <li onclick="changeNumPerPage(15)"><a class="dropdown-item" href="#">15</a></li>
+                        <li onclick="changeNumPerPage(0)"><a class="dropdown-item" href="#">All</a></li>
+                    </ul>
 
-                                <button class="btn btn-warning text-white mx-1" id="refresh-page" onclick="refreshAllBookingData()">
-                                    <i class="fas fa-sync-alt"></i>
-                                </button>
+                    <button class="btn btn-warning text-white mx-1" id="refresh-page" onclick="refreshAllBookingData()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="card my-2 box" width="auto" id="search-contents">
+                    <div class="card-body" id="data-container">
+                        <table class="table" id="bookings-table">
+                            <thead id="thead">
+                                <col style="width: 15%;" />
+                                <col style="width: 10%;" />
+                                <col style="width: 20%;" />
+                                <col style="width: 15%;" />
+                                <col style="width: 10%;" />
+                                <col style="width: 10%;" />
+                                <col style="width: 20%;" />
+                                <tr class="bg-primary text-white p-1">
+                                    <th scope="col">ID</th>
+                                    <th scope='col'>Token Number</th>
+                                    <th scope="col">Patient Name</th>
+                                    <th scope="col">Patient Contact</th>
+                                    <th scope="col">Booking Date</th>
+                                    <th scope="col">Booking Time</th>
+                                    <th scope="col">Doctor Name</th>
+                                </tr>
+                            </thead>
+
+                        </table>
+
+                        <!-- loading spinner -->
+                        <div class="m-auto p-2 w-25 text-center" id="loading-spinner">
+                            <div class="spinner-border text-primary text-center" role="status">
+                                <span class="sr-only">Loading...</span>
                             </div>
-                      </div>
-                  </div>
-
-                  <div class="card my-2 box" width="auto">
-                      <div class="card-body" id="data-container">
-                          <table class="table" id="bookings-table">
-                              <thead>
-                                  <col style="width: 15%;" />
-                                  <col style="width: 10%;" />
-                                  <col style="width: 20%;" />
-                                  <col style="width: 15%;" />
-                                  <col style="width: 10%;" />
-                                  <col style="width: 10%;" />
-                                  <col style="width: 20%;" />
-                                  <tr class="bg-primary text-white p-1">
-                                      <th scope="col">ID</th>
-                                      <th scope='col'>Token Number</th>
-                                      <th scope="col">Patient Name</th>
-                                      <th scope="col">Patient Contact</th>
-                                      <th scope="col">Booking Date</th>
-                                      <th scope="col">Booking Time</th>
-                                      <th scope="col">Doctor Name</th>
-                                  </tr>
-                              </thead>
-
-                          </table>
-
-                          <!-- loading spinner -->
-                          <div class="m-auto p-2 w-25 text-center" id="loading-spinner">
-                              <div class="spinner-border text-primary text-center" role="status">
-                                  <span class="sr-only">Loading...</span>
-                              </div>
-                          </div>
-                      </div>
-                      <nav>
-                        <ul class="pagination justify-content-center mt-2" id="pagination2">
-                          <li class="page-item disabled" id="previous">
-                            <a class="page-link" onclick="prevPaginationClick(event)" href="#" tabindex="-1"aria-disabled="true">Previous</a>
-                          </li>
-                          <li class="page-item" id="next">
-                            <a class="page-link" onclick="nextPaginationClick(event)" href="#">Next</a>
-                          </li>
-                        </ul>
-                      </nav>
-                  </div>
+                        </div>
+                    </div>
+                    <nav>
+                      <ul class="pagination justify-content-center mt-2" id="pagination2">
+                        <li class="page-item disabled" id="previous">
+                          <a class="page-link" onclick="prevPaginationClick(event)" href="#" tabindex="-1"aria-disabled="true">Previous</a>
+                        </li>
+                        <li class="page-item" id="next">
+                          <a class="page-link" onclick="nextPaginationClick(event)" href="#">Next</a>
+                        </li>
+                      </ul>
+                    </nav>
+                </div>
               </div>
               <!-- end of bookings tab -->
 
