@@ -524,7 +524,7 @@ serviceSelect.addEventListener('change', e => {
 	else if (e.target.value === ''){
 		priceDOM.value = '';
 		priceDOM.setAttribute('readOnly', true);
-		
+
 		serviceDescInput.style.display = 'none';
 	}
 });
@@ -534,8 +534,10 @@ function addOtherFeesAndServiceToCart (otherFees) {
 	const feesItem = document.createElement('div');
 	feesItem.setAttribute('class', 'p-2 my-1 bg-light row');
 
-	if (!otherFees.id)
+	if (!otherFees.id) {
 		otherFees.id = cartDOM.childElementCount;
+		otherFees.remark = 'Others';
+	}
 
 	feesItem.setAttribute('id', `service-item-${otherFees.id}`);
 
@@ -720,7 +722,8 @@ function addNewServiceItemToPrescription (service) {
 			description: service.description,
 			qty: parseInt (service.qty),
 			price: parseInt (service.price),
-			totalPrice: parseInt(service.price)
+			totalPrice: parseInt(service.price),
+			remarks: service.remark ? service.remark : ''
 		});
 
 	prescription.total += parseInt(service.price);
@@ -968,50 +971,44 @@ checkoutButton.addEventListener('click', async e => {
 
 		if (error)	throw new Error(message);
 
-		let invoice = createInvoice();
-		console.log(invoice);
-
 		// validate products in prescription item list
-		// Promise.all( prescription.items.map( async (item) => {
-		// 	const validateResponse = await validateCartItemsRequest (item);
-		//
-		// 	if (!validateResponse || !(validateResponse.ok) ) {
-		// 		const errorMessage = await getErrorMessageFromResponse(validateResponse);
-		//
-		// 		throw new Error (errorMessage);
-		// 	}
-		// }))
-		// 	.then ( async () => {
-		// 		let invoice = createInvoice();
-		// 		console.log(invoice);
-		//
-		// 		const response = await checkOutRequest (invoice);
-		//
-		// 		if (response && response.ok) {
-		// 			const invoice = await response.json();
-		//
-		// 			window.clinicCashierAPI.send('print-clinic-receipt', invoice);
-		//
-		// 			onPageDidLoaded (mainContents, loadingSpinner);
-		// 		}
-		// 		else {
-		// 			const errorMessage = await getErrorMessageFromResponse(response);
-    //       throw new Error(errorMessage);
-		// 		}
-		// 	})
-		// 	.catch (error => {
-		// 		console.error(error);
-		// 		onPageDidLoaded (mainContents, loadingSpinner);
-		// 		showErrorModal (error.message);
-		// 	});
+		Promise.all( prescription.items.map( async (item) => {
+			const validateResponse = await validateCartItemsRequest (item);
+
+			if (!validateResponse || !(validateResponse.ok) ) {
+				const errorMessage = await getErrorMessageFromResponse(validateResponse);
+
+				throw new Error (errorMessage);
+			}
+		}))
+			.then ( async () => {
+				let invoice = createInvoice();
+				console.log(invoice);
+
+				const response = await checkOutRequest (invoice);
+
+				if (response && response.ok) {
+					const invoice = await response.json();
+
+					window.clinicCashierAPI.send('print-clinic-receipt', invoice);
+
+					onPageDidLoaded (mainContents, loadingSpinner);
+				}
+				else {
+					const errorMessage = await getErrorMessageFromResponse(response);
+          throw new Error(errorMessage);
+				}
+			})
+			.catch (error => {
+				console.error(error);
+				onPageDidLoaded (mainContents, loadingSpinner);
+				showErrorModal (error.message);
+			});
 	}
 	catch (error) {
 		console.error(error);
 		onPageDidLoaded (mainContents, loadingSpinner);
 		showErrorModal(error);
-	}
-	finally {
-		onPageDidLoaded (mainContents, loadingSpinner);
 	}
 });
 
