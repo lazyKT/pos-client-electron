@@ -45,11 +45,11 @@ window.onload = async () => {
 		loadDataFromLocalStorage();
 		displayLoginInformation();
 
-		onPageDidLoaded (mainContents, loadingSpinner);
-
 		await populateDataList(searchList);
 		await populateDoctorSelect(doctorSelect);
 		await populateServiceSelect(serviceSelect);
+
+		onPageDidLoaded (mainContents, loadingSpinner);
 	}
 	catch (error) {
 		console.error(error);
@@ -637,7 +637,7 @@ function increaseServiceQuntityInPrescriptionObj (service) {
 
 	const s = prescription.services.find (s => s.id === service.id);
 	if (!s) throw new Error ('Error Updating Service Item in Prescription: increment!');
-	console.log(service);
+
 	prescription.services = prescription.services.map (
 		s => s.id === service.id
 		? {
@@ -648,7 +648,6 @@ function increaseServiceQuntityInPrescriptionObj (service) {
 	);
 
 	prescription.total += parseInt(service.price);
-	console.log(prescription);
 }
 
 
@@ -748,8 +747,6 @@ searchInput.addEventListener('change', async e => {
 });
 
 
-
-
 async function searchMeds (q) {
 	try {
 		const response = await searchMedsNetworkRequest(q);
@@ -802,6 +799,13 @@ function displaySearchResults (results, q) {
 				  	["Quantity", "Doctor Approve", "Expiry"],
 				  	[result.qty, result.approve, (new Date(result.expiry)).toLocaleDateString()]
 					);
+
+				const addToCartButton = document.createElement('button');
+				addToCartButton.setAttribute('class', 'btn btn-primary');
+				addToCartButton.innerHTML = 'Add To Cart';
+				div.appendChild(addToCartButton);
+
+				addToCartButton.addEventListener('click', e => addToCart(result));
 
 				searchContainer.appendChild(div);
 				searchContainer.appendChild(document.createElement("hr"));
@@ -983,7 +987,6 @@ checkoutButton.addEventListener('click', async e => {
 		}))
 			.then ( async () => {
 				let invoice = createInvoice();
-				console.log(invoice);
 
 				const response = await checkOutRequest (invoice);
 

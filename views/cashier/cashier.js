@@ -81,7 +81,7 @@ async function populateDataList (dataList) {
   try {
     if (!dataList)
       throw new Error ('PopulateDataList: DataList Not Found!');
-    console.log(dataList);
+
     const response = await getAllMedicines();
 
     if (response && response.ok) {
@@ -171,7 +171,6 @@ async function enterOrScanProductCode (value, button) {
     }
   }
   catch (error) {
-    console.log("Error Scanning Product Code", error);
     showErrorMessage(errorProductScan, show=true, "Error: code 300!");
   }
   finally {
@@ -311,19 +310,19 @@ checkoutBtn.addEventListener("click", async e => {
 
       if (!availabilityResponse || !availabilityResponse.ok) {
         const errorMessage = await getErrorMessageFromResponse(availabilityResponse);
-        // console.log("Error Message", errorMessage);
+
         throw new Error(errorMessage);
       }
     }))
       .then (async function () {
         let invoice = createInvoice();
-        // console.log("invoice", invoice);
+
         // send checkout process network request
         const response = await checkoutRequest(invoice);
         if (response && response.ok) {
           // clear Cart
           invoice = await response.json();
-          // console.log(invoice);
+
           showHidePostPaymentLoading(postPaymentLoadingDOM, "hide");
           window.cashierAPI.send("show-receipt", invoice);
         }
@@ -333,7 +332,6 @@ checkoutBtn.addEventListener("click", async e => {
         }
       })
       .catch(error => {
-        console.log(error);
         displayCheckOutError(error.message);
       });
   }
@@ -406,7 +404,6 @@ function addItemToCart (item) {
   const cart = document.getElementById("cart");
 
   const itemsUpdated = updateExistingItemsInCart(item);
-  // console.log(itemsUpdated);
 
   if (itemsUpdated == 0) {
     /** create new cart item */
@@ -622,7 +619,6 @@ function updateShoppingCart (newItem, method) {
     }
     else {
       // Remove item from shopping cart
-      // console.log("Remove Existing Items");
       const currentQty = item.qty;
 
       if (currentQty > 1) {
@@ -725,6 +721,13 @@ function displaySearchResults (products, q) {
           ["Quantity", "Doctor Approve", "Expiry"],
           [product.qty, product.approve, (new Date(product.expiry)).toLocaleDateString()]);
 
+        const addToCartButton = document.createElement('button');
+				addToCartButton.setAttribute('class', 'btn btn-primary');
+				addToCartButton.innerHTML = 'Add To Cart';
+				div.appendChild(addToCartButton);
+
+				addToCartButton.addEventListener('click', e => addItemToCart(product));
+
         container.appendChild(div);
         container.appendChild(document.createElement("hr"));
       }
@@ -812,7 +815,7 @@ function clearSearchContainer (container) {
 function validateCheckOut () {
 
   const { change, employee, employeeID, payment, total } = shoppingCart;
-  console.log(change, parseInt(change) < 0)
+
   if (!total || parseInt(total) <= 0)
     return { error: true, message: "Invalid Total Price. Please Check the Cart."};
 
@@ -893,9 +896,6 @@ function reloadAmount() {
 
   givenAmount.value = shoppingCart.payment;
   changeDue.innerHTML = shoppingCart.change;
-  //console.log(givenAmount);
-
-
 }
 
 
