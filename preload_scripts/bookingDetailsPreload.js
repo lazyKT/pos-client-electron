@@ -14,8 +14,20 @@ const ALLOWED_RECEIVED_CHANNELS = [
 ];
 
 
+const ALLOWED_SEND_CHANNELS = [
+  'close-booking-details'
+];
+
+
 
 contextBridge.exposeInMainWorld ('bookingDetailsAPI', {
+  send: (channel, data) => {
+    if (ALLOWED_SEND_CHANNELS.includes(channel)) {
+      ipcRenderer.send(channel, data);
+    }
+    else
+      throw new Erorr (`Unknown IPC Channel, ${channel} detected @ bookingDetailsAPI.send!`);
+  },
   receive : (channel, cb) => {
     if (ALLOWED_RECEIVED_CHANNELS.includes(channel)) {
       ipcRenderer.on(channel, (event, ...args) => cb(...args));

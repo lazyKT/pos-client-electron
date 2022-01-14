@@ -50,6 +50,10 @@ window.onload = async () => {
 }
 
 
+// clean up event listeners on window unload
+window.onUnload = () => window.bookingsAPI.removeListeners();
+
+
 async function fetchServicesFromServer () {
   try {
     const response = await fetchServices();
@@ -120,7 +124,7 @@ checkScheduleButton.addEventListener('click', async (e) => {
 
     if (response && response.ok) {
       const { doctor, isRegular } = await response.json();
-      console.log(doctor, isRegular);
+
       if (isRegular) {
         scheduleWarning.style.display = 'none';
       }
@@ -171,7 +175,7 @@ createBookingButton.addEventListener('click', async (e) => {
 
     if (response && response.ok) {
       booking = await response.json();
-      console.log(booking);
+
       clearCreateBookingInputs();
       scheduleWarning.style.display = 'none';
       patientInfoInputs.style.display = 'none';
@@ -257,12 +261,14 @@ function displayBookings (bookings) {
     const row = table.insertRow(idx+1);
     row.setAttribute('data-type', 'filter-booking');
 
+    const bookingDateTime = new Date(booking.dateTime);
+
     createTableCell(row, 0, booking._id);
     createTableCell(row, 1, booking.bookingId);
     createTableCell(row, 2, booking.patientName);
     createTableCell(row, 3, booking.patientContact);
-    createTableCell(row, 4, (new Date(booking.dateTime)).toLocaleDateString());
-    createTableCell(row, 5, (new Date(booking.dateTime)).toLocaleTimeString());
+    createTableCell(row, 4, bookingDateTime.toDateString());
+    createTableCell(row, 5, formatTimeWithPeriod(bookingDateTime.toLocaleTimeString()));
     createTableCell(row, 6, booking.doctorName);
 
     row.addEventListener('mouseover', e => {
@@ -278,7 +284,6 @@ function displayBookings (bookings) {
     });
 
     row.addEventListener('click', e => {
-      console.log('view booking details for booking id : ', booking._id);
       window.bookingsAPI.send('open-booking-details', { bookingId: booking._id });
     });
 
@@ -295,7 +300,7 @@ function createTableCell (row, pos, data) {
 
 function reloadTable () {
   const trs = document.querySelectorAll(`[data-type=filter-booking]`);
-  console.log(trs);
+
   trs.forEach( (tr, idx) => tr.remove());
 }
 
@@ -350,7 +355,7 @@ function displayWeeklyViewCalendar () {
 
         if (response && response.ok) {
           const bookings = await response.json();
-          console.log(bookings);
+
           displayDoctorBookings(bookings);
         }
         else {
@@ -427,6 +432,8 @@ doctorSelect.addEventListener('change', async (e) => {
 
       loadingSpinner3.style.display = 'block';
 
+      showBooking.checked = false;
+
       removeAllEvents();
 
       await fetchDoctorSchedules(e.target.value);
@@ -454,7 +461,7 @@ showBooking.addEventListener('change', async (e) => {
 
       if (response && response.ok) {
         const bookings = await response.json();
-        console.log(bookings);
+
         displayDoctorBookings(bookings);
       }
       else {
@@ -701,6 +708,29 @@ function to24HourFormat (time) {
   }
 
   return `${hrStr}:00:00`;
+}
+
+
+function formatTimeWithPeriod (time) {
+  let hour = parseInt(time.split(':')[0]);
+  let minute = parseInt(time.split(':')[1]);
+  let period = '';
+
+  if (hour === 12) {
+    period = 'PM;'
+  }
+  else if (hour > 12) {
+    hour = hour - 12;
+    period = 'PM';
+  }
+  else {
+    period = 'AM';
+  }
+
+  if (minute < 10)
+    minute = '0' + minute;
+
+  return `${hour}:${minute} ${period}`;
 }
 
 
