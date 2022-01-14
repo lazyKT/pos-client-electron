@@ -326,7 +326,7 @@ function displayWeeklyViewCalendar () {
   calendar.render();
 
   // calendar.on('dateClick', (info) => {
-  //   console.log('click on', info, showBooking.checked);
+  //   
   // });
 
   calendar.on('eventClick', e => {
