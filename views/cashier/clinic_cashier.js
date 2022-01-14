@@ -7,7 +7,8 @@ let prescription = {
 	employee: null,
 	employeeID: null,
 	patient: null,
-	doctor: null,
+	doctorId: null,
+	doctorName: null,
 	total: 0,
 	payment: 0,
 	change: 0,
@@ -20,7 +21,7 @@ let serverUrl
 const loadingSpinner = document.getElementById('modal');
 const mainContents = document.getElementById('main');
 
-const doctorNameInput = document.getElementById('doctor-name');
+const doctorSelect = document.getElementById('doctor-select');
 const patientNameInput = document.getElementById('patient-name');
 const addToCartButton = document.getElementById('add-item-to-cart');
 const productCodeInput = document.getElementById('prod-code-input');
@@ -45,6 +46,7 @@ window.onload = async () => {
 		onPageDidLoaded (mainContents, loadingSpinner);
 
 		await populateDataList(searchList);
+		await populateDoctorSelect(doctorSelect);
 	}
 	catch (error) {
 		console.error(error);
@@ -73,11 +75,42 @@ async function populateDataList (dataList) {
     else {
       const errorMessage = await getErrorMessageFromResponse(response);
       console.error(errorMessage);
+			showErrorModal(errorMessage);
     }
   }
   catch (error) {
     console.error(error.message);
+		showErrorModal(error.message);
   }
+}
+
+
+async function populateDoctorSelect (select) {
+	try {
+		if (!select)
+			throw new Error('PopulateDoctorSelect: Invalid Select Elelement!');
+
+		const response = await getAllDoctors();
+
+		if (response && response.ok) {
+			const doctors = await response.json();
+			doctors.forEach(doc => {
+				const option = document.createElement('option');
+				option.setAttribute('value', doc._id);
+				option.innerHTML = doc.name;
+				select.appendChild(option);
+			});
+		}
+		else {
+			const errorMessage = await getErrorMessageFromResponse(response);
+			console.error(errorMessage);
+			showErrorModal(errorMessage);
+		}
+	}
+	catch (error) {
+		console.error(error.message);
+		showErrorModal(error.message);
+	}
 }
 
 
@@ -871,44 +904,50 @@ checkoutButton.addEventListener('click', async e => {
 
 		if (error)	throw new Error(message);
 
+		let invoice = createInvoice();
+		console.log(invoice);
+
 		// validate products in prescription item list
-		Promise.all( prescription.items.map( async (item) => {
-			const validateResponse = await validateCartItemsRequest (item);
-
-			if (!validateResponse || !(validateResponse.ok) ) {
-				const errorMessage = await getErrorMessageFromResponse(validateResponse);
-
-				throw new Error (errorMessage);
-			}
-		}))
-			.then ( async () => {
-				let invoice = createInvoice();
-				console.log(invoice);
-
-				const response = await checkOutRequest (invoice);
-
-				if (response && response.ok) {
-					const invoice = await response.json();
-
-					window.clinicCashierAPI.send('print-clinic-receipt', invoice);
-
-					onPageDidLoaded (mainContents, loadingSpinner);
-				}
-				else {
-					const errorMessage = await getErrorMessageFromResponse(response);
-          throw new Error(errorMessage);
-				}
-			})
-			.catch (error => {
-				console.error(error);
-				onPageDidLoaded (mainContents, loadingSpinner);
-				showErrorModal (error.message);
-			});
+		// Promise.all( prescription.items.map( async (item) => {
+		// 	const validateResponse = await validateCartItemsRequest (item);
+		//
+		// 	if (!validateResponse || !(validateResponse.ok) ) {
+		// 		const errorMessage = await getErrorMessageFromResponse(validateResponse);
+		//
+		// 		throw new Error (errorMessage);
+		// 	}
+		// }))
+		// 	.then ( async () => {
+		// 		let invoice = createInvoice();
+		// 		console.log(invoice);
+		//
+		// 		const response = await checkOutRequest (invoice);
+		//
+		// 		if (response && response.ok) {
+		// 			const invoice = await response.json();
+		//
+		// 			window.clinicCashierAPI.send('print-clinic-receipt', invoice);
+		//
+		// 			onPageDidLoaded (mainContents, loadingSpinner);
+		// 		}
+		// 		else {
+		// 			const errorMessage = await getErrorMessageFromResponse(response);
+    //       throw new Error(errorMessage);
+		// 		}
+		// 	})
+		// 	.catch (error => {
+		// 		console.error(error);
+		// 		onPageDidLoaded (mainContents, loadingSpinner);
+		// 		showErrorModal (error.message);
+		// 	});
 	}
 	catch (error) {
 		console.error(error);
 		onPageDidLoaded (mainContents, loadingSpinner);
 		showErrorModal(error);
+	}
+	finally {
+		onPageDidLoaded (mainContents, loadingSpinner);
 	}
 });
 
@@ -944,10 +983,13 @@ function setChangeAmount (dom, amount) {
 **/
 function validateCheckOut () {
 	console.log(prescription);
-	const { change, doctor, patient, employee, employeeID, payment, total } = prescription;
+	const { change, doctorId, doctorName, patient, employee, employeeID, payment, total } = prescription;
 
-	if (!doctor || doctor === '')
-		return { error: true, message: "Invalid Doctor Name. Name Empty or Invalid Name!"};
+	if (!doctorId || doctorId === '')
+		return { error: true, message: "Invalid Doctor ID. Empty ID or Invalid ID!"};
+
+	if (!doctorName || doctorName === '')
+		return { error: true, message: "Invalid Doctor Name. Empty Name or Invalid Name!"};
 
 	if (!patient || patient === '')
 		return { error: true, message: "Invalid Patient Name. Name Empty or Invalid Name!"}
@@ -993,8 +1035,8 @@ function createInvoice () {
     cashier: prescription.employee,
     patientID: "Guest",
 		patientName: prescription.patient,
-		doctorID: "DOC",
-		doctorName: prescription.doctor,
+		doctorID: prescription.doctorId,
+		doctorName: prescription.doctorName,
     payableAmount: prescription.total,
     givenAmount: prescription.payment,
     changeAmount: prescription.change,
@@ -1012,7 +1054,9 @@ function generateInvoiceNumber (date) {
   const hr = zeroPadding(date.getHours());
   const mm = zeroPadding(date.getMinutes());
   const ss = zeroPadding(date.getSeconds());
-  const ms = zeroPadding(date.getMilliseconds());
+  let ms = zeroPadding(date.getMilliseconds());
+	while ((ms.toString()).length < 3)
+		ms = '0' + ms;
   return `${year}${month}${day}${hr}${mm}${ss}${ms}`;
 }
 
@@ -1052,10 +1096,12 @@ function onPageDidLoaded (contents, loading) {
 
 
 // ser doctor name
-doctorNameInput.addEventListener('keyup', e => {
-	if (e.key === 'Enter') {
-		if (e.target.value !== '')
-			prescription.doctor = e.target.value;
+doctorSelect.addEventListener('change', e => {
+	if (e.target.value !== '') {
+		prescription.doctorId = e.target.value;
+		prescription.doctorName = e.target.options[e.target.selectedIndex].text;
+		console.log(e.target.options[e.target.selectedIndex].text);
+		console.log(e.target.selectedIndex);
 	}
 });
 
@@ -1133,7 +1179,7 @@ function clearPrescriptionCart () {
 
 	givenAmountInput.value = '';
 	(document.getElementById('change-return')).innerHTML = '';
-	doctorNameInput.value = '';
+	doctorSelect.value = '';
 	patientNameInput.value = '';
 	resetPrescriptionObject ();
 	updateUITotalPrice ();
@@ -1145,7 +1191,8 @@ function resetPrescriptionObject () {
 	prescription = {
 		... prescription,
 		patient: null,
-		doctor: null,
+		doctorId: null,
+		doctorName: null,
 		total: 0,
 		payment: 0,
 		change: 0,
@@ -1177,6 +1224,26 @@ async function getAllMedicines () {
     console.error(error.message);
   }
 }
+
+
+// get all doctors
+async function getAllDoctors () {
+	try {
+		const response = await fetch(`${serverUrl}/api/doctors`, {
+			method: 'GET',
+			headers: {
+				'Content-Type' : 'application/json',
+				'Accept' : 'application/json'
+			}
+		});
+
+		return response;
+	}
+	catch (error) {
+		console.error(error.message);
+	}
+}
+
 
 async function searchMedsNetworkRequest (q) {
 	try {
