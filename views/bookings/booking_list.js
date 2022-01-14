@@ -15,7 +15,7 @@ window.bookingListAPI.receive('filter', async (filter) => {
 
     if (response && response.ok) {
       const bookings = await response.json();
-      console.log(bookings);
+
       displayBookings(bookings);
     }
     else {
@@ -29,6 +29,10 @@ window.bookingListAPI.receive('filter', async (filter) => {
 });
 
 
+// clean up event listeners on window unload
+window.onUnload = () => window.bookingListAPI.removeListeners();
+
+
 closeButton.addEventListener('click', e => {
   bookingListAPI.send('close-booking-list');
 });
@@ -38,6 +42,8 @@ async function getDoctorInfo (doctorId) {
   try {
     const response = await fetchDoctorById(doctorId);
 
+    clearAlerts();
+
     if (response && response.ok) {
       const doctor = await response.json();
       doctorName = doctor.name;
@@ -45,11 +51,11 @@ async function getDoctorInfo (doctorId) {
     }
     else {
       const errorMessage = await getErrorMessageFromResponse(response);
-      console.error(errorMessage);
+      showErrorAlert(errorMessage);
     }
   }
   catch (error) {
-    console.error(error.message);
+    showErrorAlert(error.message);
   }
 }
 
@@ -80,7 +86,12 @@ function displayBookings (bookings) {
     const timeRow = document.createElement('div');
     timeRow.setAttribute('class', 'row mt-2');
 
-    createDataColumn(timeRow, 'Booking Date', (new Date(booking.dateTime)).toLocaleString());
+    const bookingDateTime = new Date(booking.dateTime);
+    createDataColumn(
+      timeRow,
+      'Booking Date',
+      `${bookingDateTime.toDateString()}, ${formatTimeWithPeriod(bookingDateTime.toLocaleTimeString())}`
+    );
 
     div.appendChild(timeRow);
 
@@ -110,6 +121,28 @@ function createDataColumn (row, title, data) {
 }
 
 
+function clearAlerts () {
+  const errorAlert = document.getElementById('error-alert');
+  if (errorAlert)   errorAlert.remove();
+}
+
+
+function showErrorAlert (message) {
+  // clear all the alerts before showing new alert
+  clearAlerts();
+
+  const container = document.getElementById('container');
+
+  const errorAlert = document.createElement('div');
+  errorAlert.setAttribute('id', 'error-alert');
+  errorAlert.setAttribute('class', 'alert alert-danger');
+  errorAlert.setAttribute('role', 'alert');
+  errorAlert.innerHTML = message;
+
+  container.appendChild(errorAlert);
+}
+
+
 function loadDataFromLocalStorage () {
   // get server URL
   serverUrl = localStorage.getItem("serverUrl");
@@ -128,11 +161,34 @@ function displayBookingFilters (doctor, datetime) {
 }
 
 
+function formatTimeWithPeriod (time) {
+  let hour = parseInt(time.split(':')[0]);
+  let minute = parseInt(time.split(':')[1]);
+  let period = '';
+
+  if (hour === 12) {
+    period = 'PM;'
+  }
+  else if (hour > 12) {
+    hour = hour - 12;
+    period = 'PM';
+  }
+  else {
+    period = 'AM';
+  }
+
+  if (minute < 10)
+    minute = '0' + minute;
+
+  return `${hour}:${minute} ${period}`;
+}
+
+
 /** show appropriate error base on network response status **/
 async function getErrorMessageFromResponse (response) {
 	let errorMessage = "";
 	try {
-		switch (response.status) {
+		switch (response?.status) {
 			case 400:
 				const { message } = await response.json();
 				errorMessage = message;

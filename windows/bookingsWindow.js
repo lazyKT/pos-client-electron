@@ -24,7 +24,7 @@
        width: 1000,
        height: 900,
        show: false,
-       // fullscreen: true,
+       fullscreen: true,
        webPreferences: {
          nodeIntegration: false,
          contextIsolation: true, // protect against prototype pollution
@@ -35,7 +35,7 @@
 
 
    win.loadFile(path.join(__dirname, "../views/bookings/bookings.html"));
-   win.openDevTools();
+   // win.openDevTools();
 
    win.once("ready-to-show", () => {
      // win.maximize();

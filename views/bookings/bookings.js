@@ -3,6 +3,8 @@
 **/
 
 let serverUrl, empName, empId, calendar;
+const searchContents = document.getElementById('search-contents');
+const searchButton = document.getElementById('search-btn');
 const loadingSpinner = document.getElementById('loading-spinner');
 const loadingSpinner2 = document.getElementById('loading-spinner-create-booking');
 const loadingSpinner3 = document.getElementById('loading-spinner-weekly-view');
@@ -20,6 +22,8 @@ const showBooking = document.getElementById('show-booking');
 window.onload = async () => {
   try {
 
+    searchContents.style.display = 'none';
+
     setMinimumBookingDate (bookingDateInput);
     // fetch required data from local storage
     loadDataFromLocalStorage ();
@@ -29,8 +33,6 @@ window.onload = async () => {
     displayWeeklyViewCalendar();
 
     await getAllDoctors();
-
-    await fetchAllBookings();
 
     fillUpBookingTimeSelect();
   }
@@ -46,6 +48,10 @@ window.onload = async () => {
     errorAlertCreateBooking.style.display = 'none';
   }
 }
+
+
+// clean up event listeners on window unload
+window.onUnload = () => window.bookingsAPI.removeListeners();
 
 
 async function fetchServicesFromServer () {
@@ -118,7 +124,7 @@ checkScheduleButton.addEventListener('click', async (e) => {
 
     if (response && response.ok) {
       const { doctor, isRegular } = await response.json();
-      console.log(doctor, isRegular);
+
       if (isRegular) {
         scheduleWarning.style.display = 'none';
       }
@@ -169,7 +175,7 @@ createBookingButton.addEventListener('click', async (e) => {
 
     if (response && response.ok) {
       booking = await response.json();
-      console.log(booking);
+
       clearCreateBookingInputs();
       scheduleWarning.style.display = 'none';
       patientInfoInputs.style.display = 'none';
@@ -199,49 +205,70 @@ function clearCreateBookingInputs () {
 
 
 /*=============================================================
-======================= All Bookings ==========================
+==================== Search Bookings ==========================
 =============================================================*/
+
+
+searchButton.addEventListener('click', async (e) => {
+  try {
+    const searchKeyWord = document.getElementById('search-input')?.value;
+
+    if (searchKeyWord && searchKeyWord !== '') {
+
+      loadingSpinner.style.display = 'block';
+
+      const response = await fetchAllBookingsRequest(searchKeyWord);
+
+      clearAlerts();
+      reloadTable();
+
+      searchContents.style.display = 'block';
+
+      if (response && response.ok) {
+        const bookings = await response.json();
+
+        if (bookings.length === 0)
+          showEmptyAlert(`No booking with keyword, ${searchKeyWord}`);
+        else
+          displayBookings(bookings);
+      }
+      else {
+        const errorMessage = await getErrorMessageFromResponse(response);
+        showErrorAlert(errorMessage);
+      }
+    }
+  }
+  catch (error) {
+    console.error(error);
+    showErrorAlert(error.message);
+  }
+  finally {
+    loadingSpinner.style.display = 'none';
+  }
+});
+
 
 function refreshAllBookingData () {
   window.location.reload();
 }
 
 
-async function fetchAllBookings () {
-  try {
-    const response = await fetchAllBookingsRequest();
-
-    if (response && response.ok) {
-      const bookings = await response.json();
-
-      displayAllBookings(bookings);
-    }
-    else {
-      const errorMessage = await getErrorMessageFromResponse(response);
-      console.error(errorMessage);
-      showErrorAlert(errorMessage);
-    }
-  }
-  catch (error) {
-    console.error(error.message);
-    showErrorAlert(error.message);
-  }
-}
-
-
 /* display all bookings in table */
-function displayAllBookings (bookings) {
+function displayBookings (bookings) {
   const table = document.getElementById('bookings-table');
 
   bookings.forEach( (booking, idx) => {
     const row = table.insertRow(idx+1);
+    row.setAttribute('data-type', 'filter-booking');
+
+    const bookingDateTime = new Date(booking.dateTime);
 
     createTableCell(row, 0, booking._id);
     createTableCell(row, 1, booking.bookingId);
     createTableCell(row, 2, booking.patientName);
     createTableCell(row, 3, booking.patientContact);
-    createTableCell(row, 4, (new Date(booking.dateTime)).toLocaleDateString());
-    createTableCell(row, 5, (new Date(booking.dateTime)).toLocaleTimeString());
+    createTableCell(row, 4, bookingDateTime.toDateString());
+    createTableCell(row, 5, formatTimeWithPeriod(bookingDateTime.toLocaleTimeString()));
     createTableCell(row, 6, booking.doctorName);
 
     row.addEventListener('mouseover', e => {
@@ -257,7 +284,6 @@ function displayAllBookings (bookings) {
     });
 
     row.addEventListener('click', e => {
-      console.log('view booking details for booking id : ', booking._id);
       window.bookingsAPI.send('open-booking-details', { bookingId: booking._id });
     });
 
@@ -271,11 +297,23 @@ function createTableCell (row, pos, data) {
 }
 
 
+
+function reloadTable () {
+  const trs = document.querySelectorAll(`[data-type=filter-booking]`);
+
+  trs.forEach( (tr, idx) => tr.remove());
+}
+
+
+
 /*=============================================================
 ======================== Weekly View ==========================
 =============================================================*/
 
 function displayWeeklyViewCalendar () {
+
+  clearAlertsCalendar();
+
   const weeklyView = document.getElementById('weekly-bookings-view');
 
   calendar = new FullCalendar.Calendar(weeklyView, {
@@ -288,7 +326,7 @@ function displayWeeklyViewCalendar () {
   calendar.render();
 
   // calendar.on('dateClick', (info) => {
-  //   console.log('click on', info, showBooking.checked);
+  //   
   // });
 
   calendar.on('eventClick', e => {
@@ -309,18 +347,21 @@ function displayWeeklyViewCalendar () {
       // clear existing bookings and make room for newly updated bookings/schedules
       removeAllEvents();
 
+      clearAlertsCalendar();
+
       if (showBooking.checked) {
         // show bookings
         const response = await fetchBookingsByDoctor (doctorId);
 
         if (response && response.ok) {
           const bookings = await response.json();
-          console.log(bookings);
+
           displayDoctorBookings(bookings);
         }
         else {
           const errorMessage = await getErrorMessageFromResponse(response);
           console.error(errorMessage);
+          showErrorAlertCalendar(errorMessage);
         }
       }
       else {
@@ -330,6 +371,7 @@ function displayWeeklyViewCalendar () {
     }
     catch (error) {
       console.error(error.message);
+      showErrorAlertCalendar(error.message);
     }
     finally {
       loadingSpinner3.style.display = 'none';
@@ -343,6 +385,8 @@ async function getAllDoctors () {
   try {
     const response = await fetchAllDoctors();
 
+    clearAlertsCalendar();
+
     if (response && response.ok) {
       const doctors = await response.json();
 
@@ -354,12 +398,13 @@ async function getAllDoctors () {
     else {
       const errorMessage = await getErrorMessageFromResponse(response);
       console.error(errorMessage);
-      showErrorAlert(errorMessage);
+      showErrorAlertCalendar(errorMessage);
     }
   }
   catch (error) {
     console.error(error);
     showErrorAlert(error.message);
+    showErrorAlertCalendar(error.message);
   }
 }
 
@@ -387,6 +432,8 @@ doctorSelect.addEventListener('change', async (e) => {
 
       loadingSpinner3.style.display = 'block';
 
+      showBooking.checked = false;
+
       removeAllEvents();
 
       await fetchDoctorSchedules(e.target.value);
@@ -406,7 +453,6 @@ doctorSelect.addEventListener('change', async (e) => {
 // if the checkbox is checked, show bookings with the selected doctor
 showBooking.addEventListener('change', async (e) => {
   try {
-    console.log(e.target.checked);
     const doctorId = doctorSelect?.value;
     loadingSpinner3.style.display = 'block';
     removeAllEvents();
@@ -415,7 +461,7 @@ showBooking.addEventListener('change', async (e) => {
 
       if (response && response.ok) {
         const bookings = await response.json();
-        console.log(bookings);
+
         displayDoctorBookings(bookings);
       }
       else {
@@ -535,6 +581,9 @@ function createCalendarEventsFromSchedule (schedule, title) {
 function clearAlerts () {
   const errorAlert = document.getElementById('error-alert');
   if (errorAlert)   errorAlert.remove();
+
+  const emptyAlert = document.getElementById('empty-alert');
+  if (emptyAlert)   emptyAlert.remove();
 }
 
 
@@ -551,6 +600,43 @@ function showErrorAlert (message) {
   errorAlert.innerHTML = message;
 
   container.appendChild(errorAlert);
+}
+
+
+function showEmptyAlert (message) {
+  clearAlerts();
+
+  const container = document.getElementById('data-container');
+
+  const emptyAlert = document.createElement('div');
+  emptyAlert.setAttribute('id', 'empty-alert');
+  emptyAlert.setAttribute('class', 'alert alert-info');
+  emptyAlert.setAttribute('role', 'alert');
+  emptyAlert.innerHTML = message;
+
+  container.appendChild(emptyAlert);
+}
+
+
+function showErrorAlertCalendar (message) {
+  clearAlertsCalendar();
+
+  const container = document.getElementById('calendar-container');
+  const doctorOptions = document.getElementById('doctor-container-calendar');
+
+  const errorAlert = document.createElement('div');
+  errorAlert.setAttribute('id', 'error-alert-calendar');
+  errorAlert.setAttribute('class', 'alert alert-danger');
+  errorAlert.setAttribute('role', 'alert');
+  errorAlert.innerHTML = message;
+
+  container.insertBefore(errorAlert, doctorOptions);
+}
+
+
+function clearAlertsCalendar () {
+  const alert = document.getElementById('error-alert-calendar');
+  if (alert) alert.remove();
 }
 
 
@@ -625,6 +711,29 @@ function to24HourFormat (time) {
 }
 
 
+function formatTimeWithPeriod (time) {
+  let hour = parseInt(time.split(':')[0]);
+  let minute = parseInt(time.split(':')[1]);
+  let period = '';
+
+  if (hour === 12) {
+    period = 'PM;'
+  }
+  else if (hour > 12) {
+    hour = hour - 12;
+    period = 'PM';
+  }
+  else {
+    period = 'AM';
+  }
+
+  if (minute < 10)
+    minute = '0' + minute;
+
+  return `${hour}:${minute} ${period}`;
+}
+
+
 function setMinimumBookingDate (input) {
   let today = new Date();
   let yyyy = today.getFullYear();
@@ -654,7 +763,7 @@ function clearOptionsFromSelect (select) {
 async function getErrorMessageFromResponse (response) {
 	let errorMessage = "";
 	try {
-		switch (response.status) {
+		switch (response?.status) {
 			case 400:
 				const { message } = await response.json();
 				errorMessage = message;
@@ -746,9 +855,10 @@ async function fetchBookingsByDoctor (doctorId) {
 }
 
 
-async function fetchAllBookingsRequest () {
+async function fetchAllBookingsRequest (q) {
   try {
-    const response = await fetch(`${serverUrl}/api/bookings`, {
+    const url = `${serverUrl}/api/bookings?q=${q}`;
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type' : 'application/json',

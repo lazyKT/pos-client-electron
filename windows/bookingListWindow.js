@@ -31,7 +31,7 @@ exports.createBookingListWindow = function (parent, filter) {
     });
 
     win.loadFile(path.join(__dirname, "../views/bookings/booking_list.html"));
-    win.openDevTools();
+    // win.openDevTools();
 
     win.on('ready-to-show', () => win.show());
 

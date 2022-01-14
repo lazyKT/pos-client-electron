@@ -31,5 +31,13 @@ contextBridge.exposeInMainWorld ('bookingListAPI', {
     }
     else
       throw new Error (`Unkown IPC Message, ${channel} detected at bookingListAPI.receive`);
+  },
+  removeListeners: () => {
+    try {
+      removeEventListeners (ipcRenderer, ALLOWED_RECEIVED_CHANNELS);
+    }
+    catch (error) {
+      console.error("Error Removing Event Listeners at bookingDetailsAPI");
+    }
   }
 })
