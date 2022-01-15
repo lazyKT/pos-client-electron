@@ -92,7 +92,7 @@ async function addForm(){
     let select = document.createElement("select");
     select.name = "days";
     select.id = "wdays";
-    select.style= "margin:10px;"
+    select.style= "margin:10px;";
  
     for (const val of values)
     {
@@ -117,6 +117,7 @@ async function addForm(){
     input1.name = "startTime";
     input1.id = "startTime";
     input1.style = "margin:10px; width:110px;";
+    input1.step = "3600";
     row1.appendChild(input1);
 
 
@@ -126,6 +127,7 @@ async function addForm(){
     input2.name = "endTime";
     input2.id = "endTime";
     input2.style = "margin:10px; width:110px;";
+    input2.step = "3600";
     
     row1.appendChild(input2);
 

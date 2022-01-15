@@ -36,7 +36,7 @@ exports.createDocSchEditWindow = function createDocSchEditWindow(parentWindow, t
 
 
     win.loadFile(path.join(__dirname, "../views/doctor/editDocSchedule.html"));
-    win.openDevTools();
+    //win.openDevTools();
 
 
     win.once("ready-to-show", () => win.show());

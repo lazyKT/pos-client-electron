@@ -113,6 +113,7 @@ async function addForm(event){
     let select = document.createElement("select");
     select.name = "days";
     select.id = "days" +workCount;
+    select.style= "margin:10px;";
  
     for (const val of values)
     {
@@ -137,7 +138,7 @@ async function addForm(event){
     input1.name = "startTime";
     input1.id = "startTime" + workCount;
     input1.style = "margin:10px;";
-    input1.step = "9000";
+    input1.step = "3600";
     row1.appendChild(input1);
 
 
@@ -147,6 +148,7 @@ async function addForm(event){
     input2.name = "endTime";
     input2.id = "endTime" + workCount;
     input2.style = "margin:10px;";
+    input2.step = "3600";
     
     row1.appendChild(input2);
 
@@ -912,7 +914,7 @@ async function getSpecialsCount () {
 }
 
 /**
-# Fetch Doctors with Pagination Properties
+# Fetch Specializations with Pagination Properties
 **/
 async function fetchSpecializations () {
   try {
