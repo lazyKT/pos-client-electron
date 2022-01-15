@@ -169,7 +169,9 @@ createBookingButton.addEventListener('click', async (e) => {
       doctorId : doctorId,
       patientName: patientName,
       patientContact: patientContact,
-      dateTime: `${bookingDate}T${bookingTime}:00:00`
+      dateTime: parseInt(bookingTime) < 10 
+        ? `${bookingDate}T0${bookingTime}:00:00`
+        : `${bookingDate}T${bookingTime}:00:00`
     };
     const response = await createNewBooking(booking);
 
@@ -326,7 +328,7 @@ function displayWeeklyViewCalendar () {
   calendar.render();
 
   // calendar.on('dateClick', (info) => {
-  //   
+  //
   // });
 
   calendar.on('eventClick', e => {
