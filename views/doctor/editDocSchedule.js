@@ -1,6 +1,5 @@
 // DOM Nodes
 const cancelButton = document.getElementById('dismiss-window');
-
 const editButton = document.getElementById('edit-doctor');
 const errorDiv = document.getElementById('error');
 let serverUrl
@@ -35,7 +34,7 @@ editButton.addEventListener('click', () => {
   window.editContentAPI.send('dismiss-form-window', '');
 });
 
-
+/* get doctor list and display doctor data */
 async function showDoctor (id) {
   try {
     const response = await getDoctorById(id);
@@ -108,9 +107,6 @@ async function addForm(){
 
   row1.appendChild(label).appendChild(select);
 
-  const select = document.createElement("select");
-  select.name = "days";
-  select.id = "days" +workCount;
 
   row1.appendChild(document.createTextNode("Start Time"));
   let input1 = document.createElement("input");
@@ -120,11 +116,6 @@ async function addForm(){
   input1.style = "margin:10px; width:110px;";
   input1.step = "3600";
   row1.appendChild(input1);
-
-  const label = document.createElement("label");
-  label.innerHTML = "Working Days: "
-  label.htmlFor = "days";
-  label.id = "wLabel";
 
 
   row1.appendChild(document.createTextNode("End Time"));
@@ -188,19 +179,7 @@ async function addForm(){
       console.log(error);
       showErrorMessage(`Application Error: code 300`);
     }
-    finally {
-      // for(i=0; i< 6; i++){
-      // row1.removeChild(row1.lastChild);
-      // }
-      // row1.style ="border:0px;"
-      // console.log(row1.childElementCount);
-      // workCount--;
-      // clearDataContainer();
-      // addMore.disabled = false;
-    }
-
-
-
+    
   });
 
   removeBtn.addEventListener('click', e => {
@@ -222,7 +201,7 @@ function clearDataContainer () {
   showDoctor(id);
 }
 
-
+/*display doctor data for edit schedules*/
 function displayDoctorData(emp) {
 
 
@@ -249,17 +228,7 @@ function displayDoctorData(emp) {
 
   let values = ["Sunday", "Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
 
-  // let select = document.createElement("select");
-  // select.name = "days";
-  // select.id = "days" +workCount;
 
-  // for (const val of values)
-  // {
-  //     let option = document.createElement("option");
-  //     option.value = values.indexOf(val);
-  //     option.text = val.charAt(0).toUpperCase() + val.slice(1);
-  //     select.appendChild(option);
-  // }
   row1.appendChild(document.createTextNode("Working Day:"));
   let dayLabel = document.createElement("label");
   dayLabel.innerHTML =  values[day];
@@ -274,10 +243,7 @@ function displayDoctorData(emp) {
 
   input1.style = "margin:10px; background-color:#CDCFD6; width:110px; text-align: center; padding:5px;";
   input1.innerHTML = startTime;
-  //var convertedTime = moment(startTime, 'hh:mm A').format('HH:mm');
-
-
-  //input1.value = startTime;
+  
   row1.appendChild(input1);
 
 
@@ -287,8 +253,6 @@ function displayDoctorData(emp) {
 
   input2.style = "margin:10px; background-color:#CDCFD6; width:110px; text-align: center; padding:5px;";
   input2.innerHTML = endTime;
-  //var convertedTime1 = moment(endTime, 'hh:mm A').format('HH:mm');
-  //input2.value = endTime;
 
 
   row1.appendChild(input2);
@@ -334,13 +298,8 @@ function displayDoctorData(emp) {
 
       workCount--;
     }
-
-
     });
   }
-
-
-
 }
 
 
