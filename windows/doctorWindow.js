@@ -42,7 +42,7 @@ exports.createDoctorWindow = function createDoctorWindow () {
 
 
   win.loadFile(path.join(__dirname, "../views/doctor/doctor.html"));
-  win.openDevTools();
+  //win.openDevTools();
 
   win.once("ready-to-show", () => {
     win.maximize();
