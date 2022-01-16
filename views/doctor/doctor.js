@@ -22,6 +22,10 @@ window.onload = async () => {
 
     loadDataFromLocalStorage();
     displayLoginInformation();
+    displaySpecialization();
+
+
+
 
     await reloadData({});
     await createPaginationButtons();
@@ -100,25 +104,27 @@ async function addForm(event){
   const container = document.getElementById("container1");
   console.log(container.childElementCount);
 
-  var row1 = document.createElement("div");
+  let row1 = document.createElement("div");
     row1.id = "row1";
     row1.class = "row";
 
-    var values = ["Sunday", "Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
-
-    var select = document.createElement("select");
+    let values = ["Sunday", "Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
+ 
+    let select = document.createElement("select");
     select.name = "days";
     select.id = "days" +workCount;
-
+    select.style= "margin:10px;";
+ 
     for (const val of values)
     {
-        var option = document.createElement("option");
+        let option = document.createElement("option");
         option.value = values.indexOf(val);
         option.text = val.charAt(0).toUpperCase() + val.slice(1);
         select.appendChild(option);
     }
+ 
+    let label = document.createElement("label");
 
-    var label = document.createElement("label");
     label.innerHTML = "Working Days: "
     label.htmlFor = "days";
     label.id = "wLabel";
@@ -133,6 +139,7 @@ async function addForm(event){
     input1.name = "startTime";
     input1.id = "startTime" + workCount;
     input1.style = "margin:10px;";
+    input1.step = "3600";
     row1.appendChild(input1);
 
 
@@ -142,6 +149,8 @@ async function addForm(event){
     input2.name = "endTime";
     input2.id = "endTime" + workCount;
     input2.style = "margin:10px;";
+
+    input2.step = "3600";
 
     row1.appendChild(input2);
 
@@ -172,10 +181,10 @@ function myFunction() {
 // Close the dropdown menu if the user clicks outside of it
 window.onclick = function(event) {
   if (!event.target.matches('.dropbtn')) {
-    var dropdowns = document.getElementsByClassName("dropdown-content");
-    var i;
+    let dropdowns = document.getElementsByClassName("dropdown-content");
+    let i;
     for (i = 0; i < dropdowns.length; i++) {
-      var openDropdown = dropdowns[i];
+      let openDropdown = dropdowns[i];
       if (openDropdown.classList.contains('show')) {
         openDropdown.classList.remove('show');
       }
@@ -245,6 +254,56 @@ function populateDoctorTable(empData, idx=1) {
 
 }
 
+async function displaySpecialization()
+{
+  try{
+
+    specialsList = [];
+    const response = await fetchSpecializations();
+
+    if (response && response.ok) {
+      const emps = await response.json();
+
+      for(let i=0; i < emps.length ; i++)
+      {
+        specialsList.push(emps[i]['name']);
+      }
+      console.log(specialsList);
+
+    }
+    else {
+      const { message } = await response.json();
+      const errorMessage = message ? message : "Error Reloading Data. code 500";
+      showEmptyMessage(errorMessage);
+    }
+    
+    const specialContainer = document.getElementById("specialcontainer");
+    let select = document.createElement("select");
+    select.name = "specialSelect";
+    select.id = "specialSelect";
+    select.style=" width:210px; height:30px;";
+ 
+    for (const val of specialsList)
+    {
+        let option = document.createElement("option");
+        option.value = val;
+        console.log(val);
+        option.text = val.charAt(0).toUpperCase() + val.slice(1);
+        select.appendChild(option);
+    }
+    
+ 
+    specialContainer.appendChild(select);
+
+  }
+
+  catch (error) {
+    console.log(error);
+    showEmptyMessage("Error Showing Specializations Data. code 300");
+  }
+
+}
+
 
 /* filter doctor data */
 async function filterDoctors () {
@@ -281,7 +340,7 @@ async function filterDoctors () {
     // displayFilteredResults(results);
   }
   catch (error) {
-    console.log('Error filtering inventory data', error);
+    console.log('Error filtering doctor data', error);
   }
  };
 
@@ -316,7 +375,8 @@ async function reloadData() {
   try {
 
     clearDataContainer();
-
+    
+    
     // reload the data by fetching data based on the data type, and populate the table again
     const response = await fetchDoctors();
 
@@ -331,6 +391,8 @@ async function reloadData() {
       const errorMessage = message ? message : "Error Reloading Data. code 500";
       showEmptyMessage(errorMessage);
     }
+
+   
   }
   catch (error) {
     console.log(error);
@@ -361,6 +423,7 @@ function displayFilteredResults(results) {
 
 //** show this empty message if the results are empty */
 function showEmptyMessage () {
+  clearDataContainer();
   const searchInput = document.getElementById('search-input');
   const dataContainer = document.getElementById('data-container');
   const div = document.createElement('div');
@@ -376,6 +439,8 @@ function clearDataContainer () {
   while (dataContainer.childElementCount > 1) {
     dataContainer.removeChild(dataContainer.lastChild);
   }
+  
+  
   reloadDataTable();
 }
 
@@ -649,10 +714,10 @@ async function createDoctor(event) {
     let workingschedule =[];
     let z = 0;
     event.preventDefault();
-    const container = document.getElementById('container1');
+    const container = document.getElementById('row1');
     const child = container.children;
     console.log(child.length);
-    for (var i = 1; i <= child.length/4; i++)
+    for (let i = 1; i <= child.length/4; i++)
     {
 
       workingday = document.getElementById("days" + i).value;
@@ -677,7 +742,7 @@ async function createDoctor(event) {
 
 
     const name = document.getElementById('fullname').value;
-    const specialization = document.getElementById('specialization').value;
+    const specialization = document.getElementById('specialSelect').value;
     //const workingDays = "[1, 2, 3, 4, 5]";
     if (!name || name === ''|| !specialization || specialization === ''|| !workingschedule || workingschedule === '' ) {
       throw new Error ("Missing Required Inputs");
@@ -724,10 +789,12 @@ async function createDoctor(event) {
 // clear create doctors form inputs
 function clearFormInputs () {
   (document.getElementById('fullname')).value = '';
-  (document.getElementById('specialization')).value = '';
+ 
   const container = document.getElementById('container1');
-  var child = container.lastChild;
-        while (child) {
+
+  let child = container.lastChild; 
+
+  while (child) {
             container.removeChild(child);
             child = container.lastChild;
           }
@@ -831,6 +898,105 @@ async function searchDoctors (q) {
   catch (error) {
     console.error(`Error Search Doctors: ${error}`);
   }
+}
+
+async function getSpecialsCount () { 
+  try {
+    const response = await fetch(`${serverURL}/api/specialization/count`, {
+      method: "GET",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error (`Error Creating Pagination Buttons: Get Specializations Count`);
+  }
+}
+
+/**
+# Fetch Specializations with Pagination Properties
+**/
+async function fetchSpecializations () {
+  try {
+    limit = 30;
+    let url = `${serverURL}/api/specialization?page=${page}&limit=${limit}&order=${order}&sort=${sort}`;
+
+    if (limit === 0)
+      url = `${serverURL}/api/specialization?limit=0&order=${order}&sort=${sort}`;
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept" : "application.json"
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error("Error Getting  Specializations/n", error);
+  }
+}
+
+async function createSpecials()
+{
+  try
+  {
+    const name = document.getElementById('specialName').value;
+    const remarks = document.getElementById('remarks').value;
+    
+    if (!name || name === '' || !remarks || remarks === '') {
+      throw new Error ("Missing Required Inputs");
+    }
+
+    const data = {
+      name,
+      remarks
+    }
+
+    const response = await fetch(`${serverURL}/api/specialization`, {
+      method: "POST",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+    if (response && response.ok) {
+      const specialization = await response.json();
+      showAlertModal(`${name}, is successfully created!`, "New Specialization Created!", "success");
+      // clear form input
+      (document.getElementById('specialName')).value = '';
+      (document.getElementById('remarks')).value = '';
+      if((document.getElementById('specialSelect')) != null)
+      {
+        const specialselect = document.getElementById('specialcontainer');
+        while (specialselect.childElementCount > 2) {
+          specialselect.removeChild(specialselect.lastChild);
+        }
+
+      }
+      await displaySpecialization();
+
+    }
+    else {
+      const { message } = await response.json();
+      const errMessage = message ? `Error Creating New Specialization. ${message}`
+                            : "Error Creating New Specialization. code 300";
+
+      showAlertModal(errMessage, "Error", "error");
+    }
+  }
+  catch (error) {
+    console.log('Error Fetching Create-New-Specialization Response', error);
+    showAlertModal(error.message, "Error", "error");
+  }
+
 }
 
 

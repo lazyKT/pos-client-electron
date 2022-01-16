@@ -1,6 +1,6 @@
 // DOM Nodes
 const cancelButton = document.getElementById('dismiss-window');
-const deleteButton = document.getElementById('delete-doctor');
+
 const editButton = document.getElementById('edit-doctor');
 const errorDiv = document.getElementById('error');
 let serverUrl
@@ -31,82 +31,8 @@ cancelButton.addEventListener('click', () => {
   window.editContentAPI.send('dismiss-form-window', '');
 })
 
-
-// edit/update doctor //need to be updated - M
-editButton.addEventListener('click', async e => {
-
-  e.preventDefault();
-  e.target.setAttribute("disabled", true);
-  e.target.innerHTML = "Loading ...";
-
-  try {
-
-
-    const name = document.getElementById('name')?.value;
-    const workingSch = document.getElementById('workingSchedule')?.value;
-
-
-    //const specialization = document.getElementById('specialization')?.value;
-
-
-    if (!id || id === '' || !name || name === '' ||!workingSch || workingSch === '' ) {
-      throw new Error ("Missing Required Inputs");
-    }
-
-    const response = await editDoctorById(id, {
-      name,
-      specialization,
-
-    });
-    console.log(response);
-    if (response && response.ok) {
-      // update opreration successful
-      // inform the main process that new data update is done
-      console.log(await response.json());
-      window.editContentAPI.send('doctor-form-finish');
-    }
-    else {
-      const errorMessage = await getErrorMessageFromResponse(response);
-      showErrorMessage(errorMessage);
-    }
-  }
-  catch(error) {
-    console.log('Error Fetching Update Doctor Response', error);
-    showErrorMessage(error.message);
-  }
-  finally {
-    e.target.removeAttribute("disabled");
-    e.target.innerHTML = "Edit";
-  }
-});
-
-
-deleteButton.addEventListener("click", async e => {
-  try {
-    e.target.setAttribute("disabled", true);
-    e.target.innerHTML = "Loading ...";
-
-
-
-    const response = await deleteDoctorById (id);
-
-    if (response && response.ok) {
-      window.editContentAPI.send('doctor-form-finish');
-    }
-    else {
-      const { message } = await response.json();
-      const errorMessage = message ? message : "Error: deleting doctor. code 500";
-      showErrorMessage(errorMessage);
-    }
-  }
-  catch (error) {
-    // console.error(error);
-    showErrorMessage(error.message);
-  }
-  finally {
-    e.target.removeAttribute("disabled");
-    e.target.innerHTML = "Delete";
-  }
+editButton.addEventListener('click', () => {
+  window.editContentAPI.send('dismiss-form-window', '');
 });
 
 
@@ -131,29 +57,69 @@ async function showDoctor (id) {
   }
 }
 
+//convert time format
+function timeConvert (time) {
+  // Check correct time format and split into components
+  time = time.toString ().match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+
+  if (time.length > 1) { // If time format correct
+    time = time.slice (1);  // Remove full string match value
+    time[5] = +time[0] < 12 ? ' AM' : ' PM'; // Set AM/PM
+    time[0] = +time[0] % 12 || 12; // Adjust hours
+    time[0] = time[0] < 10 ? '0' + time[0] : time[0];
+  }
+  return time.join (''); // return adjusted time or original string
+}
+
+
 /*  Adding new inputs for working hours */
-async function addForm(event){
+async function addForm(){
+  const addMore = document.getElementById('addButton');
+  addMore.disabled = true;
   workCount+= 1;
   const container = document.getElementById("newContainer");
   console.log(container.childElementCount);
 
-  const row1 = document.createElement("div");
+  let row1 = document.createElement("div");
   row1.id = "row1";
   row1.class = "row";
+  row1.style="border:1px solid black;";
 
-  const values = ["Sunday", "Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
+  let values = ["Sunday", "Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
+
+  let select = document.createElement("select");
+  select.name = "days";
+  select.id = "wdays";
+  select.style= "margin:10px;";
+
+  for (const val of values)
+  {
+      let option = document.createElement("option");
+      option.value = values.indexOf(val);
+      option.text = val.charAt(0).toUpperCase() + val.slice(1);
+      select.appendChild(option);
+  }
+
+  let label = document.createElement("label");
+  label.innerHTML = "Working Day:"
+  label.htmlFor = "days";
+  label.id = "wLabel";
+
+
+  row1.appendChild(label).appendChild(select);
 
   const select = document.createElement("select");
   select.name = "days";
   select.id = "days" +workCount;
 
-  for (const val of values)
-  {
-      const option = document.createElement("option");
-      option.value = values.indexOf(val);
-      option.text = val.charAt(0).toUpperCase() + val.slice(1);
-      select.appendChild(option);
-  }
+  row1.appendChild(document.createTextNode("Start Time"));
+  let input1 = document.createElement("input");
+  input1.type = "time";
+  input1.name = "startTime";
+  input1.id = "startTime";
+  input1.style = "margin:10px; width:110px;";
+  input1.step = "3600";
+  row1.appendChild(input1);
 
   const label = document.createElement("label");
   label.innerHTML = "Working Days: "
@@ -161,34 +127,81 @@ async function addForm(event){
   label.id = "wLabel";
 
 
-  row1.appendChild(label).appendChild(select);
-
-
-  row1.appendChild(document.createTextNode("Start Time"));
-  let input1 = document.createElement("input");
-  input1.type = "time";
-  input1.name = "startTime";
-  input1.id = "startTime" + workCount;
-  input1.style = "margin:10px;";
-  row1.appendChild(input1);
-
-
   row1.appendChild(document.createTextNode("End Time"));
   let input2 = document.createElement("input");
   input2.type = "time";
   input2.name = "endTime";
-  input2.id = "endTime" + workCount;
-  input2.style = "margin:10px;";
+  input2.id = "endTime";
+  input2.style = "margin:10px; width:110px;";
+  input2.step = "3600";
 
   row1.appendChild(input2);
 
-  let removeBtn = document.createElement('button');
-  removeBtn.setAttribute('class', 'btn btn-danger');
-  removeBtn.innerHTML = 'Remove';
-  removeBtn.style = "margin:10px;";
-  row1.appendChild(removeBtn);
+  let addBtn = document.createElement('button');
+  addBtn.setAttribute('class', 'btn btn-success');
+  addBtn.innerHTML = 'Add';
+  addBtn.style = "margin:10px; width:100px";
+  row1.appendChild(addBtn);
   container.appendChild(row1);
 
+
+  addBtn.addEventListener('click', e => {
+
+
+  });
+
+  addBtn.addEventListener('click', async e => {
+    try {
+
+      workingday = document.getElementById("wdays").value;
+      workSTime = document.getElementsByName("startTime")[0].value;
+      workETime = document.getElementsByName('endTime')[0].value;
+      if (workETime < workSTime)
+      {
+        throw new Error("End Time must be Greater than Start Time");
+      }
+      console.log(workSTime);
+      workSTime = timeConvert(workSTime);
+      workETime = timeConvert(workETime);
+
+
+
+
+      const response = await addDoctorSchedule ( {
+        doctorId : id,
+        startTime : workSTime, 
+        endTime : workETime,
+        day : workingday
+      });
+
+      if (response && response.ok) {
+        console.log("successfully added!");
+        //showAlertModal(`New Schedule is successfully created!`, "New Schedule Added!", "success");
+      }
+      else {
+        const { message } = await response.json();
+        const errorMessage = message ? message : "Error: adding doctor. code 500";
+        showErrorMessage(errorMessage);
+      }
+    }
+    catch (error) {
+      console.log(error);
+      showErrorMessage(`Application Error: code 300`);
+    }
+    finally {
+      // for(i=0; i< 6; i++){
+      // row1.removeChild(row1.lastChild);
+      // }
+      // row1.style ="border:0px;"
+      // console.log(row1.childElementCount);
+      // workCount--;
+      // clearDataContainer();
+      // addMore.disabled = false;
+    }
+
+
+
+  });
 
   removeBtn.addEventListener('click', e => {
     for(i=0; i< 6; i++){
@@ -200,6 +213,14 @@ async function addForm(event){
   });
 }
 
+function clearDataContainer () {
+  const dataContainer = document.getElementById('currentContainer');
+  while (dataContainer.childElementCount > 1) {
+    dataContainer.removeChild(dataContainer.lastChild);
+  }
+  
+  showDoctor(id);
+}
 
 
 function displayDoctorData(emp) {
@@ -216,106 +237,103 @@ function displayDoctorData(emp) {
   console.log(workingSch.length);
   for (let i = 0; i < workingSch.length ; i++)
   {
-    const startTime = workingSch[i].startTime;
-    const endTime = workingSch[i].endTime;
-    const day = workingSch[i].day;
 
-    const row1 = document.createElement("div");
-    row1.id = "row2";
-    row1.class = "row";
+  let startTime = workingSch[i].startTime;
+  let endTime = workingSch[i].endTime;
+  let day = workingSch[i].day;
+
+  let row1 = document.createElement("div");
+
+  row1.id = "row2";
+  row1.class = "row";
+
+  let values = ["Sunday", "Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
+
+  // let select = document.createElement("select");
+  // select.name = "days";
+  // select.id = "days" +workCount;
+
+  // for (const val of values)
+  // {
+  //     let option = document.createElement("option");
+  //     option.value = values.indexOf(val);
+  //     option.text = val.charAt(0).toUpperCase() + val.slice(1);
+  //     select.appendChild(option);
+  // }
+  row1.appendChild(document.createTextNode("Working Day:"));
+  let dayLabel = document.createElement("label");
+  dayLabel.innerHTML =  values[day];
+  dayLabel.id = "wLabel";
+  dayLabel.style = "margin:10px; background-color:#CDCFD6; width:100px; text-align: center; padding:5px;";
+
+  row1.appendChild(dayLabel);
+
+  row1.appendChild(document.createTextNode("Start Time:"));
+  let input1 = document.createElement("label");
+  input1.id = "startTime" + workCount;
+
+  input1.style = "margin:10px; background-color:#CDCFD6; width:110px; text-align: center; padding:5px;";
+  input1.innerHTML = startTime;
+  //var convertedTime = moment(startTime, 'hh:mm A').format('HH:mm');
 
 
-    const values = ["Sunday", "Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
+  //input1.value = startTime;
+  row1.appendChild(input1);
 
-    const select = document.createElement("select");
-    select.name = "days";
-    select.id = "days" +workCount;
 
-    for (const val of values)
-    {
-        const option = document.createElement("option");
-        option.value = values.indexOf(val);
-        option.text = val.charAt(0).toUpperCase() + val.slice(1);
-        select.appendChild(option);
+  row1.appendChild(document.createTextNode("End Time:"));
+  let input2 = document.createElement("label");
+  input2.id = "endTime" + workCount;
+
+  input2.style = "margin:10px; background-color:#CDCFD6; width:110px; text-align: center; padding:5px;";
+  input2.innerHTML = endTime;
+  //var convertedTime1 = moment(endTime, 'hh:mm A').format('HH:mm');
+  //input2.value = endTime;
+
+
+  row1.appendChild(input2);
+
+  const removeBtn = document.createElement('button');
+  removeBtn.setAttribute('class', 'btn btn-danger');
+  removeBtn.innerHTML = 'Remove';
+  removeBtn.style = "margin:10px; width:100px";
+  row1.appendChild(removeBtn);
+  container.appendChild(row1);
+
+
+  removeBtn.addEventListener('click', async e => {
+    try {
+      e.target.setAttribute("disabled", true);
+      e.target.innerHTML = "Loading ...";
+
+
+      const response = await deleteDoctorSchedule ( {
+        doctorId : id,
+        startTime,
+        endTime,
+        day
+      });
+
+      if (response && response.ok) {
+        console.log("successfully removed!");
+      }
+      else {
+        const { message } = await response.json();
+        const errorMessage = message ? message : "Error: deleting doctor. code 500";
+        showErrorMessage(errorMessage);
+      }
     }
-
-    const label = document.createElement("label");
-    label.innerHTML = "Working Days: ";
-    label.htmlFor = "days";
-    label.id = "wLabel";
-
-
-    select.value = day;
-
-
-    row1.appendChild(label).appendChild(select);
-
-
-    row1.appendChild(document.createTextNode("Start Time"));
-    let input1 = document.createElement("input");
-    input1.type = "time";
-    input1.name = "startTime";
-    input1.id = "startTime" + workCount;
-    input1.style = "margin:10px;";
-    const convertedTime = moment(startTime, 'hh:mm A').format('HH:mm');
-
-    input1.value = convertedTime;
-    row1.appendChild(input1);
-
-
-    row1.appendChild(document.createTextNode("End Time"));
-    let input2 = document.createElement("input");
-    input2.type = "time";
-    input2.name = "endTime";
-    input2.id = "endTime" + workCount;
-    input2.style = "margin:10px;";
-    const convertedTime1 = moment(endTime, 'hh:mm A').format('HH:mm');
-    input2.value = convertedTime1;
-
-    row1.appendChild(input2);
-
-    const removeBtn = document.createElement('button');
-    removeBtn.setAttribute('class', 'btn btn-danger');
-    removeBtn.innerHTML = 'Remove';
-    removeBtn.style = "margin:10px;";
-    row1.appendChild(removeBtn);
-    container.appendChild(row1);
-
-
-    removeBtn.addEventListener('click', async e => {
-      try {
-        e.target.setAttribute("disabled", true);
-        e.target.innerHTML = "Loading ...";
-
-
-        const response = await deleteDoctorSchedule ( {
-          doctorId : id,
-          startTime,
-          endTime,
-          day
-        });
-
-        if (response && response.ok) {
-          console.log("successfully removed!");
-        }
-        else {
-          const { message } = await response.json();
-          const errorMessage = message ? message : "Error: deleting doctor. code 500";
-          showErrorMessage(errorMessage);
-        }
-      }
-      catch (error) {
-        console.log(error);
-        showErrorMessage(`Application Error: code 300`);
-      }
-      finally {
-        for(i=0; i< 6; i++){
-        row1.removeChild(row1.lastChild);
-        }
-
-        workCount--;
+    catch (error) {
+      console.log(error);
+      showErrorMessage(`Application Error: code 300`);
+    }
+    finally {
+      for(i=0; i< 7; i++){
+      row1.removeChild(row1.lastChild);
       }
 
+      workCount--;
+    }
 
 
     });
@@ -345,32 +363,14 @@ function toggleInputs (method) {
   if (method === "PUT") {
     const editButton = document.getElementById("edit-doctor");
     editButton.style.display = "block";
-    const deleteButton = document.getElementById("delete-doctor");
-    deleteButton.style.display = "block";
+    
   }
   else {
     const editButton = document.getElementById("edit-doctor");
     editButton.style.display = "none";
-    const deleteButton = document.getElementById("delete-doctor");
-    deleteButton.style.display = "none";
+    
 
   }
-}
-
-/* To convert the input data to yyyy-mm-dd format*/
-function formatDate(input) {
-    console.log(input);
-    var d = new Date(input),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-    if (month.length < 2)
-        month = '0' + month;
-    if (day.length < 2)
-        day = '0' + day;
-
-    return [year, month, day].join('-');
 }
 
 
@@ -459,23 +459,6 @@ async function editDoctorById (id, data) {
   }
 }
 
-/* delete doctor data by id */
-async function deleteDoctorById (id){
-  try {
-    const response = await fetch(`${serverUrl}/api/doctors/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type" : "application/json",
-        "Accept" : "application/json"
-      }
-    });
-
-    return response;
-  }
-  catch (error) {
-    console.error(error);
-  }
-}
 
 /* delete doctor schedule by id */
 async function deleteDoctorSchedule(data){
@@ -488,6 +471,27 @@ async function deleteDoctorSchedule(data){
       },
       body: JSON.stringify(data)
     });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error);
+  }
+}
+
+async function addDoctorSchedule(data)
+{
+  try {
+    const response = await fetch(`${serverUrl}/api/doctors/add-schedule`, {
+      method: "PUT",
+      headers: {
+        "Content-Type" : "application/json",
+        "Accept" : "application/json"
+      },
+      body: JSON.stringify(data)
+
+    });
+    console.log(response);
 
     return response;
   }

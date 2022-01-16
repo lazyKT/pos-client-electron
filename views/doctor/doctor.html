@@ -71,6 +71,19 @@
               New
             </button>
           </li>
+
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="specials-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#specials"
+              type="button" role="tab"
+              aria-controls="specials"
+              aria-selected="false">
+              Specialization
+            </button>
+          </li>
         </ul>
 
         <div class="tab-content" id="myTabContent">
@@ -79,16 +92,16 @@
           <div class="tab-pane fade show active" id="doctor" role="tabpanel" aria-labelledby="doctor-tab">
 
             <!-- pagination tab -->
-            <div class= "container">
+           <div class= "container">
               <div class="row mt-2 justify-content-between">
-                <div class="col-8">
+                <div class="col-6">
                   <div class="input-group">
                     <input class="form-control search-input" id='search-input' type="text" name="" value="" placeholder="Search Doctors" onkeyup= "onKeyUp(event)">
                     <button onclick="filterDoctors()" class="mx-1 btn btn-primary" id="search-btn" type="button" name="button">Search</button>
                     <button onclick="resetFilter()" class="mx-1 btn btn-light" id="cancel-search" type="button" name="button" >Cancel</button>
                   </div>
                 </div>
-                <div class="col-4">
+                <div class="col-5">
 
                   <a class="btn btn-secondary dropdown-toggle"
                     href="#" role="button"
@@ -112,7 +125,6 @@
                 </div>
               </div>
             </div>
-
 
 
             <div class="card my-2 box" width = 'auto'>
@@ -174,12 +186,15 @@
                       <input type="text" class="form-control" id="fullname" required>
                     </div>
                 
-                    <div class="form-group col-md-3 mb-2">
-                      <label for="mobile">Specialization</label>
-                      <input type="text" class="form-control" id="specialization" required />
+                    <div id="specialcontainer">
+                      <label for="specials" style="margin-bottom: 10px;">Specialization</label>
+                      <br> 
                     </div>
+                   
+                        
+                   
                     
-                    <button style="margin:10px;" onclick="addForm(event)" class="mx-1 btn btn-success" id="addButton" type="button" name="addButton" >Add Working Hours + </button>
+                    <button style="margin-top: 10px; margin-bottom: 10px;" onclick="addForm(event)" class="mx-1 btn btn-success" id="addButton" type="button" name="addButton" >Add Working Hours + </button>
 
                       <div class="container" id="container1">
                       
@@ -197,8 +212,31 @@
               </div>
             </div>
           </div>
-          <!-- end of creat tab -->
+           <!-- end of creat tab -->
+          <div class="tab-pane fade" id="specials" role="tabpanel" aria-labelledby="specials-tab">
+         
+          <div class="card my-2 box" width ="auto">
+            <div class="card-body">
+              <h5>Add New specialization </h5>
+              <p style="color:red" id="error-create-item"></p>
+              <form>
 
+                    <div class="form-group col-md-3 mb-2">
+                      <label for="specialization">Specialization Name</label>
+                      <input type="text" class="form-control" id="specialName" required>
+            </div>
+            <div class="form-group col-md-3 mb-2">
+                      <label for="remarks">Remarks</label>
+                      <input type="text" class="form-control" id="remarks" required>
+            </div>
+            </form>
+            
+                 <a type="submit" class="btn btn-primary mb-2"
+                      id="createSpecials" onclick="createSpecials(event)">
+                      Create
+                    </a>
+              </div>
+              </div>
 
         </div>
       </div>

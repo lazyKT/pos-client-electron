@@ -5,7 +5,7 @@
     <title>Create New Doctor</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css">
     <link rel="stylesheet" href="doctor.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
+
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -26,19 +26,20 @@
             
              <button style="margin:10px;" onclick="addForm()" class="mx-1 btn btn-success" id="addButton" type="button" name="addButton" >Add Working Hours + </button>
             
+            <div class="container" id="newContainer" style=" margin: 10px;">
+                      
+            </div>
+
             <div class="container" id="currentContainer" style="margin: 10px;">
                       
             </div>
 
            
 
-            <div class="container" id="newContainer" style=" margin: 10px;">
-                      
-            </div>
+            
 
             
-           <button type="submit" style="display: none;" id="edit-doctor" class="btn btn-primary w-100 my-1">Edit</button>
-            <a id="delete-doctor" style="display: none;" class="btn btn-outline-danger">Delete</a>
+           <button type="submit" style="display: none;" id="edit-doctor" class="btn btn-primary w-100 my-1">Done</button>
             <a id="dismiss-window" class="btn btn-outline-secondary w-100 my-1">Cancel</a>
           </form>
         </div>
