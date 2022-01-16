@@ -5,6 +5,7 @@ const errorDiv = document.getElementById('error');
 let serverUrl
 let workCount = 0;
 let id
+let scheduleHours = [];
 // clean up
 window.onUnload = () => window.editContentAPI.removeListeners();
 
@@ -15,6 +16,8 @@ window.editContentAPI.receive('response-doctor-data', async data => {
     serverUrl = localStorage.getItem("serverUrl");
     if (!serverUrl || serverUrl === null)
       throw new Error ("Erorr: failed to get server url");
+
+    setScheduleHours();
 
     await showDoctor(data._id);
 
@@ -56,20 +59,43 @@ async function showDoctor (id) {
   }
 }
 
-//convert time format
-function timeConvert (time) {
-  // Check correct time format and split into components
-  time = time.toString ().match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+function checkHours(startTime, endTime)
+{
+  let sTime = startTime.split(' ')[1];
+  let sHour = startTime.split(':')[0];
 
-  if (time.length > 1) { // If time format correct
-    time = time.slice (1);  // Remove full string match value
-    time[5] = +time[0] < 12 ? ' AM' : ' PM'; // Set AM/PM
-    time[0] = +time[0] % 12 || 12; // Adjust hours
-    time[0] = time[0] < 10 ? '0' + time[0] : time[0];
+
+  let eTime = endTime.split(' ')[1];
+  let eHour = endTime.split(':')[0];
+
+  if(sTime == eTime)
+  {
+    if(eHour > sHour)
+      return true;
+    else
+      return false;
   }
-  return time.join (''); // return adjusted time or original string
+  else if(sTime == "AM" && eTime == "PM")
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
-
+/*set schedule hours for doctor */
+function setScheduleHours(){
+  for (let i = 7; i < 20; i++) {
+      if (i < 12)
+        scheduleHours.push(i + ':00 AM');
+      else if (i === 12)
+        scheduleHours.push('12:00 PM');
+      else
+        scheduleHours.push((i % 12) + ':00 PM');
+    }
+    console.log(scheduleHours);
+}
 
 /*  Adding new inputs for working hours */
 async function addForm(){
@@ -109,24 +135,34 @@ async function addForm(){
 
 
   row1.appendChild(document.createTextNode("Start Time"));
-  let input1 = document.createElement("input");
-  input1.type = "time";
-  input1.name = "startTime";
-  input1.id = "startTime";
-  input1.style = "margin:10px; width:110px;";
-  input1.step = "3600";
-  row1.appendChild(input1);
+    let startselect = document.createElement("select");
+    startselect.name = "startselect";
+    startselect.id = "startselect";
+    startselect.style= "margin:10px;";
+    for(const hours of scheduleHours)
+    {
+      let option1 = document.createElement("option");
+      option1.value = hours; 
+      option1.text = hours;
+      startselect.appendChild(option1);
+    }
 
+    row1.appendChild(startselect);
 
-  row1.appendChild(document.createTextNode("End Time"));
-  let input2 = document.createElement("input");
-  input2.type = "time";
-  input2.name = "endTime";
-  input2.id = "endTime";
-  input2.style = "margin:10px; width:110px;";
-  input2.step = "3600";
+    row1.appendChild(document.createTextNode("End Time"));
+    let endselect = document.createElement("select");
+    endselect.name = "endselect";
+    endselect.id = "endselect" ;
+    endselect.style= "margin:10px;";
+    for(const hours of scheduleHours)
+    {
+      let option2 = document.createElement("option");
+      option2.value = hours; 
+      option2.text = hours;
+      endselect.appendChild(option2);
+    }
 
-  row1.appendChild(input2);
+    row1.appendChild(endselect);
 
   let addBtn = document.createElement('button');
   addBtn.setAttribute('class', 'btn btn-success');
@@ -144,20 +180,12 @@ async function addForm(){
   addBtn.addEventListener('click', async e => {
     try {
 
-      workingday = document.getElementById("wdays").value;
-      workSTime = document.getElementsByName("startTime")[0].value;
-      workETime = document.getElementsByName('endTime')[0].value;
-      if (workETime < workSTime)
+      workingday = document.getElementById("wdays")?.value;
+      workSTime = document.getElementById('startselect')?.value;
+      workETime = document.getElementById('endselect')?.value;
+      
+      if(checkHours(workSTime, workETime))
       {
-        throw new Error("End Time must be Greater than Start Time");
-      }
-      console.log(workSTime);
-      workSTime = timeConvert(workSTime);
-      workETime = timeConvert(workETime);
-
-
-
-
       const response = await addDoctorSchedule ( {
         doctorId : id,
         startTime : workSTime, 
@@ -175,6 +203,11 @@ async function addForm(){
         showErrorMessage(errorMessage);
       }
     }
+    else
+    {
+      throw new Error("End Time must be Greater than Start Time");
+    }
+    }
     catch (error) {
       console.log(error);
       showErrorMessage(`Application Error: code 300`);
@@ -182,14 +215,7 @@ async function addForm(){
     
   });
 
-  removeBtn.addEventListener('click', e => {
-    for(i=0; i< 6; i++){
-      row1.removeChild(row1.lastChild);
-    }
-    console.log(row1.childElementCount);
-    workCount--;
-
-  });
+ 
 }
 
 function clearDataContainer () {
