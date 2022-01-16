@@ -1,4 +1,3 @@
-
 let reloadStatus = "ready";
 // for pagination
 let limit = 10;
@@ -13,7 +12,7 @@ let counter = 1;
 
 
 let workCount = 0;
-
+let scheduleHours = [];
 // DOM Nodes
 window.onload = async () => {
 
@@ -23,7 +22,7 @@ window.onload = async () => {
     loadDataFromLocalStorage();
     displayLoginInformation();
     displaySpecialization();
-
+    setScheduleHours();
 
 
 
@@ -97,6 +96,19 @@ async function changeNumPerPage (num) {
   }
 }
 
+/*set schedule hours for doctor */
+function setScheduleHours(){
+  for (let i = 7; i < 20; i++) {
+      if (i < 12)
+        scheduleHours.push(i + ':00 AM');
+      else if (i === 12)
+        scheduleHours.push('12:00 PM');
+      else
+        scheduleHours.push((i % 12) + ':00 PM');
+    }
+    console.log(scheduleHours);
+}
+
 
 /*  Adding new inputs for working hours */
 async function addForm(event){
@@ -105,7 +117,7 @@ async function addForm(event){
   console.log(container.childElementCount);
 
   let row1 = document.createElement("div");
-    row1.id = "row1";
+    row1.id = "row"+ workCount;
     row1.class = "row";
 
     let values = ["Sunday", "Monday","Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" ];
@@ -133,26 +145,36 @@ async function addForm(event){
     row1.appendChild(label).appendChild(select);
 
 
+    
     row1.appendChild(document.createTextNode("Start Time"));
-    let input1 = document.createElement("input");
-    input1.type = "time";
-    input1.name = "startTime";
-    input1.id = "startTime" + workCount;
-    input1.style = "margin:10px;";
-    input1.step = "3600";
-    row1.appendChild(input1);
+    let startselect = document.createElement("select");
+    startselect.name = "startselect";
+    startselect.id = "startselect" + workCount;
+    startselect.style= "margin:10px;";
+    for(const hours of scheduleHours)
+    {
+      let option1 = document.createElement("option");
+      option1.value = hours; 
+      option1.text = hours;
+      startselect.appendChild(option1);
+    }
 
+    row1.appendChild(startselect);
 
     row1.appendChild(document.createTextNode("End Time"));
-    let input2 = document.createElement("input");
-    input2.type = "time";
-    input2.name = "endTime";
-    input2.id = "endTime" + workCount;
-    input2.style = "margin:10px;";
+    let endselect = document.createElement("select");
+    endselect.name = "endselect";
+    endselect.id = "endselect" + workCount;
+    endselect.style= "margin:10px;";
+    for(const hours of scheduleHours)
+    {
+      let option2 = document.createElement("option");
+      option2.value = hours; 
+      option2.text = hours;
+      endselect.appendChild(option2);
+    }
 
-    input2.step = "3600";
-
-    row1.appendChild(input2);
+    row1.appendChild(endselect);
 
     let removeBtn = document.createElement('button');
     removeBtn.setAttribute('class', 'btn btn-danger');
@@ -527,7 +549,7 @@ async function createPaginationButtons () {
     }
   }
   catch (error) {
-  	console.log(error);
+    console.log(error);
     showAlertModal(`Error Searching Doctors`, "Application Error! Contact Developer!", "error");
   }
 }
@@ -691,19 +713,31 @@ function validateTime(time)
 
 }
 
-function timeConvert (time) {
-  // Check correct time format and split into components
-  time = time.toString ().match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+function checkHours(startTime, endTime)
+{
+  let sTime = startTime.split(' ')[1];
+  let sHour = startTime.split(':')[0];
 
-  if (time.length > 1) { // If time format correct
-    time = time.slice (1);  // Remove full string match value
-    time[5] = +time[0] < 12 ? ' AM' : ' PM'; // Set AM/PM
-    time[0] = +time[0] % 12 || 12; // Adjust hours
-    time[0] = time[0] < 10 ? '0' + time[0] : time[0];
+
+  let eTime = endTime.split(' ')[1];
+  let eHour = endTime.split(':')[0];
+
+  if(sTime == eTime)
+  {
+    if(eHour > sHour)
+      return true;
+    else
+      return false;
   }
-  return time.join (''); // return adjusted time or original string
+  else if(sTime == "AM" && eTime == "PM")
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
-
 
 /**
 # Create Doctor
@@ -714,23 +748,23 @@ async function createDoctor(event) {
     let workingschedule =[];
     let z = 0;
     event.preventDefault();
-    const container = document.getElementById('row1');
+    const container = document.getElementById('container1');
     const child = container.children;
     console.log(child.length);
-    for (let i = 1; i <= child.length/4; i++)
+    for (let i = 1; i <= child.length; i++)
     {
 
-      workingday = document.getElementById("days" + i).value;
-      workSTime = document.getElementsByName('startTime')[z].value;
-      workETime = document.getElementsByName('endTime')[z].value;
-      if (workETime < workSTime)
-      {
-        throw new Error("End Time must be Greater than Start Time");
-      }
+      workingday = document.getElementById("days" + i)?.value;
+      workSTime = document.getElementById('startselect' + i)?.value;
+      workETime = document.getElementById('endselect' + i)?.value;
+      
+      console.log(workSTime);
 
-      workSTime = timeConvert(workSTime);
-      workETime = timeConvert(workETime);
-      z++;
+
+      if(!checkHours(workSTime, workETime))
+      {
+       throw new Error("End Time must be Greater than Start Time");
+      }
 
 
       workingschedule.push({startTime : workSTime , endTime : workETime , day : workingday});
