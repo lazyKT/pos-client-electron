@@ -167,7 +167,7 @@ function formatTimeWithPeriod (time) {
   let period = '';
 
   if (hour === 12) {
-    period = 'PM;'
+    period = 'PM';
   }
   else if (hour > 12) {
     hour = hour - 12;

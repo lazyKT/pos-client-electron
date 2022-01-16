@@ -16,8 +16,9 @@ window.editContentAPI.receive('response-doctor-data', async data => {
     serverUrl = localStorage.getItem("serverUrl");
     if (!serverUrl || serverUrl === null)
       throw new Error ("Erorr: failed to get server url");
-
+    await displaySpecialization();
     await showDoctor(data._id);
+    
 
     toggleInputs(data.method);
   }
@@ -44,7 +45,7 @@ editButton.addEventListener('click', async e => {
     const id = document.getElementById('id')?.value;
     const dId = document.getElementById('doctorId')?.value;
     const name = document.getElementById('name')?.value;
-    const specialization = document.getElementById('specialization')?.value;
+    const specialization = document.getElementById('specialSelect')?.value;
     
 
     if (!id || id === '' ||!dId || dId === '' ||!name || name === '' ||!specialization || specialization === '' ) {
@@ -53,7 +54,7 @@ editButton.addEventListener('click', async e => {
 
     const response = await editDoctorById(id, {
       name,
-      specialization,
+      specialization
     
     });
     console.log(response);
@@ -130,19 +131,74 @@ async function showDoctor (id) {
 }
 
 
-function displayDoctorData(emp) {
+async function displayDoctorData(emp) {
 
   const id = document.getElementById('id');
   const dId = document.getElementById('doctorId');
   const name = document.getElementById('name');
-  const specialization = document.getElementById('specialization');
+  const specialization = document.getElementById('specialSelect');
+
   
   const { fullname } = emp;
 
   id.value = emp._id;
   dId.value = emp.doctorId;
   name.value = emp.name;
+
   specialization.value = emp.specialization;
+  
+  
+}
+
+async function displaySpecialization()
+{
+  try{
+
+    specialsList = [];
+    const response = await fetchSpecializations();
+
+    if (response && response.ok) {
+      const emps = await response.json();
+
+      for(let i=0; i < emps.length ; i++)
+      {
+        specialsList.push(emps[i]['name']);
+      }
+      //console.log(specialsList);
+
+    }
+    else {
+      const { message } = await response.json();
+      const errorMessage = message ? message : "Error Reloading Data. code 500";
+      console.log(errorMessage);
+    }
+    
+    const specialContainer = document.getElementById("specialcontainer");
+    let select = document.createElement("select");
+    select.name = "specialSelect";
+    select.id = "specialSelect";
+    select.style=" width:210px; height:30px;";
+    
+    for (const val of specialsList)
+    {
+        let option = document.createElement("option");
+        option.value = val;
+        //console.log(val);
+        option.text = val.charAt(0).toUpperCase() + val.slice(1);
+        select.appendChild(option);
+    }
+    
+    
+ 
+    specialContainer.appendChild(select);
+
+  }
+
+  catch (error) {
+    console.log(error);
+    
+  }
+
 }
 
 
@@ -264,5 +320,30 @@ async function deleteDoctorById (id){
   }
   catch (error) {
     console.error(error);
+  }
+}
+
+/**
+# Fetch Specializations with Pagination Properties
+**/
+async function fetchSpecializations () {
+  try {
+    
+    let url = `${serverUrl}/api/specialization?`;
+
+    
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept" : "application.json"
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error("Error Getting  Specializations/n", error);
   }
 }

@@ -43,9 +43,9 @@ header {
 
 
 .search-div input {
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: 0.7px solid gainsboro;
+  padding: 5px 20px;
+  border-radius: 5px;
+  border: 0.6px solid gainsboro;
   outline-color: dodgerblue;
 }
 
@@ -55,6 +55,14 @@ header {
   justify-content: flex-end;
 }
 
+
+/* .search-div button {
+  width: 100px;
+  border: none;
+  border-radius: 5px;
+  background: dodgerblue;
+  color: white;
+} */
 
 .action-button {
   border: none;
@@ -100,12 +108,6 @@ header {
   display: "none";
 }
 
-.button {
-  padding : 10px;
-}
-.input {
-  padding: 10px;
-}
 /* Dropdown Button */
 .dropbtn {
   background-color: #3498DB;
@@ -147,6 +149,4 @@ header {
 /* Change color of dropdown links on hover */
 .dropdown-content a:hover {background-color: #ddd}
 
-
-.show {display:block;}
 
