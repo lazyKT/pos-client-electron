@@ -31,12 +31,14 @@
 
       <div class="row h-100">
         <div class="col">
-          
+
           <!-- doctor & patient name -->
           <div class="my-2 row">
             <div class="col">
               <label class="form-label"><strong>Doctor</strong></label>
-              <input type="text" class="form-control" id="doctor-name" placeholder="Doctor Name">
+              <select class="form-control" id="doctor-select">
+                <option value=''>Choose Doctor</value>
+              </select>
             </div>
             <div class="col">
               <label class="form-label"><strong>Patient</strong></label>
@@ -58,15 +60,18 @@
           <!-- end of add to cart -->
 
           <!-- add other fees to cart -->
-          <div class="card mb-2">
+          <div class="card mb-2 pb-2">
             <h6 class="m-1">Add other fees & services</h6>
-    
-            <div class="card-body d-flex justify-content-between">
-              <input class="w-50 form-control px-2" type="text" id="fees-desc" placeholder="Server (or) Fees Name">
-              <input class="w-25 form-control px-2 mx-1" type="number" min="0" id="fees-price" placeholder="Price">
-              <div class="w-25 d-flex justify-content-end">
-                <button class="btn btn-primary" name="button" id="add-fees-to-cart">Add Fees</button>
-              </div>
+
+            <div class="card-body d-flex justify-content-start">
+              <select class="w-25 form-control mr-1" id="service-select">
+                <option value="">Service(s)</option>
+              </select>
+              <input class="w-50 form-control px-2" type="text" id="service-desc" placeholder="Server (or) Fees Name">
+              <input class="w-25 form-control px-2 mx-1" type="number" min="0" id="service-price" placeholder="Price" readOnly>
+            </div>
+            <div class="w-100 d-flex justify-content-end px-3">
+              <button class="btn btn-primary" name="button" id="add-fees-to-cart">Add Fees</button>
             </div>
           </div>
           <!-- end of other fees -->
@@ -77,12 +82,8 @@
             <span class="m-1 text-danger" id="search-item-error"></span>
             <div class="card-body">
               <!-- search input -->
-              <div class=" d-flex justify-content-between">
-                <input class="w-75 form-control px-2" type="text" id="item-search-input" placeholder="Search Items...">
-                <div class="w-25 d-flex justify-content-end">
-                  <button class="btn btn-primary" name="button" id="search-item">Search</button>
-                </div>
-              </div>
+              <input class="form-control" list="search-items-options" id="item-search-input" placeholder="Type to search...">
+              <datalist id="search-items-options"></datalist>
               <!-- search results -->
               <div class="mt-5 px-1 search-results" id="search-results">
 

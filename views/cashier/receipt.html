@@ -15,23 +15,26 @@
     <div class="container mt-3">
 
         <!-- clinic info-->
-        <p class="text-center"><b>ဒို့မေတ္တာ</b>
+        <p class="text-center">
+            <b style="font-size:23px">ဒို့မေတ္တာ</b><br>
+            <b style="font-size:12px">အထွေထွေရောဂါ အထူးကုဆေးခန်း</b>
+        </p>
+        <p class="text-center"  style="font-size:11px">
             <br>အမှတ်(၁)၊ အခန်း ၀၀၁/၀၀၂၊ လှိုင်သီရိအိမ်ယာ၊
             <br>လှိုင်မြို့နယ်
             <br>Phone: 09 972905031, &nbsp;&nbsp;09 972835079
         </p>
-        <br>
-        <br>
 
+        <p style="font-size:15px">
         <small id="invoice-no">Invoice No:&nbsp;</small><br>
         <small id="cashier-name">Cashier:&nbsp;</small><br>
         <small id="patient-name">Patient:&nbsp;</small><br>
         <small id="transaction-date">Transaction Date:&nbsp;</small><br>
         <small id="transaction-time">Transaction Time:&nbsp;</small><br>
-        <br><br>
+        </p>
 
         <!-- list of items and details-->
-        <table>
+        <table style="font-size:15px">
             <thead>
                 <tr>
                     <th class="item">Description</th>
@@ -39,7 +42,7 @@
                     <th class="total-price">Total</th>
                 </tr>
                 <tr>
-                    <th class="text-center" colspan="3">------------------------------------------------------------
+                    <th class="text-center" colspan="3">-------------------------------
                 </tr>
             </thead>
             <tbody id="tbody">
@@ -47,13 +50,17 @@
             </tbody>
         </table>
         <br>
-        <hr>
-        <p class="text-end" id="total-amount"></p>
-        <p class="text-end" id="given-amount"></p>
-        <p class="text-end" id="change-due"></p>
+
+        <p class="text-end">
+        <span style="font-size:15px" id="total-amount"></span>
         <br>
-        <hr>
-        <p class="text-center mt-2 mb-3">Thank you! Get Well Soon!</p>
+        <span style="font-size:15px" id="given-amount"></span>
+        <br>
+        <span style="font-size:15px" id="change-due"></span>
+        </p>
+        <br>
+
+        <p class="text-center mt-2 mb-3" style="font-size:15px">Thank you! Get Well Soon!</p>
     </div>
   </body>
   <script src="receipt.js" data-name="user">

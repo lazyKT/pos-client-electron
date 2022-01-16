@@ -7,7 +7,8 @@ let prescription = {
 	employee: null,
 	employeeID: null,
 	patient: null,
-	doctor: null,
+	doctorId: null,
+	doctorName: null,
 	total: 0,
 	payment: 0,
 	change: 0,
@@ -20,12 +21,14 @@ let serverUrl
 const loadingSpinner = document.getElementById('modal');
 const mainContents = document.getElementById('main');
 
-const doctorNameInput = document.getElementById('doctor-name');
+const doctorSelect = document.getElementById('doctor-select');
 const patientNameInput = document.getElementById('patient-name');
 const addToCartButton = document.getElementById('add-item-to-cart');
 const productCodeInput = document.getElementById('prod-code-input');
-const searchMedsInput = document.getElementById('item-search-input');
-const searchMedsButton = document.getElementById('search-item');
+const searchList = document.getElementById("search-items-options");
+const searchInput = document.getElementById("item-search-input");
+const serviceSelect = document.getElementById("service-select");
+const serviceDescInput = document.getElementById("service-desc");
 const addFeesButton = document.getElementById('add-fees-to-cart');
 const cartDOM = document.getElementById('cart');
 const clearCartButton = document.getElementById('discard-btn');
@@ -35,12 +38,16 @@ const givenAmountInput = document.getElementById('given-amount');
 
 
 
-window.onload = () => {
+window.onload = async () => {
 	try {
 		onPageLoad (mainContents, loadingSpinner);
-
+		serviceDescInput.style.display = 'none';
 		loadDataFromLocalStorage();
 		displayLoginInformation();
+
+		await populateDataList(searchList);
+		await populateDoctorSelect(doctorSelect);
+		await populateServiceSelect(serviceSelect);
 
 		onPageDidLoaded (mainContents, loadingSpinner);
 	}
@@ -50,6 +57,99 @@ window.onload = () => {
 	}
 }
 
+
+async function populateDataList (dataList) {
+  try {
+    if (!dataList)
+      throw new Error ('PopulateDataList: DataList Not Found!');
+
+    const response = await getAllMedicines();
+
+    if (response && response.ok) {
+      const medicines = await response.json();
+
+      medicines.forEach (med => {
+        const option = document.createElement('option');
+        option.setAttribute('value', med.name);
+        option.setAttribute('data-med-id', med._id);
+        dataList.appendChild(option);
+      });
+    }
+    else {
+      const errorMessage = await getErrorMessageFromResponse(response);
+      console.error(errorMessage);
+			showErrorModal(errorMessage);
+    }
+  }
+  catch (error) {
+    console.error(error.message);
+		showErrorModal(error.message);
+  }
+}
+
+
+async function populateDoctorSelect (select) {
+	try {
+		if (!select)
+			throw new Error('PopulateDoctorSelect: Invalid Select Elelement!');
+
+		const response = await getAllDoctors();
+
+		if (response && response.ok) {
+			const doctors = await response.json();
+			doctors.forEach(doc => {
+				const option = document.createElement('option');
+				option.setAttribute('value', doc._id);
+				option.innerHTML = doc.name;
+				select.appendChild(option);
+			});
+		}
+		else {
+			const errorMessage = await getErrorMessageFromResponse(response);
+			console.error(errorMessage);
+			showErrorModal(errorMessage);
+		}
+	}
+	catch (error) {
+		console.error(error.message);
+		showErrorModal(error.message);
+	}
+}
+
+
+async function populateServiceSelect (select) {
+	try {
+		if (!select)
+			throw new Error('PopulateServiceSelect(): Service Select Not Found!');
+
+		const response = await getAllServices();
+
+		if (response && response.ok) {
+			const services = await response.json();
+			services.forEach(service => {
+				const option = document.createElement('option');
+				option.setAttribute('value', service._id);
+				option.setAttribute('data-price', service.price);
+				option.innerHTML = service.name;
+				select.appendChild(option);
+			});
+
+			const option = document.createElement('option');
+			option.setAttribute('value', 'others');
+			option.innerHTML = 'Others';
+			select.appendChild(option);
+		}
+		else {
+			const errorMessage = await getErrorMessageFromResponse(response);
+			console.error(errorMessage);
+			showErrorModal(errorMessage);
+		}
+	}
+	catch (error) {
+		console.error(error.message);
+		showErrorModal(error.message);
+	}
+}
 
 
 //////////////////////////////////////////////////////////////
@@ -232,7 +332,6 @@ function updatePrescriptionObj (cartItem, mode) {
 	if (item) {
 		// cart item already exists
 		if (mode === 'add') {
-			console.log('update: increase qty', item, item.name);
 			// increase qty and price
 			prescription.items = prescription.items.map (
 				i => i.productNumber === cartItem.productNumber
@@ -247,7 +346,6 @@ function updatePrescriptionObj (cartItem, mode) {
 		}
 		else if (mode === 'reduce') {
 			const remaingQty = item.qty;
-			console.log('remaingQty', remaingQty);
 			if (remaingQty > 1) {
 				// reduce qty and price
 				prescription.items = prescription.items.map(
@@ -264,7 +362,6 @@ function updatePrescriptionObj (cartItem, mode) {
 				prescription.items = prescription.items.filter(
 					i => i.productNumber !== item.productNumber
 				);
-				console.log(cartItem.name, ' has been removed');
 			}
 
 			// update total price
@@ -272,7 +369,6 @@ function updatePrescriptionObj (cartItem, mode) {
 		}
 	}
 	else {
-		console.log('adding new item to cart');
 		// cart item not existed yet
 		prescription.items.push({
 			productNumber: cartItem.productNumber,
@@ -333,13 +429,11 @@ async function enterOrScanProductCode (prodCode) {
 
 		if (response && response.ok) {
 			const med = await response.json();
-			console.log(med);
 			removeErrorWithProdCode();
 			addToCart(med);
 		}
 		else {
 			const errorMessage = await getErrorMessageFromResponse(response);
-			console.log (errorMessage);
 			showErrorWithProdCode (errorMessage);
 		}
 	}
@@ -368,11 +462,82 @@ function removeErrorWithProdCode () {
 // Prescription Cart Functions For Other Fees and Services ///
 //////////////////////////////////////////////////////////////
 
+// add other services & fees to the cart
+addFeesButton.addEventListener('click', e => {
+	try {
+		e.preventDefault();
+
+		if (serviceSelect?.value !== 'others' && serviceSelect?.value !== '') {
+			addOtherFeesAndServiceToCart({
+				id: serviceSelect?.value,
+				description: serviceSelect?.options[serviceSelect.selectedIndex].text,
+				price: serviceSelect?.options[serviceSelect.selectedIndex].dataset.price,
+				qty: 1
+			})
+		}
+		else if (serviceSelect?.value === 'others') {
+			const feesDescription = document.getElementById('service-desc');
+			const feesPrice = document.getElementById('service-price');
+
+			if (feesDescription.value === '') {
+				feesDescription.focus();
+			}
+			else if (feesPrice.value === '' || parseInt(feesPrice.value) < 0) {
+				feesPrice.focus();
+			}
+			else {
+				addOtherFeesAndServiceToCart ({
+					description: feesDescription.value,
+					price: parseInt(feesPrice.value),
+					qty: 1
+				});
+
+				feesDescription.value = '';
+				feesPrice.value = '';
+			}
+		}
+	}
+	catch (error) {
+		console.error(error);
+		showErrorModal(error);
+	}
+});
+
+
+serviceSelect.addEventListener('change', e => {
+
+	const priceDOM = document.getElementById('service-price');
+
+	if (e.target.value !== '' && e.target.value !== 'others') {
+		serviceDescInput.style.display = 'none';
+		const servicePrice = e.target.options[e.target.selectedIndex].dataset.price;
+
+		priceDOM.setAttribute('readOnly', true);
+		priceDOM.value = parseInt(servicePrice);
+	}
+	else if (e.target.value === 'others') {
+		priceDOM.value = 0;
+		priceDOM.removeAttribute('readOnly');
+
+		serviceDescInput.style.display = 'block';
+	}
+	else if (e.target.value === ''){
+		priceDOM.value = '';
+		priceDOM.setAttribute('readOnly', true);
+
+		serviceDescInput.style.display = 'none';
+	}
+});
+
+
 function addOtherFeesAndServiceToCart (otherFees) {
 	const feesItem = document.createElement('div');
 	feesItem.setAttribute('class', 'p-2 my-1 bg-light row');
 
-	otherFees.id = cartDOM.childElementCount;
+	if (!otherFees.id) {
+		otherFees.id = cartDOM.childElementCount;
+		otherFees.remark = 'Others';
+	}
 
 	feesItem.setAttribute('id', `service-item-${otherFees.id}`);
 
@@ -472,7 +637,7 @@ function increaseServiceQuntityInPrescriptionObj (service) {
 
 	const s = prescription.services.find (s => s.id === service.id);
 	if (!s) throw new Error ('Error Updating Service Item in Prescription: increment!');
-	console.log(service);
+
 	prescription.services = prescription.services.map (
 		s => s.id === service.id
 		? {
@@ -483,7 +648,6 @@ function increaseServiceQuntityInPrescriptionObj (service) {
 	);
 
 	prescription.total += parseInt(service.price);
-	console.log(prescription);
 }
 
 
@@ -557,7 +721,8 @@ function addNewServiceItemToPrescription (service) {
 			description: service.description,
 			qty: parseInt (service.qty),
 			price: parseInt (service.price),
-			totalPrice: parseInt(service.price)
+			totalPrice: parseInt(service.price),
+			remarks: service.remark ? service.remark : ''
 		});
 
 	prescription.total += parseInt(service.price);
@@ -566,70 +731,18 @@ function addNewServiceItemToPrescription (service) {
 
 
 //////////////////////////////////////////////////////////////
-/////////// Add Other Fees and Service to Cart ///////////////
-//////////////////////////////////////////////////////////////
-
-addFeesButton.addEventListener('click', e => {
-	try {
-		e.preventDefault();
-		const feesDescription = document.getElementById('fees-desc');
-		const feesPrice = document.getElementById('fees-price');
-
-		if (feesDescription.value === '') {
-			feesDescription.focus();
-			return;
-		}
-		else if (feesPrice.value === '' || parseInt(feesPrice.value) < 0) {
-			feesPrice.focus();
-			return;
-		}
-
-		addOtherFeesAndServiceToCart ({
-			description: feesDescription.value,
-			price: parseInt(feesPrice.value),
-			qty: 1
-		});
-
-		feesDescription.value = '';
-		feesPrice.value = '';
-	}
-	catch (error) {
-		console.error(error);
-		showErrorModal(error);
-	}
-});
-
-
-
-//////////////////////////////////////////////////////////////
 ///////////////////// Search Products ////////////////////////
 //////////////////////////////////////////////////////////////
 
-searchMedsInput.addEventListener('keyup', async e => {
+searchInput.addEventListener('change', async e => {
 	try {
-		if (e.key === 'Enter') {
-			if (e.target.value !== '') {
-				// send search meds network request
-				await searchMeds(e.target.value);
-			}
+		if (e.target.value !== '') {
+			// send search meds network request
+			await searchMeds(e.target.value);
 		}
 	}
 	catch (error) {
 		showErrorModal(error);
-	}
-});
-
-
-searchMedsButton.addEventListener('click', async e => {
-	try {
-		const q = (document.getElementById('item-search-input'))?.value;
-
-		if (q && q !== '') {
-			await searchMeds (q);
-		}
-	}
-	catch (error) {
-		showErrorModal (error);
 	}
 });
 
@@ -645,7 +758,6 @@ async function searchMeds (q) {
 		}
 		else {
 			const errorMessage = await getErrorMessageFromResponse(response);
-			console.log(errorMessage);
 			displayErrorOnSearchMeds(errorMessage);
 		}
 	}
@@ -687,6 +799,13 @@ function displaySearchResults (results, q) {
 				  	["Quantity", "Doctor Approve", "Expiry"],
 				  	[result.qty, result.approve, (new Date(result.expiry)).toLocaleDateString()]
 					);
+
+				const addToCartButton = document.createElement('button');
+				addToCartButton.setAttribute('class', 'btn btn-primary');
+				addToCartButton.innerHTML = 'Add To Cart';
+				div.appendChild(addToCartButton);
+
+				addToCartButton.addEventListener('click', e => addToCart(result));
 
 				searchContainer.appendChild(div);
 				searchContainer.appendChild(document.createElement("hr"));
@@ -868,20 +987,15 @@ checkoutButton.addEventListener('click', async e => {
 		}))
 			.then ( async () => {
 				let invoice = createInvoice();
-				console.log(invoice);
 
 				const response = await checkOutRequest (invoice);
 
 				if (response && response.ok) {
 					const invoice = await response.json();
 
-					console.log(invoice);
-
 					window.clinicCashierAPI.send('print-clinic-receipt', invoice);
 
 					onPageDidLoaded (mainContents, loadingSpinner);
-					// clear cart
-					clearPrescriptionCart();
 				}
 				else {
 					const errorMessage = await getErrorMessageFromResponse(response);
@@ -932,11 +1046,14 @@ function setChangeAmount (dom, amount) {
 @return -> object: {error: boolean, message: string}
 **/
 function validateCheckOut () {
-	console.log(prescription);
-	const { change, doctor, patient, employee, employeeID, payment, total } = prescription;
 
-	if (!doctor || doctor === '')
-		return { error: true, message: "Invalid Doctor Name. Name Empty or Invalid Name!"};
+	const { change, doctorId, doctorName, patient, employee, employeeID, payment, total } = prescription;
+
+	if (!doctorId || doctorId === '')
+		return { error: true, message: "Invalid Doctor ID. Empty ID or Invalid ID!"};
+
+	if (!doctorName || doctorName === '')
+		return { error: true, message: "Invalid Doctor Name. Empty Name or Invalid Name!"};
 
 	if (!patient || patient === '')
 		return { error: true, message: "Invalid Patient Name. Name Empty or Invalid Name!"}
@@ -982,8 +1099,8 @@ function createInvoice () {
     cashier: prescription.employee,
     patientID: "Guest",
 		patientName: prescription.patient,
-		doctorID: "DOC",
-		doctorName: prescription.doctor,
+		doctorID: prescription.doctorId,
+		doctorName: prescription.doctorName,
     payableAmount: prescription.total,
     givenAmount: prescription.payment,
     changeAmount: prescription.change,
@@ -1001,7 +1118,9 @@ function generateInvoiceNumber (date) {
   const hr = zeroPadding(date.getHours());
   const mm = zeroPadding(date.getMinutes());
   const ss = zeroPadding(date.getSeconds());
-  const ms = zeroPadding(date.getMilliseconds());
+  let ms = zeroPadding(date.getMilliseconds());
+	while ((ms.toString()).length < 3)
+		ms = '0' + ms;
   return `${year}${month}${day}${hr}${mm}${ss}${ms}`;
 }
 
@@ -1041,10 +1160,10 @@ function onPageDidLoaded (contents, loading) {
 
 
 // ser doctor name
-doctorNameInput.addEventListener('keyup', e => {
-	if (e.key === 'Enter') {
-		if (e.target.value !== '')
-			prescription.doctor = e.target.value;
+doctorSelect.addEventListener('change', e => {
+	if (e.target.value !== '') {
+		prescription.doctorId = e.target.value;
+		prescription.doctorName = e.target.options[e.target.selectedIndex].text;
 	}
 });
 
@@ -1122,7 +1241,7 @@ function clearPrescriptionCart () {
 
 	givenAmountInput.value = '';
 	(document.getElementById('change-return')).innerHTML = '';
-	doctorNameInput.value = '';
+	doctorSelect.value = '';
 	patientNameInput.value = '';
 	resetPrescriptionObject ();
 	updateUITotalPrice ();
@@ -1132,10 +1251,10 @@ function clearPrescriptionCart () {
 // reset prescription object with default values
 function resetPrescriptionObject () {
 	prescription = {
-		employee: null,
-		employeeID: null,
+		... prescription,
 		patient: null,
-		doctor: null,
+		doctorId: null,
+		doctorName: null,
 		total: 0,
 		payment: 0,
 		change: 0,
@@ -1149,6 +1268,63 @@ function resetPrescriptionObject () {
 //////////////////////////////////////////////////////////////
 ///////////////////// Network Requests ///////////////////////
 //////////////////////////////////////////////////////////////
+
+// get all medicines
+async function getAllMedicines () {
+  try {
+    const response = await fetch(`${serverUrl}/api/meds`, {
+      method: 'GET',
+      headers: {
+        'Content-Type' : 'application/json',
+        'Accept' : 'application/json'
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error.message);
+  }
+}
+
+
+// get all doctors
+async function getAllDoctors () {
+	try {
+		const response = await fetch(`${serverUrl}/api/doctors`, {
+			method: 'GET',
+			headers: {
+				'Content-Type' : 'application/json',
+				'Accept' : 'application/json'
+			}
+		});
+
+		return response;
+	}
+	catch (error) {
+		console.error(error.message);
+	}
+}
+
+
+// get all services
+async function getAllServices () {
+	try {
+		const response = await fetch(`${serverUrl}/api/services`, {
+			method: 'GET',
+			headers: {
+				'Content-Type' : 'application/json',
+				'Accept' : 'application/json'
+			}
+		});
+
+		return response;
+	}
+	catch (error) {
+		console.error(error.message);
+	}
+}
+
 
 async function searchMedsNetworkRequest (q) {
 	try {

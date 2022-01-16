@@ -31,7 +31,7 @@ exports.createClinicCashierWindow = function (name, id) {
 
 
 		win.loadFile(path.join(__dirname, '../views/cashier/clinic_cashier.html'));
-		// win.openDevTools();
+		win.openDevTools();
 
 		win.on('ready-to-show', () => {
 			win.show();

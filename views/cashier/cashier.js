@@ -14,7 +14,8 @@ const loadingSpinner = document.getElementById("loading");
 
 const itemInput = document.getElementById("item-input");
 const addItemBtn = document.getElementById("add-item");
-const searchBtn = document.getElementById("search-item");
+const searchList = document.getElementById("search-items-options");
+const searchInput = document.getElementById("item-search-input");
 const addFeesBtn = document.getElementById("add-fees");
 const givenAmountInput = document.getElementById("given-amount");
 const checkoutBtn = document.getElementById("checkout-btn");
@@ -37,7 +38,7 @@ toggleButtonState(checkoutBtn, false);
 toggleButtonState(discardBtn, false);
 
 
-window.cashierAPI.receive("user-details", details => {
+window.cashierAPI.receive("user-details", async (details) => {
 
   try {
     const loginTimeDOM = document.getElementById("login-time");
@@ -50,6 +51,8 @@ window.cashierAPI.receive("user-details", details => {
       serverUrl = localStorage.getItem("serverUrl");
     else
       throw new Error ("Server Url not found!");
+
+    await populateDataList(searchList);
 
     onDidLoadedPage(mainContents, loadingSpinner);
   }
@@ -71,6 +74,34 @@ function setEmployeeDetails (dom, name, id) {
 function displayLoginTime (dom) {
   const now = new Date();
   dom.innerHTML = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+}
+
+
+async function populateDataList (dataList) {
+  try {
+    if (!dataList)
+      throw new Error ('PopulateDataList: DataList Not Found!');
+
+    const response = await getAllMedicines();
+
+    if (response && response.ok) {
+      const medicines = await response.json();
+
+      medicines.forEach (med => {
+        const option = document.createElement('option');
+        option.setAttribute('value', med.name);
+        option.setAttribute('data-med-id', med._id);
+        dataList.appendChild(option);
+      });
+    }
+    else {
+      const errorMessage = await getErrorMessageFromResponse(response);
+      console.error(errorMessage);
+    }
+  }
+  catch (error) {
+    console.error(error.message);
+  }
 }
 
 
@@ -140,7 +171,6 @@ async function enterOrScanProductCode (value, button) {
     }
   }
   catch (error) {
-    console.log("Error Scanning Product Code", error);
     showErrorMessage(errorProductScan, show=true, "Error: code 300!");
   }
   finally {
@@ -161,14 +191,10 @@ function toggleAddButton (button, done) {
 }
 
 
-searchBtn.addEventListener("click", async e => {
+searchInput.addEventListener('change', async (e) => {
   try {
-    const searchInput = document.getElementById("item-search-input");
-
-    if (!searchInput || searchInput.value === '')
+    if (e.target.value === '')
       return;
-
-    toggleSearchButton(e.target, done=false);
 
     const response = await searchProducts(searchInput.value);
 
@@ -194,6 +220,10 @@ searchBtn.addEventListener("click", async e => {
     toggleSearchButton(e.target, done=true);
   }
 });
+
+// searchBtn.addEventListener("click", async e => {
+
+// });
 
 
 function toggleSearchButton (button, done) {
@@ -280,21 +310,20 @@ checkoutBtn.addEventListener("click", async e => {
 
       if (!availabilityResponse || !availabilityResponse.ok) {
         const errorMessage = await getErrorMessageFromResponse(availabilityResponse);
-        // console.log("Error Message", errorMessage);
+
         throw new Error(errorMessage);
       }
     }))
       .then (async function () {
         let invoice = createInvoice();
-        // console.log("invoice", invoice);
+
         // send checkout process network request
         const response = await checkoutRequest(invoice);
         if (response && response.ok) {
           // clear Cart
           invoice = await response.json();
-          // console.log(invoice);
+
           showHidePostPaymentLoading(postPaymentLoadingDOM, "hide");
-          clearShoppingCartAndUI();
           window.cashierAPI.send("show-receipt", invoice);
         }
         else {
@@ -303,7 +332,6 @@ checkoutBtn.addEventListener("click", async e => {
         }
       })
       .catch(error => {
-        console.log(error);
         displayCheckOutError(error.message);
       });
   }
@@ -376,7 +404,6 @@ function addItemToCart (item) {
   const cart = document.getElementById("cart");
 
   const itemsUpdated = updateExistingItemsInCart(item);
-  // console.log(itemsUpdated);
 
   if (itemsUpdated == 0) {
     /** create new cart item */
@@ -592,7 +619,6 @@ function updateShoppingCart (newItem, method) {
     }
     else {
       // Remove item from shopping cart
-      // console.log("Remove Existing Items");
       const currentQty = item.qty;
 
       if (currentQty > 1) {
@@ -695,6 +721,13 @@ function displaySearchResults (products, q) {
           ["Quantity", "Doctor Approve", "Expiry"],
           [product.qty, product.approve, (new Date(product.expiry)).toLocaleDateString()]);
 
+        const addToCartButton = document.createElement('button');
+				addToCartButton.setAttribute('class', 'btn btn-primary');
+				addToCartButton.innerHTML = 'Add To Cart';
+				div.appendChild(addToCartButton);
+
+				addToCartButton.addEventListener('click', e => addItemToCart(product));
+
         container.appendChild(div);
         container.appendChild(document.createElement("hr"));
       }
@@ -782,7 +815,7 @@ function clearSearchContainer (container) {
 function validateCheckOut () {
 
   const { change, employee, employeeID, payment, total } = shoppingCart;
-  console.log(change, parseInt(change) < 0)
+
   if (!total || parseInt(total) <= 0)
     return { error: true, message: "Invalid Total Price. Please Check the Cart."};
 
@@ -863,9 +896,6 @@ function reloadAmount() {
 
   givenAmount.value = shoppingCart.payment;
   changeDue.innerHTML = shoppingCart.change;
-  //console.log(givenAmount);
-
-
 }
 
 
@@ -933,6 +963,25 @@ function removeCheckOutError () {
 /*=============================================================
 ======================= Network Requests ======================
 =============================================================*/
+
+// get all medicines
+async function getAllMedicines () {
+  try {
+    const response = await fetch(`${serverUrl}/api/meds`, {
+      method: 'GET',
+      headers: {
+        'Content-Type' : 'application/json',
+        'Accept' : 'application/json'
+      }
+    });
+
+    return response;
+  }
+  catch (error) {
+    console.error(error.message);
+  }
+}
+
 
 // get item by product code
 async function getItemByProductCode (code) {

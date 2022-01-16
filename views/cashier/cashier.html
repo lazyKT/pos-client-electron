@@ -58,12 +58,8 @@
             <span class="m-1 text-danger" id="search-item-error"></span>
             <div class="card-body">
               <!-- search input -->
-              <div class=" d-flex justify-content-between">
-                <input class="w-75 form-control px-2" type="text" id="item-search-input" placeholder="Search Items...">
-                <div class="w-25 d-flex justify-content-end">
-                  <button class="btn btn-primary" name="button" id="search-item">Search</button>
-                </div>
-              </div>
+              <input class="form-control" list="search-items-options" id="item-search-input" placeholder="Type to search...">
+              <datalist id="search-items-options"></datalist>
               <!-- search results -->
               <div class="mt-5 px-1 search-results" id="search-results">
 
@@ -72,14 +68,14 @@
           </div>
         </div>
 
-        <div class="col">
+        <div class="col mb-2">
           <!-- cart -->
           <h6 class="m-2 text-muted">Cart</h6>
           <div class="card cart">
             <div class="card-body" id="cart">
 
             </div>
-            </div>
+          </div>
           <!-- end of cart -->
           <div class="card my-2">
             <div class="card-body">

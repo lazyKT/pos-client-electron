@@ -6,7 +6,7 @@ let page = 1;
 let order = 1;
 
 let sort = 'fullname';
-let  totalDoctors, numPages; 
+let  totalDoctors, numPages;
 let serverURL, empName;
 let filtering = false;
 let counter = 1;
@@ -19,7 +19,7 @@ window.onload = async () => {
 
   try {
     const loadingSpinner = document.getElementById("loading-spinner");
-    
+
     loadDataFromLocalStorage();
     displayLoginInformation();
     displaySpecialization();
@@ -124,11 +124,12 @@ async function addForm(event){
     }
  
     let label = document.createElement("label");
+
     label.innerHTML = "Working Days: "
     label.htmlFor = "days";
     label.id = "wLabel";
-    
- 
+
+
     row1.appendChild(label).appendChild(select);
 
 
@@ -148,8 +149,9 @@ async function addForm(event){
     input2.name = "endTime";
     input2.id = "endTime" + workCount;
     input2.style = "margin:10px;";
+
     input2.step = "3600";
-    
+
     row1.appendChild(input2);
 
     let removeBtn = document.createElement('button');
@@ -166,7 +168,7 @@ async function addForm(event){
       }
       console.log(row1.childElementCount);
       workCount--;
-    
+
     });
 
 }
@@ -210,7 +212,7 @@ function populateDoctorTable(empData, idx=1) {
   const secondColumn = row.insertCell(1);
   const thirdColumn = row.insertCell(2);
   const forthColumn = row.insertCell(3);
- 
+
   firstColumn.innerHTML = doctorId;
   secondColumn.innerHTML = name;
   thirdColumn.innerHTML = specialization;
@@ -249,7 +251,7 @@ function populateDoctorTable(empData, idx=1) {
   })
 
 
-  
+
 }
 
 async function displaySpecialization()
@@ -667,7 +669,7 @@ function togglePaginationButtons () {
 
 
 /**
-# Set Minimun Expiry Date to next five months 
+# Set Minimun Expiry Date to next five months
 **/
 function setMinAge (input) {
   const today = new Date();
@@ -717,7 +719,7 @@ async function createDoctor(event) {
     console.log(child.length);
     for (let i = 1; i <= child.length/4; i++)
     {
-      
+
       workingday = document.getElementById("days" + i).value;
       workSTime = document.getElementsByName('startTime')[z].value;
       workETime = document.getElementsByName('endTime')[z].value;
@@ -729,12 +731,12 @@ async function createDoctor(event) {
       workSTime = timeConvert(workSTime);
       workETime = timeConvert(workETime);
       z++;
-      
+
 
       workingschedule.push({startTime : workSTime , endTime : workETime , day : workingday});
       // console.log(workingSch);
       // workingschedule.push(workSch);
-     
+
     }
     console.log(workingschedule);
 
@@ -751,7 +753,7 @@ async function createDoctor(event) {
       specialization,
       workingSchedule : workingschedule
     }
-
+    console.log(data);
     const response = await fetch(`${serverURL}/api/doctors`, {
       method: "POST",
       headers: {
@@ -762,7 +764,7 @@ async function createDoctor(event) {
     });
     if (response && response.ok) {
       const doctor = await response.json();
-      console.log(doctor); 
+      console.log(doctor);
       showAlertModal(`${name}, is successfully created!`, "New Doctor Created!", "success");
       // clear form input
       clearFormInputs();
@@ -789,8 +791,10 @@ function clearFormInputs () {
   (document.getElementById('fullname')).value = '';
  
   const container = document.getElementById('container1');
+
   let child = container.lastChild; 
-        while (child) {
+
+  while (child) {
             container.removeChild(child);
             child = container.lastChild;
           }
@@ -834,7 +838,7 @@ function removeAlertModal (e) {
 
 
 
-async function getDoctorsCount () { 
+async function getDoctorsCount () {
   try {
     const response = await fetch(`${serverURL}/api/doctors/count`, {
       method: "GET",

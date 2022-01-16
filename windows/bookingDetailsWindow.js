@@ -18,10 +18,11 @@ exports.createBookingDetailsWindow = function (parent, bookingId) {
   if (!win || win === null) {
 
     win = new BrowserWindow({
-      width: 600,
-      height: 1000,
+      width: 500,
+      height: 670,
       show: false,
-      parent,
+      parent: parent,
+      modal: true,
       webPreferences: {
         nodeIntegration: false,
         contextIsolation: true,
@@ -31,18 +32,21 @@ exports.createBookingDetailsWindow = function (parent, bookingId) {
 
 
     win.loadFile(path.join(__dirname, '../views/bookings/booking_details.html'));
-    win.openDevTools();
+    // win.openDevTools();
 
     win.on('ready-to-show', () => win.show());
 
     win.on('close', () => {
       removeEventListeners(win.webContents, ['did-finish-load']);
+      removeEventListeners(ipcMain, ['close-booking-details']);
       if (win) win = null;
     });
 
     win.webContents.on('did-finish-load', () => {
       win.webContents.send('bookingId', bookingId);
     });
+
+    ipcMain.on('close-booking-details', (event, args) => win.close());
 
   }
 }

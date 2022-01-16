@@ -8,7 +8,8 @@ const {
 
   const ALLOWED_SEND_CHANNELS = [
     'logout',
-    'open-booking-details'
+    'open-booking-details',
+    'open-booking-list'
   ];
 
   const ALLOWED_RECEIVED_CHANNELS = [

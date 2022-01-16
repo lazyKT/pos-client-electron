@@ -64,8 +64,7 @@ async function loginUserToUserPannel(event) {
       handleRoutesAfterLogin(event, pageSelection, emp);
     }
     else {
-      const { message } = await response.json();
-      const errorMessage = message ? message : "Network Connection Error!";
+      const errorMessage = await getErrorMessageFromResponse(response);
       showErrorMessage(errorMessage);
       (document.getElementById("password")).value = "";
     }
@@ -251,6 +250,34 @@ function showErrorMessage(message) {
 function hideErrorMessage() {
   const errorAlert = document.getElementById("error-alert");
   errorAlert.style.display = "none";
+}
+
+
+/** show appropriate error base on network response status **/
+async function getErrorMessageFromResponse (response) {
+	let errorMessage = "";
+	try {
+		switch (response?.status) {
+			case 400:
+				const { message } = await response.json();
+				errorMessage = message;
+				break;
+			case 404:
+				errorMessage = "Server EndPoint Not Found!";
+				break;
+			case 500:
+				errorMessage = "Internal Server Error";
+				break;
+			default:
+				errorMessage = "Network Connection Error";
+		}
+	}
+	catch (error) {
+		console.error("getErrorMessageFromResponse()", error);
+		errorMessage = "Application Error. Contact Administrator.";
+	}
+
+	return errorMessage;
 }
 
 

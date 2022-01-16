@@ -1,39 +1,36 @@
 /**
-# Preload Scripts for booking Details
-**/
+ # Preload Scripts for Booking List Window
+ **/
 
 const {
-  contextBridge,
-  ipcRenderer
-} = require ('electron');
-const { removeEventListeners } = require ('../ipcHelper');
-
-
-const ALLOWED_RECEIVED_CHANNELS = [
-  'bookingId'
-];
+  ipcRenderer,
+  contextBridge
+} = require('electron');
 
 
 const ALLOWED_SEND_CHANNELS = [
-  'close-booking-details'
+  'close-booking-list'
+];
+
+const ALLOWED_RECEIVED_CHANNELS = [
+  'filter'
 ];
 
 
-
-contextBridge.exposeInMainWorld ('bookingDetailsAPI', {
+contextBridge.exposeInMainWorld ('bookingListAPI', {
   send: (channel, data) => {
     if (ALLOWED_SEND_CHANNELS.includes(channel)) {
       ipcRenderer.send(channel, data);
     }
     else
-      throw new Erorr (`Unknown IPC Channel, ${channel} detected @ bookingDetailsAPI.send!`);
+      throw new Error (`Unknown IPC Message, ${channel} detected at bookingListAPI.send`);
   },
-  receive : (channel, cb) => {
+  receive: (channel, cb) => {
     if (ALLOWED_RECEIVED_CHANNELS.includes(channel)) {
       ipcRenderer.on(channel, (event, ...args) => cb(...args));
     }
     else
-      throw new Error (`Unknown IPC Channel, ${channel} detected @ bookingDetailsAPI.recieve!`);
+      throw new Error (`Unkown IPC Message, ${channel} detected at bookingListAPI.receive`);
   },
   removeListeners: () => {
     try {
@@ -43,4 +40,4 @@ contextBridge.exposeInMainWorld ('bookingDetailsAPI', {
       console.error("Error Removing Event Listeners at bookingDetailsAPI");
     }
   }
-});
+})
